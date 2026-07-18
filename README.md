@@ -1,31 +1,53 @@
 # Elyriax
 
-The core digital hub and service integration platform for Elyriax ecosystem. Developed as a fast, highly responsive, single-page client interface focused on reliability and structural efficiency.
+A streamlined, single-page application (SPA) providing a modular web interface for digital services. Built with a focus on performance, clean code architecture, and a seamless user experience.
 
 ## Overview
 
-Elyriax provides a seamless, performance-optimized workspace designed to centralize account management, dashboard diagnostics, and external service interactions. Built with modern lightweight front-end methodologies, the platform ensures rapid rendering, state consistency, and native platform-feel interaction layers across mobile and desktop environments.
+Elyriax is designed as a lightweight, maintainable front-end environment. The architecture deliberately minimizes heavy framework dependencies, utilizing vanilla web technologies combined with a utility-first CSS approach. This ensures fast load times, straightforward maintainability, and consistent responsiveness across devices.
 
-## Architecture & Technical Stack
+## Tech Stack
 
-- **Client Infrastructure:** Componentized procedural rendering inside a single-page engine, managing routing via zero-dependency contextual hash synchronization.
-- **Styling Architecture:** Utility-first core powered by TailwindCSS alongside custom CSS Custom Properties (`--vars`) to facilitate fluid real-time accent shifting and visual modularity.
-- **Data Synchronization:** Asynchronous fetch model connected directly to internal state machines, utilizing optimistic UI rendering workflows to minimize perceived network latency.
-- **Cross-Platform Delivery:** Progressive integration standards leveraging custom Web App Manifest descriptors tailored specifically for hardware dark-mode compliance.
+- **Core:** HTML5, Vanilla JavaScript
+- **Styling:** Tailwind CSS
+- **Typography:** Plus Jakarta Sans, Inter, JetBrains Mono
+- **Iconography:** FontAwesome
 
-## Environment & Prerequisites
+## Local Development
 
-To inspect or serve the front-end layout locally, you simply require a modern web browser. No external compilation steps or server-side hydration frameworks are needed for the core interface layer.
+Getting the project running locally requires minimal setup. No complex build pipelines or package managers are strictly necessary.
 
-### Key Deployment Assets
-- `index.html` - Principal structural logic and interface state orchestration.
-- `site.webmanifest` - Progressive web app device manifest settings.
-- `robots.txt` / `sitemap.xml` - Search engine discovery configurations.
+### Prerequisites
 
-## Development Status
+- Any standard local HTTP server (e.g., Python's `http.server`, Node's `http-server`, or VS Code Live Server).
 
-This repository hosts the primary presentation and user interface layers. Active functional modules are decoupled internally and hook into back-end APIs seamlessly. Further integration endpoints and core microservices are being incrementally exposed as the system transitions toward subsequent release candidates.
+### Quick Start
+
+1. Clone the repository:
+   ```bash
+   git clone https://github.com/your-username/elyriax.git
+   ```
+2. Navigate to the project root:
+   ```bash
+   cd elyriax
+   ```
+3. Serve the directory. For example, using Python 3:
+   ```bash
+   python -m http.server 8000
+   ```
+4. Access the application at `http://localhost:8000`.
+
+## Project Structure
+
+- `index.html` â Main entry point containing the UI layout and core SPA routing logic.
+- `site.webmanifest` â Standardized web app manifestation.
+- `robots.txt` & `sitemap.xml` â Search engine indexing directives.
+- `/assets` â Static resources including favicons and Open Graph imagery.
+
+## Contributing
+
+Contributions, issues, and feature requests are welcome. When contributing, please adhere to the existing architectural philosophy: favoring standard web APIs and minimal external dependencies.
 
 ## License
 
-All rights reserved. Proprietary software platform managed under the Elyriax development team.
+Distributed under the MIT License.
