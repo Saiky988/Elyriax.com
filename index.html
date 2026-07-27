@@ -372,11 +372,13 @@
           </div>
         </div>
 
+        <div id="genshin-account-bar" class="mb-5"></div>
+
         <div class="flex gap-1.5 overflow-x-auto mb-5 -mx-1 px-1" id="genshin-tabs">
           <button class="tab-pill active" onclick="genshinTab('banners', this)">Banners</button>
           <button class="tab-pill" onclick="genshinTab('codes', this)">Gift Codes</button>
-          <button class="tab-pill" onclick="genshinTab('checkin', this)">Daily Check-in</button>
-          <button class="tab-pill" onclick="genshinTab('redeem', this)">Redeem</button>
+          <button class="tab-pill" onclick="genshinTab('notes', this)">Daily Note</button>
+          <button class="tab-pill" onclick="genshinTab('checkin', this)">Check-in</button>
           <button class="tab-pill" onclick="genshinTab('stats', this)">Role Stats</button>
           <button class="tab-pill" onclick="genshinTab('calendar', this)">Rewards Calendar</button>
         </div>
@@ -931,6 +933,7 @@ async function checkOAuthCallback(){
       localStorage.setItem('sayraa_token', token);
       localStorage.setItem('sayraa_user', JSON.stringify(Sayraa.user));
       showToast('success', 'Signed in successfully');
+      loadGenshinAccounts();
     }
     history.replaceState({}, '', window.location.pathname + window.location.hash);
   } else if(linkStatus === 'success'){
@@ -988,6 +991,9 @@ async function performLogout() {
   Sayraa.user = null;
   localStorage.removeItem('sayraa_token');
   localStorage.removeItem('sayraa_user');
+  genshinAccounts = [];
+  genshinActiveId = null;
+  renderAccountBar();
   closeSheet();
   renderAuthUI();
   showToast('info', 'Logged out');
@@ -1161,18 +1167,12 @@ async function deleteApiKey() {
   } catch(e) { showToast('error', 'Failed to delete key'); }
 }
 
-/* ============ GENSHIN MODULE DATA ============ */
+/* ============ GENSHIN MODULE ============ */
+const GENSHIN_BASE = 'https://api.sayraa.xyz/api/v1/genshin';
+const ELEMENT_COLOR = {Pyro:'#f4586b', Hydro:'#5aa7ef', Dendro:'#8b9a68', Electro:'#b48ef0', Anemo:'#34d6b4', Cryo:'#8fd8ef', Geo:'#f5a623'};
+
+// Kept for the illustrative Rewards Calendar tab only (no backend endpoint for the monthly grid).
 const GENSHIN_MOCK = {
-  // Đã xóa hoàn toàn codes mock ở đây để gọi API trực tiếp
-  checkin: { ok:true, claimed:true, nickname:'Traveler', uid:'800000000', server:'Asia', adventure_rank:60, signed_days:19, total_days_month:30, missing_days:11,
-    today_reward:{name:'Primogem', count:20}, tomorrow_reward:{name:'Mora', count:5000}, risk_code:0 },
-  roleStats: { ok:true, role:{nickname:'Lumine', level:56}, stats:{ active_days:176, achievements:575, avatars_count:45, way_points:509, domains:54, spiral_abyss:'8-3',
-    chests:{common:1319, exquisite:1018, precious:313, luxurious:125, magic:79}, oculus:{anemo:65, geo:131, electro:181, dendro:8, hydro:271, pyro:6} },
-    avatars:[
-      {name:'Arlecchino', element:'Pyro', level:90, rarity:5, constellation:0, weapon:{name:'Hòa Phác Diên', level:90, rarity:5}},
-      {name:'Nahida', element:'Dendro', level:90, rarity:5, constellation:2, weapon:{name:'A Thousand Floating Dreams', level:90, rarity:5}},
-      {name:'Xingqiu', element:'Hydro', level:80, rarity:4, constellation:6, weapon:{name:'Sacrificial Sword', level:70, rarity:4}},
-    ]},
   checkinList: { ok:true, month:7, resign_available:true, has_month_card:false,
     monthly_awards:[
       {day:1,name:'Adventurer\'s EXP',count:3},{day:2,name:'Mora',count:10000},{day:3,name:'Fine Enhancement Ore',count:3},
@@ -1181,9 +1181,245 @@ const GENSHIN_MOCK = {
     extra_awards:[ {id:228, sign_day_required:2, count:20, is_highlight:true} ] },
 };
 
-const ELEMENT_COLOR = {Pyro:'#f4586b', Hydro:'#5aa7ef', Dendro:'#8b9a68', Electro:'#b48ef0', Anemo:'#34d6b4', Cryo:'#8fd8ef', Geo:'#f5a623'};
+/* ---- account state ---- */
+let genshinAccounts = [];
+let genshinActiveId = null;
+let currentGenshinTab = 'banners';
+
+function genshinAuthHeaders(json){
+  const h = {};
+  const token = (Sayraa.user && Sayraa.user.token) || localStorage.getItem('sayraa_token');
+  if(token) h['Authorization'] = `Bearer ${token}`;
+  if(json) h['Content-Type'] = 'application/json';
+  return h;
+}
+
+function activeGenshinAccount(){
+  return genshinAccounts.find(a=>a.id===genshinActiveId) || null;
+}
+
+async function loadGenshinAccounts(){
+  if(!Sayraa.user){ genshinAccounts = []; genshinActiveId = null; renderAccountBar(); return; }
+  try{
+    const res = await fetch(`${GENSHIN_BASE}/accounts`, { headers: genshinAuthHeaders() });
+    const data = await res.json();
+    genshinAccounts = (data.success && data.data) ? data.data : [];
+    const def = genshinAccounts.find(a=>a.is_default);
+    genshinActiveId = def ? def.id : (genshinAccounts[0] ? genshinAccounts[0].id : null);
+  } catch(e){
+    genshinAccounts = [];
+    genshinActiveId = null;
+  }
+  renderAccountBar();
+}
+
+function renderAccountBar(){
+  const bar = document.getElementById('genshin-account-bar');
+  if(!bar) return;
+
+  if(!Sayraa.user){
+    bar.innerHTML = `
+      <div class="glass card p-4 flex items-center justify-between gap-3">
+        <div class="text-[13px]" style="color:var(--text-dim)">Sign in to link a Genshin account and unlock check-in, daily note &amp; stats.</div>
+        <button class="btn btn-primary btn-sm shrink-0" onclick="openLoginSheet()">Sign in</button>
+      </div>`;
+    return;
+  }
+
+  if(!genshinAccounts.length){
+    bar.innerHTML = `
+      <div class="glass card p-4 flex items-center justify-between gap-3">
+        <div class="text-[13px]" style="color:var(--text-dim)">No Genshin account linked yet.</div>
+        <button class="btn btn-primary btn-sm shrink-0" onclick="openAddAccountSheet()"><i class="fa-solid fa-plus"></i> Add account</button>
+      </div>`;
+    return;
+  }
+
+  const acc = activeGenshinAccount();
+  bar.innerHTML = `
+    <div class="glass card p-4 flex items-center gap-3">
+      <div class="icon-tile" style="background:rgba(245,166,35,.14); color:var(--amber)"><i class="fa-solid fa-user"></i></div>
+      <div class="flex-1 min-w-0">
+        ${genshinAccounts.length > 1 ? `
+          <select class="input text-[13px] py-1.5 px-2" style="width:auto" onchange="switchGenshinAccount(this.value)">
+            ${genshinAccounts.map(a=>`<option value="${a.id}" ${a.id===genshinActiveId?'selected':''}>${a.nickname || ('UID '+a.uid)}${a.is_default?' ★':''}</option>`).join('')}
+          </select>
+        ` : `<div class="font-semibold text-[13.5px]">${acc.nickname || ('UID '+acc.uid)}</div>`}
+        <div class="text-[11.5px] mono mt-1" style="color:var(--text-faint)">UID ${acc.uid} · ${acc.server}${acc.is_default ? ' · Default' : ''}</div>
+      </div>
+      <button class="btn btn-ghost btn-sm" onclick="openAccountSettingsSheet(${acc.id})"><i class="fa-solid fa-sliders"></i></button>
+      <button class="btn btn-ghost btn-sm" onclick="openAddAccountSheet()"><i class="fa-solid fa-plus"></i></button>
+    </div>`;
+}
+
+function switchGenshinAccount(id){
+  genshinActiveId = Number(id);
+  renderAccountBar();
+  renderGenshinPanel(currentGenshinTab);
+}
+
+/* ---- add account sheet ---- */
+function openAddAccountSheet(){
+  openSheet(`
+    <h3 class="display font-bold text-[16px] mb-1">Add Genshin Account</h3>
+    <p class="text-[13px] mb-4" style="color:var(--text-dim)">Your cookie is encrypted at rest and used only to sync your account.</p>
+    <div class="space-y-2.5 mb-2">
+      <div class="relative">
+        <textarea id="ga-cookie" class="input mono text-[12px] pr-11" rows="3" style="-webkit-text-security:disc;" placeholder="ltuid_v2=...; ltoken_v2=..."></textarea>
+        <button type="button" class="absolute top-2.5 right-2.5 w-7 h-7 rounded-lg flex items-center justify-center" style="color:var(--text-faint); background:rgba(255,255,255,.05)" onclick="toggleCookieMask(this)" title="Show/hide cookie"><i class="fa-solid fa-eye"></i></button>
+      </div>
+      <input id="ga-uid" class="input" placeholder="In-game UID, e.g. 890096220">
+      <select id="ga-server" class="input">
+        <option value="os_asia">Asia</option>
+        <option value="os_usa">America</option>
+        <option value="os_euro">Europe</option>
+        <option value="os_cht">TW, HK, MO</option>
+      </select>
+    </div>
+    <button class="btn btn-primary w-full mt-2" id="ga-submit" onclick="submitAddAccount()"><i class="fa-solid fa-link"></i> Link account</button>
+  `);
+}
+
+function toggleCookieMask(btn){
+  const ta = document.getElementById('ga-cookie');
+  const currentlyMasked = ta.style.webkitTextSecurity !== 'none';
+  ta.style.webkitTextSecurity = currentlyMasked ? 'none' : 'disc';
+  btn.innerHTML = currentlyMasked ? '<i class="fa-solid fa-eye-slash"></i>' : '<i class="fa-solid fa-eye"></i>';
+}
+
+async function submitAddAccount(){
+  if(!Sayraa.user) return showToast('error', 'Sign in first');
+  const cookie = document.getElementById('ga-cookie').value.trim();
+  const uid = document.getElementById('ga-uid').value.trim();
+  const server = document.getElementById('ga-server').value;
+  if(!cookie || !uid) return showToast('error', 'Cookie and UID are required');
+
+  const btn = document.getElementById('ga-submit');
+  btn.disabled = true; btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Linking...';
+
+  try{
+    const res = await fetch(`${GENSHIN_BASE}/accounts`, {
+      method: 'POST',
+      headers: genshinAuthHeaders(true),
+      body: JSON.stringify({ cookie, uid, server })
+    });
+    const data = await res.json();
+    if(!res.ok || !data.success) throw new Error(data.message || 'Failed to add account');
+
+    closeSheet();
+    showToast('success', data.message || `Linked ${data.data?.nickname || 'account'} successfully`);
+    await loadGenshinAccounts();
+    if(data.data?.id){ genshinActiveId = data.data.id; renderAccountBar(); }
+    renderGenshinPanel(currentGenshinTab);
+  } catch(err){
+    showToast('error', err.message || 'Failed to add account');
+    btn.disabled = false; btn.innerHTML = '<i class="fa-solid fa-link"></i> Link account';
+  }
+}
+
+/* ---- account settings sheet ---- */
+function genshinToggleRow(id, label, val, accId, key){
+  return `
+    <div class="flex items-center justify-between">
+      <span class="text-[13.5px]">${label}</span>
+      <div id="${id}" class="switch ${val ? 'on' : ''}" onclick="toggleGenshinSetting(this, ${accId}, '${key}')"></div>
+    </div>`;
+}
+
+function openAccountSettingsSheet(id){
+  const acc = genshinAccounts.find(a=>a.id===id);
+  if(!acc) return;
+  openSheet(`
+    <h3 class="display font-bold text-[16px] mb-1">${acc.nickname || ('UID '+acc.uid)}</h3>
+    <p class="text-[12.5px] mb-4 mono" style="color:var(--text-faint)">UID ${acc.uid} · ${acc.server}</p>
+    <div class="space-y-3 mb-5">
+      ${genshinToggleRow('ga-tg-checkin', '🔄 Auto check-in', acc.auto_checkin, id, 'auto_checkin')}
+      ${genshinToggleRow('ga-tg-redeem', '🎁 Auto redeem codes', acc.auto_redeem, id, 'auto_redeem')}
+      ${genshinToggleRow('ga-tg-notes', '🧪 Auto sync resin / daily note', acc.auto_daily_note, id, 'auto_daily_note')}
+      ${genshinToggleRow('ga-tg-default', '⭐ Set as default account', acc.is_default, id, 'is_default')}
+    </div>
+    <button class="btn btn-danger w-full" onclick="deleteGenshinAccount(${id})"><i class="fa-solid fa-trash"></i> Remove account</button>
+  `);
+}
+
+async function toggleGenshinSetting(el, accId, key){
+  if(key === 'is_default' && el.classList.contains('on')) return; // already default, no-op
+  const isOn = el.classList.contains('on');
+  const newVal = !isOn;
+  el.classList.toggle('on'); // optimistic
+
+  try{
+    const res = await fetch(`${GENSHIN_BASE}/accounts/${accId}`, {
+      method: 'PATCH',
+      headers: genshinAuthHeaders(true),
+      body: JSON.stringify({ [key]: newVal })
+    });
+    const data = await res.json();
+    if(!res.ok || !data.success) throw new Error(data.message);
+
+    const acc = genshinAccounts.find(a=>a.id===accId);
+    if(acc){
+      if(key === 'is_default' && newVal){
+        genshinAccounts.forEach(a=> a.is_default = (a.id===accId));
+        genshinActiveId = accId;
+      } else {
+        acc[key] = newVal;
+      }
+    }
+    renderAccountBar();
+    showToast('success', 'Setting updated');
+  } catch(err){
+    el.classList.toggle('on'); // revert
+    showToast('error', err.message || 'Failed to update setting');
+  }
+}
+
+async function deleteGenshinAccount(id){
+  if(!confirm('Remove this Genshin account? This cannot be undone.')) return;
+  try{
+    const res = await fetch(`${GENSHIN_BASE}/accounts/${id}`, { method: 'DELETE', headers: genshinAuthHeaders() });
+    const data = await res.json();
+    if(!res.ok || !data.success) throw new Error(data.message);
+
+    closeSheet();
+    showToast('success', 'Account removed');
+    await loadGenshinAccounts();
+    renderGenshinPanel(currentGenshinTab);
+  } catch(err){
+    showToast('error', err.message || 'Failed to remove account');
+  }
+}
+
+/* ---- shared empty states ---- */
+function genshinSignInPrompt(){
+  return `<div class="glass card p-6 text-center">
+    <i class="fa-solid fa-lock mb-3 text-[22px]" style="color:var(--text-faint)"></i>
+    <p class="text-[13px] mb-3" style="color:var(--text-dim)">Sign in to access account features.</p>
+    <button class="btn btn-primary btn-sm" onclick="openLoginSheet()">Sign in</button>
+  </div>`;
+}
+function genshinNoAccountPrompt(){
+  return `<div class="glass card p-6 text-center">
+    <i class="fa-solid fa-user-plus mb-3 text-[22px]" style="color:var(--text-faint)"></i>
+    <p class="text-[13px] mb-3" style="color:var(--text-dim)">Link a Genshin account to see this.</p>
+    <button class="btn btn-primary btn-sm" onclick="openAddAccountSheet()">Add account</button>
+  </div>`;
+}
+function genshinErrorCard(msg){
+  return `<div class="glass card p-5 text-center text-[13px]" style="color:#f4586b">
+    <i class="fa-solid fa-circle-exclamation mb-2 text-[20px] block"></i>${msg}
+  </div>`;
+}
+function formatCountdown(seconds){
+  if(!seconds || seconds <= 0) return 'now';
+  const h = Math.floor(seconds/3600);
+  const days = Math.floor(h/24);
+  if(days >= 1) return `${days}d ${h%24}h`;
+  return `${h}h ${Math.floor((seconds%3600)/60)}m`;
+}
 
 function genshinTab(tab, el){
+  currentGenshinTab = tab;
   document.querySelectorAll('#genshin-tabs .tab-pill').forEach(b=>b.classList.remove('active'));
   el.classList.add('active');
   renderGenshinPanel(tab);
@@ -1198,44 +1434,52 @@ function renderGenshinPanel(tab){
   setTimeout(()=>{
     if(tab==='banners') renderBanners(panel);
     else if(tab==='codes') renderCodes(panel);
+    else if(tab==='notes') renderDailyNote(panel);
     else if(tab==='checkin') renderCheckin(panel);
-    else if(tab==='redeem') renderRedeem(panel);
     else if(tab==='stats') renderRoleStats(panel);
     else if(tab==='calendar') renderCalendar(panel);
-  }, 500);
+  }, 350);
 }
 
-function renderBanners(panel){
-  const d = GENSHIN_MOCK.banners;
-  panel.innerHTML = `
-    <div class="flex items-center justify-between mb-3">
-      <h3 class="font-semibold text-[14px]">Upcoming Banners</h3>
-      <span class="text-[11px] mono" style="color:var(--text-faint)">synced ${timeAgo(d.timestamp)}</span>
-    </div>
-    <div class="space-y-3">
-      ${d.data.map(b=>`
-        <div class="glass card p-4">
-          <div class="flex items-center justify-between mb-2.5">
-            <span class="pill" style="background:rgba(124,111,240,.14); color:var(--accent)">${b.version}</span>
-            <span class="text-[11.5px]" style="color:var(--text-faint)">${b.phase}</span>
-          </div>
-          <div class="flex flex-wrap gap-2">
-            ${b.new.map(n=>`<span class="pill" style="background:rgba(52,214,180,.14); color:var(--teal)"><i class="fa-solid fa-star mr-1 text-[9px]"></i>${n}</span>`).join('')}
-            ${b.rerun.map(n=>`<span class="pill" style="background:rgba(255,255,255,.06); color:var(--text-dim)">${n} · rerun</span>`).join('')}
-          </div>
-        </div>`).join('')}
-    </div>
-  `;
+/* Public — no auth required */
+async function renderBanners(panel){
+  try{
+    const res = await fetch(`${GENSHIN_BASE}?type=banner`);
+    const d = await res.json();
+    if(!res.ok || d.status !== 'success' || !d.data) throw new Error('Failed to load banners');
+
+    panel.innerHTML = `
+      <div class="flex items-center justify-between mb-3">
+        <h3 class="font-semibold text-[14px]">Upcoming Banners</h3>
+        <span class="text-[11px] mono" style="color:var(--text-faint)">synced ${timeAgo(d.timestamp)}</span>
+      </div>
+      <div class="space-y-3">
+        ${d.data.map(b=>`
+          <div class="glass card p-4">
+            <div class="flex items-center justify-between mb-2.5">
+              <span class="pill" style="background:rgba(124,111,240,.14); color:var(--accent)">${b.version} · ${b.name}</span>
+              <span class="text-[11.5px]" style="color:var(--text-faint)">${b.phase}</span>
+            </div>
+            <div class="flex flex-wrap gap-2">
+              ${(b['5_star_featured']?.new||[]).map(n=>`<span class="pill" style="background:rgba(52,214,180,.14); color:var(--teal)"><i class="fa-solid fa-star mr-1 text-[9px]"></i>${n}</span>`).join('')}
+              ${(b['5_star_featured']?.rerun||[]).map(n=>`<span class="pill" style="background:rgba(255,255,255,.06); color:var(--text-dim)">${n} · rerun</span>`).join('')}
+              ${(b['4_star_featured']||[]).map(n=>`<span class="pill" style="background:rgba(255,255,255,.04); color:var(--text-faint)">${n}</span>`).join('')}
+            </div>
+          </div>`).join('')}
+      </div>
+    `;
+  } catch(err){
+    panel.innerHTML = genshinErrorCard('Could not load banner data. Please try again later.');
+  }
 }
 
-/* Gọi API thật thay vì dùng Mock Data */
 async function renderCodes(panel){
   try {
-    const response = await fetch('https://api.sayraa.xyz/api/v1/genshin?type=codes');
-    if (!response.ok) throw new Error('Không thể kết nối đến máy chủ API');
-    
+    const response = await fetch(`${GENSHIN_BASE}?type=codes`);
+    if (!response.ok) throw new Error('Could not reach the API server');
+
     const d = await response.json();
-    if (d.status !== 'success' || !d.cards) throw new Error('Dữ liệu phản hồi không hợp lệ');
+    if (d.status !== 'success' || !d.cards) throw new Error('Invalid response payload');
 
     panel.innerHTML = `
       <div class="flex items-center justify-between mb-3">
@@ -1256,110 +1500,198 @@ async function renderCodes(panel){
             <button class="btn btn-ghost btn-sm" onclick="copyCode('${c.codes[0]}')"><i class="fa-regular fa-copy"></i></button>
           </div>`).join('')}
       </div>
+      <p class="text-[11.5px] mt-3.5 text-center" style="color:var(--text-faint)">Turn on <b>Auto redeem codes</b> in account settings to have new codes applied automatically.</p>
     `;
   } catch (error) {
     console.error('Error fetching Genshin codes:', error);
-    panel.innerHTML = `
-      <div class="glass card p-5 text-center text-[13px]" style="color: #f4586b">
-        <i class="fa-solid fa-circle-exclamation mb-2 text-[20px] block"></i>
-        Không thể lấy danh sách mã đổi thưởng. Vui lòng thử lại sau!
-      </div>
-    `;
+    panel.innerHTML = genshinErrorCard('Could not load the gift code list. Please try again later.');
   }
 }
 
 function copyCode(code){ navigator.clipboard?.writeText(code).catch(()=>{}); showToast('success', `Copied "${code}"`); }
 
-function renderCheckin(panel){
-  const d = GENSHIN_MOCK.checkin;
-  panel.innerHTML = `
-    <div class="glass card p-5 mb-4">
-      <div class="flex items-center gap-3.5 mb-4">
-        <div class="w-12 h-12 rounded-2xl flex items-center justify-center font-bold glass">${d.nickname[0]}</div>
-        <div class="flex-1">
-          <div class="font-semibold text-[14.5px]">${d.nickname}</div>
-          <div class="text-[11.5px] mono" style="color:var(--text-faint)">UID ${d.uid} · ${d.server} · AR${d.adventure_rank}</div>
-        </div>
-        <span class="pill" style="background:rgba(52,214,180,.14); color:var(--teal)">${d.signed_days}/${d.total_days_month} days</span>
-      </div>
-      <div class="grid grid-cols-2 gap-3">
-        <div class="rounded-xl p-3" style="background:rgba(255,255,255,.03); border:1px solid var(--line)">
-          <div class="text-[10.5px]" style="color:var(--text-faint)">Today's reward</div>
-          <div class="font-semibold text-[13.5px] mt-1">${d.today_reward.count}× ${d.today_reward.name}</div>
-        </div>
-        <div class="rounded-xl p-3" style="background:rgba(255,255,255,.03); border:1px solid var(--line)">
-          <div class="text-[10.5px]" style="color:var(--text-faint)">Tomorrow's reward</div>
-          <div class="font-semibold text-[13.5px] mt-1">${d.tomorrow_reward.count}× ${d.tomorrow_reward.name}</div>
-        </div>
-      </div>
-    </div>
-    <button class="btn btn-primary w-full" onclick="openCheckinSheet()"><i class="fa-solid fa-calendar-check"></i> Run daily check-in</button>
-  `;
-}
+/* Account-scoped — requires sign-in + linked account */
+async function renderDailyNote(panel){
+  if(!Sayraa.user) return panel.innerHTML = genshinSignInPrompt();
+  const acc = activeGenshinAccount();
+  if(!acc) return panel.innerHTML = genshinNoAccountPrompt();
 
-function openCheckinSheet(){
-  openSheet(`
-    <h3 class="display font-bold text-[16px] mb-1">Daily Check-in</h3>
-    <p class="text-[13px] mb-4" style="color:var(--text-dim)">Paste your HoYoLAB cookie to claim today's reward automatically.</p>
-    <div class="space-y-2.5 mb-4">
-      <textarea class="input" rows="3" placeholder="ltuid_v2=...; ltoken_v2=..."></textarea>
-      <select class="input"><option>Asia</option><option>America</option><option>Europe</option><option>TW, HK, MO</option></select>
-    </div>
-    <button class="btn btn-primary w-full" onclick="closeSheet(); showToast('success','Checked in — +20 Primogem claimed')">Check in now</button>
-  `);
-}
+  try{
+    const res = await fetch(`${GENSHIN_BASE}/accounts/${acc.id}/daily-note`, { headers: genshinAuthHeaders() });
+    const payload = await res.json();
+    if(!res.ok || !payload.ok) throw new Error(payload.message || 'Failed to load daily note');
+    const d = payload.data;
+    const resinPct = Math.min(100, Math.round((d.resin.current / d.resin.max) * 100));
 
-function renderRedeem(panel){
-  panel.innerHTML = `
-    <div class="glass card p-5">
-      <h3 class="font-semibold text-[14.5px] mb-1">Redeem a Gift Code</h3>
-      <p class="text-[12.5px] mb-4" style="color:var(--text-dim)">Applies a code directly to your account via the Hoyoverse API.</p>
-      <div class="space-y-2.5">
-        <input class="input" placeholder="Gift code, e.g. GENSHINGIFT">
-        <textarea class="input" rows="2" placeholder="HoYoLAB cookie"></textarea>
-        <select class="input"><option>Asia</option><option>America</option><option>Europe</option><option>TW</option></select>
-      </div>
-      <button class="btn btn-primary w-full mt-4" onclick="showToast('success','Redeemed successfully — 50 Primogems + 3 Hero\\'s Wit')">Redeem code</button>
-    </div>
-  `;
-}
-
-function renderRoleStats(panel){
-  const d = GENSHIN_MOCK.roleStats;
-  panel.innerHTML = `
-    <div class="glass card p-5 mb-4">
-      <div class="flex items-center gap-3.5 mb-4">
-        <div class="w-12 h-12 rounded-2xl flex items-center justify-center font-bold glass">${d.role.nickname[0]}</div>
-        <div>
-          <div class="font-semibold text-[14.5px]">${d.role.nickname}</div>
-          <div class="text-[11.5px]" style="color:var(--text-faint)">Adventure Level ${d.role.level}</div>
+    panel.innerHTML = `
+      <div class="glass card p-5 mb-3.5">
+        <div class="flex items-center justify-between mb-2.5">
+          <h3 class="font-semibold text-[14px]"><i class="fa-solid fa-droplet mr-1.5" style="color:var(--accent)"></i>Resin</h3>
+          <span class="mono font-bold text-[15px]">${d.resin.current}<span style="color:var(--text-faint)">/${d.resin.max}</span></span>
+        </div>
+        <div class="w-full h-2 rounded-full overflow-hidden mb-2.5" style="background:rgba(255,255,255,.06)">
+          <div class="h-full rounded-full" style="width:${resinPct}%; background:linear-gradient(90deg,var(--accent),#8b7ff5)"></div>
+        </div>
+        <div class="flex items-center justify-between text-[11.5px]" style="color:var(--text-dim)">
+          <span>${d.resin.is_full ? 'Full' : 'Full at ' + d.resin.estimated_full_time}</span>
+          <span>Boss discounts: ${d.resin.resin_discount.remain_num}/${d.resin.resin_discount.limit_num}</span>
         </div>
       </div>
-      <div class="grid grid-cols-3 gap-2.5 text-center">
-        ${statChip(d.stats.active_days,'Active days')}
-        ${statChip(d.stats.achievements,'Achievements')}
-        ${statChip(d.stats.avatars_count,'Characters')}
-        ${statChip(d.stats.domains,'Domains')}
-        ${statChip(d.stats.spiral_abyss,'Abyss')}
-        ${statChip(d.stats.way_points,'Waypoints')}
+
+      <div class="grid grid-cols-2 gap-3 mb-3.5">
+        <div class="glass card p-4">
+          <div class="text-[11px] mb-1" style="color:var(--text-faint)">Daily tasks</div>
+          <div class="font-semibold text-[15px]">${d.daily_tasks.finished_num}/${d.daily_tasks.total_num}</div>
+          <div class="text-[11px] mt-1" style="color:var(--text-dim)">${d.daily_tasks.is_all_finished ? 'All finished' : 'In progress'}</div>
+        </div>
+        <div class="glass card p-4">
+          <div class="text-[11px] mb-1" style="color:var(--text-faint)">Stored attendance</div>
+          <div class="font-semibold text-[15px] mono">${d.daily_tasks.stored_attendance}</div>
+          <div class="text-[11px] mt-1" style="color:var(--text-dim)">resets in ${formatCountdown(d.daily_tasks.stored_attendance_refresh_countdown_seconds)}</div>
+        </div>
       </div>
-    </div>
-    <h3 class="font-semibold text-[14px] mb-2.5">Characters</h3>
-    <div class="space-y-2.5">
-      ${d.avatars.map(a=>`
-        <div class="glass card p-3.5 flex items-center gap-3">
-          <div class="icon-tile" style="background:${ELEMENT_COLOR[a.element]}22; color:${ELEMENT_COLOR[a.element]}"><i class="fa-solid fa-user"></i></div>
-          <div class="flex-1 min-w-0">
-            <div class="flex items-center gap-1.5">
-              <span class="font-medium text-[13.5px]">${a.name}</span>
-              <span class="text-[10.5px]" style="color:var(--text-faint)">C${a.constellation}</span>
+
+      <h3 class="font-semibold text-[14px] mb-2">Expeditions (${d.expeditions.current_num}/${d.expeditions.max_num})</h3>
+      <div class="space-y-2 mb-3.5">
+        ${d.expeditions.list.length ? d.expeditions.list.map(e=>`
+          <div class="glass card p-3.5 flex items-center gap-3">
+            <img src="${e.avatar_icon}" class="w-9 h-9 rounded-lg object-cover" onerror="this.style.display='none'">
+            <div class="flex-1">
+              <div class="text-[13px] font-medium">${e.status}</div>
+              <div class="text-[11.5px]" style="color:var(--text-dim)">${e.estimated_finished_time}</div>
             </div>
-            <div class="text-[11.5px]" style="color:var(--text-dim)">Lv.${a.level} · ${a.weapon.name}</div>
-          </div>
-          <span class="pill" style="background:${ELEMENT_COLOR[a.element]}18; color:${ELEMENT_COLOR[a.element]}">${a.element}</span>
-        </div>`).join('')}
+          </div>`).join('') : `<div class="text-[12.5px]" style="color:var(--text-faint)">No active expeditions</div>`}
+      </div>
+
+      <div class="grid grid-cols-2 gap-3 mb-3.5">
+        <div class="glass card p-4">
+          <div class="text-[11px] mb-1" style="color:var(--text-faint)">Serenitea Pot</div>
+          <div class="font-semibold text-[14px]">${d.home_coin.current}/${d.home_coin.max}</div>
+          <div class="text-[11px] mt-1" style="color:var(--text-dim)">${d.home_coin.is_full ? 'Full' : d.home_coin.estimated_full_time}</div>
+        </div>
+        <div class="glass card p-4">
+          <div class="text-[11px] mb-1" style="color:var(--text-faint)">Parametric Transformer</div>
+          <div class="font-semibold text-[14px]">${d.transformer.obtained ? (d.transformer.ready ? 'Ready' : 'On cooldown') : 'Not obtained'}</div>
+        </div>
+      </div>
+
+      <div class="glass card p-4">
+        <div class="flex items-center justify-between mb-2">
+          <span class="text-[13px] font-medium">Archon Quest</span>
+          <span class="pill" style="background:${d.archon_quest_progress.is_finish_all_mainline?'rgba(52,214,180,.14)':'rgba(245,166,35,.14)'}; color:${d.archon_quest_progress.is_finish_all_mainline?'var(--teal)':'var(--amber)'}">${d.archon_quest_progress.is_finish_all_mainline ? 'Mainline complete' : 'In progress'}</span>
+        </div>
+        <div class="flex items-center justify-between">
+          <span class="text-[13px] font-medium">Weekly activity</span>
+          <span class="mono text-[13px]">${d.week_active_progress.progress_current}/${d.week_active_progress.progress_total}</span>
+        </div>
+      </div>
+    `;
+  } catch(err){
+    panel.innerHTML = genshinErrorCard(err.message || 'Failed to load daily note');
+  }
+}
+
+async function renderCheckin(panel){
+  if(!Sayraa.user) return panel.innerHTML = genshinSignInPrompt();
+  const acc = activeGenshinAccount();
+  if(!acc) return panel.innerHTML = genshinNoAccountPrompt();
+
+  panel.innerHTML = `
+    <div class="glass card p-5 mb-4">
+      <div class="flex items-center gap-3.5 mb-4">
+        <div class="w-12 h-12 rounded-2xl flex items-center justify-center font-bold glass">${(acc.nickname || 'U')[0]}</div>
+        <div class="flex-1">
+          <div class="font-semibold text-[14.5px]">${acc.nickname || ('UID '+acc.uid)}</div>
+          <div class="text-[11.5px] mono" style="color:var(--text-faint)">UID ${acc.uid} · ${acc.server}</div>
+        </div>
+        ${acc.last_checkin_status ? `<span class="pill" style="background:rgba(52,214,180,.14); color:var(--teal)">${acc.last_checkin_status}</span>` : ''}
+      </div>
+      <div class="text-[12.5px]" style="color:var(--text-dim)">
+        ${acc.last_checkin_at ? `Last check-in: ${acc.last_checkin_at}` : 'No check-in recorded yet'}
+      </div>
     </div>
+    <button class="btn btn-primary w-full" id="genshin-checkin-btn" onclick="runGenshinCheckin(${acc.id})"><i class="fa-solid fa-calendar-check"></i> Run daily check-in</button>
   `;
+}
+
+async function runGenshinCheckin(accId){
+  const btn = document.getElementById('genshin-checkin-btn');
+  if(btn){ btn.disabled = true; btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Checking in...'; }
+
+  try{
+    const res = await fetch(`${GENSHIN_BASE}/accounts/${accId}/checkin`, { method: 'POST', headers: genshinAuthHeaders() });
+    const data = await res.json();
+    if(!res.ok) throw new Error(data.message || 'Check-in failed');
+
+    if(data.claimed) showToast('success', data.message || 'Checked in successfully');
+    else if(data.already_claimed) showToast('info', data.message || 'Already checked in today');
+    else if(data.captcha) showToast('error', 'HoYoLAB requires a captcha — please check in manually on HoYoLAB');
+    else showToast('info', data.message || 'Check-in submitted');
+
+    const acc = genshinAccounts.find(a=>a.id===accId);
+    if(acc){
+      acc.last_checkin_status = data.claimed ? 'success' : (data.already_claimed ? 'already claimed' : 'pending');
+      acc.last_checkin_at = new Date().toISOString();
+    }
+    const panel = document.getElementById('genshin-panel');
+    if(panel) renderCheckin(panel);
+  } catch(err){
+    showToast('error', err.message || 'Check-in failed');
+    if(btn){ btn.disabled = false; btn.innerHTML = '<i class="fa-solid fa-calendar-check"></i> Run daily check-in'; }
+  }
+}
+
+async function renderRoleStats(panel){
+  if(!Sayraa.user) return panel.innerHTML = genshinSignInPrompt();
+  const acc = activeGenshinAccount();
+  if(!acc) return panel.innerHTML = genshinNoAccountPrompt();
+
+  try{
+    const res = await fetch(`${GENSHIN_BASE}/accounts/${acc.id}/stats`, { headers: genshinAuthHeaders() });
+    const d = await res.json();
+    if(!res.ok || !d.ok) throw new Error(d.message || 'Failed to load stats');
+
+    panel.innerHTML = `
+      <div class="glass card p-5 mb-4">
+        <div class="flex items-center gap-3.5 mb-4">
+          <div class="w-12 h-12 rounded-2xl overflow-hidden flex items-center justify-center font-bold glass">
+            ${d.role.avatar_url ? `<img src="${d.role.avatar_url}" class="w-full h-full object-cover" onerror="this.remove()">` : d.role.nickname[0]}
+          </div>
+          <div>
+            <div class="font-semibold text-[14.5px]">${d.role.nickname}</div>
+            <div class="text-[11.5px]" style="color:var(--text-faint)">Adventure Level ${d.role.level}</div>
+          </div>
+        </div>
+        <div class="grid grid-cols-3 gap-2.5 text-center">
+          ${statChip(d.stats.active_days,'Active days')}
+          ${statChip(d.stats.achievements,'Achievements')}
+          ${statChip(d.stats.avatars_count,'Characters')}
+          ${statChip(d.stats.domains,'Domains')}
+          ${statChip(d.stats.spiral_abyss,'Abyss')}
+          ${statChip(d.stats.way_points,'Waypoints')}
+        </div>
+      </div>
+      <h3 class="font-semibold text-[14px] mb-2.5">Characters</h3>
+      <div class="space-y-2.5">
+        ${d.avatars.map(a=>`
+          <div class="glass card p-3.5 flex items-center gap-3">
+            <div class="icon-tile overflow-hidden" style="background:${ELEMENT_COLOR[a.element]}22; color:${ELEMENT_COLOR[a.element]}">
+              ${a.image ? `<img src="${a.image}" class="w-full h-full object-cover" onerror="this.remove()">` : `<i class="fa-solid fa-user"></i>`}
+            </div>
+            <div class="flex-1 min-w-0">
+              <div class="flex items-center gap-1.5">
+                <span class="font-medium text-[13.5px]">${a.name}</span>
+                <span class="text-[10.5px]" style="color:var(--text-faint)">C${a.constellation}</span>
+              </div>
+              <div class="text-[11.5px]" style="color:var(--text-dim)">Lv.${a.level} · ${a.weapon.name}</div>
+            </div>
+            <span class="pill" style="background:${ELEMENT_COLOR[a.element]}18; color:${ELEMENT_COLOR[a.element]}">${a.element}</span>
+          </div>`).join('')}
+      </div>
+    `;
+  } catch(err){
+    panel.innerHTML = genshinErrorCard(err.message || 'Failed to load role stats');
+  }
 }
 function statChip(val,label){ return `<div class="rounded-xl py-3" style="background:rgba(255,255,255,.03); border:1px solid var(--line)"><div class="font-bold text-[15px] mono">${val}</div><div class="text-[10px] mt-0.5" style="color:var(--text-faint)">${label}</div></div>`; }
 
@@ -1479,6 +1811,7 @@ function init(){
   renderMarkets();
   renderAuthUI();
   renderAccentSwatches();
+  loadGenshinAccounts();
   renderGenshinPanel('banners');
 }
 init();
