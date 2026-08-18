@@ -1,4 +1,45 @@
-  :root{
+/* ---- Splash Screen ---- */
+#splash-screen {
+  position: fixed;
+  inset: 0;
+  z-index: 9999;
+  background:
+    radial-gradient(900px 500px at 50% 40%, rgba(124,111,240,0.18), transparent 60%),
+    var(--bg);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: opacity 0.35s ease, visibility 0.35s ease;
+}
+
+#splash-screen.hide {
+  opacity: 0;
+  visibility: hidden;
+  pointer-events: none;
+}
+
+.splash-content {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  animation: splashPulse 0.9s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+.splash-logo {
+  width: min(150px, 36vw);
+  height: auto;
+  aspect-ratio: 1 / 1;
+  object-fit: contain;
+  filter: drop-shadow(0 0 28px rgba(124, 111, 240, 0.3));
+}
+
+@keyframes splashPulse {
+  0% { transform: scale(0.92); opacity: 0; }
+  50% { transform: scale(1); opacity: 1; }
+  100% { transform: scale(1.03); opacity: 1; }
+}
+
+:root{
     --bg:#08090b;
     --bg-soft:#0c0e11;
     --surface: rgba(255,255,255,0.045);
