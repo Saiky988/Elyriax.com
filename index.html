@@ -35,164 +35,9 @@
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@500;600;700;800&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
 
-<style>
-  :root{
-    --bg:#08090b;
-    --bg-soft:#0c0e11;
-    --surface: rgba(255,255,255,0.045);
-    --surface-solid:#15171b;
-    --surface-solid-2:#1b1e23;
-    --line: rgba(255,255,255,0.08);
-    --line-strong: rgba(255,255,255,0.14);
-    --text:#f0f1f4;
-    --text-dim:#989ca6;
-    --text-faint:#5b5f68;
-    --accent:#7c6ff0;
-    --accent-soft: rgba(124,111,240,0.14);
-    --teal:#34d6b4;
-    --amber:#f5a623;
-    --rose:#f4586b;
-    --discord:#5865f2;
-  }
-  *{box-sizing:border-box;}
-  html{-webkit-tap-highlight-color:transparent;}
-  body{
-    background:
-      radial-gradient(900px 500px at 15% -10%, rgba(124,111,240,0.12), transparent 60%),
-      radial-gradient(700px 500px at 110% 10%, rgba(52,214,180,0.07), transparent 55%),
-      var(--bg);
-    color:var(--text);
-    font-family:'Inter',sans-serif;
-    -webkit-font-smoothing:antialiased;
-    overflow-x:hidden;
-  }
-  .display{font-family:'Plus Jakarta Sans',sans-serif;}
-  .mono{font-family:'JetBrains Mono',monospace;}
-  ::selection{background:var(--accent); color:#fff;}
-  ::-webkit-scrollbar{width:6px; height:6px;}
-  ::-webkit-scrollbar-thumb{background:var(--line-strong); border-radius:8px;}
-  ::-webkit-scrollbar-track{background:transparent;}
-  :focus-visible{outline:2px solid var(--accent); outline-offset:2px; border-radius:6px;}
-  @media (prefers-reduced-motion: reduce){ *{animation-duration:.001s !important; transition-duration:.001s !important;} }
 
-  .glass{
-    background:var(--surface);
-    border:1px solid var(--line);
-    backdrop-filter: blur(20px);
-    -webkit-backdrop-filter: blur(20px);
-  }
-  .glass-solid{ background:var(--surface-solid); border:1px solid var(--line); }
+    <link rel="stylesheet" href="style.css">
 
-  /* ---- drawer ---- */
-  #drawer{
-    position:fixed; inset:0 auto 0 0; width:280px; z-index:60;
-    background:var(--surface-solid); border-right:1px solid var(--line);
-    transform:translateX(-100%); transition:transform .38s cubic-bezier(.16,1,.3,1);
-    display:flex; flex-direction:column;
-  }
-  #drawer.open{ transform:translateX(0); }
-  @media (min-width:1024px){
-    #drawer{ position:sticky; top:0; height:100vh; transform:none; z-index:10; }
-    #drawer-overlay{ display:none !important; }
-  }
-  #drawer-overlay{
-    position:fixed; inset:0; z-index:50; background:rgba(0,0,0,.55);
-    opacity:0; pointer-events:none; transition:opacity .3s ease;
-  }
-  #drawer-overlay.open{ opacity:1; pointer-events:auto; }
-
-  .nav-link{ display:flex; align-items:center; gap:12px; padding:10px 14px; border-radius:12px; color:var(--text-dim); font-size:14.5px; font-weight:500; transition:background .2s ease, color .2s ease; cursor:pointer; }
-  .nav-link i{ width:18px; text-align:center; font-size:15px; }
-  .nav-link:hover{ background:rgba(255,255,255,0.04); color:var(--text); }
-  .nav-link.active{ background:var(--accent-soft); color:#fff; }
-  .nav-link.active i{ color:var(--accent); }
-  .nav-sub{ display:flex; align-items:center; justify-content:space-between; gap:10px; padding:9px 14px 9px 40px; border-radius:10px; color:var(--text-dim); font-size:13.5px; transition:background .2s ease, color .2s ease; cursor:pointer; }
-  .nav-sub:hover{ background:rgba(255,255,255,0.04); color:var(--text); }
-  .nav-sub.active{ color:#fff; background:rgba(255,255,255,0.05); }
-  .nav-group-label{ font-size:11px; letter-spacing:.1em; text-transform:uppercase; color:var(--text-faint); padding:16px 14px 6px; }
-  .chev{ transition:transform .25s ease; font-size:11px; color:var(--text-faint); }
-  .group.open .chev{ transform:rotate(90deg); }
-  .group-body{ max-height:0; overflow:hidden; transition:max-height .3s ease; }
-  .group.open .group-body{ max-height:400px; }
-
-  /* ---- topbar / bottom tabs ---- */
-  #topbar{ position:sticky; top:0; z-index:30; backdrop-filter:blur(16px); -webkit-backdrop-filter:blur(16px); background:rgba(8,9,11,.7); border-bottom:1px solid var(--line); }
-  #bottom-tabs{ position:fixed; bottom:0; left:0; right:0; z-index:40; padding-bottom:env(safe-area-inset-bottom); }
-  @media (min-width:1024px){ #bottom-tabs{ display:none; } }
-  .tab-btn{ display:flex; flex-direction:column; align-items:center; gap:3px; padding:9px 0; color:var(--text-faint); font-size:10.5px; font-weight:500; flex:1; cursor:pointer; }
-  .tab-btn i{ font-size:17px; }
-  .tab-btn.active{ color:var(--accent); }
-
-  /* ---- views ---- */
-  .view{ display:none; }
-  .view.active{ display:block; animation:riseIn .45s cubic-bezier(.16,1,.3,1); }
-  @keyframes riseIn{ from{opacity:0; transform:translateY(10px);} to{opacity:1; transform:translateY(0);} }
-
-  /* ---- cards ---- */
-  .card{ border-radius:20px; }
-  .module-card{ position:relative; overflow:hidden; transition:border-color .25s ease, transform .25s ease; }
-  .module-card:active{ transform:scale(.985); }
-  .module-card:hover{ border-color:var(--line-strong); transform:translateY(-2px); }
-  .game-banner{ height:60px; position:relative; }
-  .game-banner::after{ content:''; position:absolute; inset:0; background:radial-gradient(140px 70px at 15% 0%, rgba(255,255,255,.28), transparent 70%); }
-  .arrow-indicator i{ transition:transform .2s ease; display:inline-block; }
-  .game-card:hover .arrow-indicator i{ transform:translateX(3px); }
-  .icon-tile{ width:44px; height:44px; border-radius:13px; display:flex; align-items:center; justify-content:center; font-size:18px; flex-shrink:0; }
-  .status-dot{ width:7px; height:7px; border-radius:50%; display:inline-block; position:relative; }
-  .status-dot.on{ background:var(--teal); box-shadow:0 0 0 0 rgba(52,214,180,.6); animation:pulse 2.2s infinite; }
-  .status-dot.soon{ background:var(--text-faint); }
-  .status-dot.warn{ background:var(--amber); }
-  @keyframes pulse{ 0%{box-shadow:0 0 0 0 rgba(52,214,180,.55);} 70%{box-shadow:0 0 0 7px rgba(52,214,180,0);} 100%{box-shadow:0 0 0 0 rgba(52,214,180,0);} }
-
-  .btn{ display:inline-flex; align-items:center; justify-content:center; gap:8px; font-weight:600; font-size:13.5px; border-radius:13px; padding:11px 18px; transition:filter .2s ease, transform .15s ease; }
-  .btn:active{ transform:scale(.97); }
-  .btn-primary{ background:linear-gradient(180deg, #8b7ff5, var(--accent)); color:#fff; box-shadow:0 6px 18px -4px rgba(124,111,240,.5); }
-  .btn-primary:hover{ filter:brightness(1.08); }
-  .btn-ghost{ background:rgba(255,255,255,0.05); border:1px solid var(--line); color:var(--text); }
-  .btn-ghost:hover{ background:rgba(255,255,255,0.08); }
-  .btn-danger{ background:rgba(244,88,107,0.12); color:var(--rose); border:1px solid rgba(244,88,107,0.25); }
-  .btn-sm{ padding:8px 13px; font-size:12.5px; border-radius:10px; }
-
-  .pill{ font-size:11px; font-weight:600; padding:4px 10px; border-radius:999px; letter-spacing:.02em; }
-  .input{ width:100%; background:rgba(255,255,255,0.04); border:1px solid var(--line); border-radius:12px; padding:12px 14px; font-size:14px; color:var(--text); transition:border-color .2s ease; }
-  .input:focus{ border-color:var(--accent); outline:none; }
-  .input::placeholder{ color:var(--text-faint); }
-
-  /* ---- bottom sheet ---- */
-  #sheet-overlay{ position:fixed; inset:0; z-index:70; background:rgba(0,0,0,.6); opacity:0; pointer-events:none; transition:opacity .3s ease; }
-  #sheet-overlay.open{ opacity:1; pointer-events:auto; }
-  #sheet{
-    position:fixed; left:0; right:0; bottom:0; z-index:80; max-width:520px; margin:0 auto;
-    background:var(--surface-solid-2); border:1px solid var(--line); border-bottom:none;
-    border-radius:24px 24px 0 0; transform:translateY(100%); transition:transform .4s cubic-bezier(.16,1,.3,1);
-    max-height:86vh; overflow-y:auto; padding:10px 22px calc(26px + env(safe-area-inset-bottom));
-  }
-  #sheet.open{ transform:translateY(0); }
-  .sheet-handle{ width:36px; height:4px; border-radius:99px; background:var(--line-strong); margin:8px auto 16px; }
-
-  /* ---- toast ---- */
-  #toast-wrap{ position:fixed; top:calc(14px + env(safe-area-inset-top)); left:0; right:0; z-index:90; display:flex; flex-direction:column; align-items:center; gap:8px; pointer-events:none; }
-  .toast{ pointer-events:auto; display:flex; align-items:center; gap:10px; padding:11px 16px; border-radius:13px; font-size:13px; font-weight:500; background:var(--surface-solid-2); border:1px solid var(--line-strong); box-shadow:0 12px 30px -8px rgba(0,0,0,.5); animation:toastIn .35s cubic-bezier(.16,1,.3,1); max-width:88vw; }
-  @keyframes toastIn{ from{opacity:0; transform:translateY(-10px) scale(.97);} to{opacity:1; transform:translateY(0) scale(1);} }
-
-  .skel{ background:linear-gradient(90deg, rgba(255,255,255,.04), rgba(255,255,255,.09), rgba(255,255,255,.04)); background-size:200% 100%; animation:shimmer 1.4s infinite; border-radius:10px; }
-  @keyframes shimmer{ 0%{background-position:200% 0;} 100%{background-position:-200% 0;} }
-
-  .tab-pill{ font-size:13px; font-weight:600; padding:8px 15px; border-radius:11px; color:var(--text-dim); white-space:nowrap; transition:background .2s ease,color .2s ease; }
-  .tab-pill.active{ background:var(--accent-soft); color:#fff; }
-
-  .provider-google{ color:#e8e9ec; }
-  .provider-discord{ color:var(--discord); }
-  .provider-github{ color:#e8e9ec; }
-
-  .switch{ width:42px; height:24px; border-radius:99px; background:rgba(255,255,255,.08); border:1px solid var(--line); position:relative; transition:background .2s ease; flex-shrink:0; }
-  .switch.on{ background:var(--accent); border-color:var(--accent); }
-  .switch::after{ content:''; position:absolute; top:2px; left:2px; width:18px; height:18px; border-radius:50%; background:#fff; transition:transform .2s ease; }
-  .switch.on::after{ transform:translateX(18px); }
-
-  .accent-swatch{ width:26px; height:26px; border-radius:50%; border:2px solid transparent; transition:border-color .2s ease; }
-  .accent-swatch.active{ border-color:#fff; }
-</style>
 </head>
 <body class="min-h-screen">
 
@@ -550,9 +395,11 @@
               
               <div class="cursor-pointer group" onclick="showToast('info', 'System theme selected')">
                 <div class="p-1 rounded-[10px] border-2 border-[var(--accent)] bg-white/5 transition-colors">
-                  <svg class="w-full h-auto block rounded-md" viewBox="0 0 163 88" fill="none" xmlns="http://www.w3.org/2000/svg">
-                    <g clip-path="url(#clip0_742_69895)"><rect x="0.742188" width="161.5" height="88" rx="6" fill="#1C1C1C"></rect><mask id="path-3-inside-1_742_69895" fill="white"><path d="M0.742188 6C0.742188 2.68629 3.42848 0 6.74219 0H13.7422V88H6.74219C3.42848 88 0.742188 85.3137 0.742188 82V6Z"></path></mask><path d="M0.742188 6C0.742188 2.68629 3.42848 0 6.74219 0H13.7422V88H6.74219C3.42848 88 0.742188 85.3137 0.742188 82V6Z" fill="#1C1C1C"></path><path d="M0.742188 0H13.7422H0.742188ZM13.7422 88H0.742188H13.7422ZM0.742188 88V0V88ZM14.7422 0V88H12.7422V0H14.7422Z" fill="#2E2E2E" mask="url(#path-3-inside-1_742_69895)"></path><mask id="path-5-inside-2_742_69895" fill="white"><path d="M156.242 -2.62268e-07C159.556 -1.17421e-07 162.242 2.68629 162.242 6L162.242 13L13.7422 13L13.7422 -6.49114e-06L156.242 -2.62268e-07Z"></path></mask><path d="M156.242 -2.62268e-07C159.556 -1.17421e-07 162.242 2.68629 162.242 6L162.242 13L13.7422 13L13.7422 -6.49114e-06L156.242 -2.62268e-07Z" fill="#1C1C1C"></path><path d="M162.242 0L162.242 13L162.242 0ZM13.7422 13L13.7422 -6.49114e-06L13.7422 13ZM13.7422 -6.49114e-06L162.242 0L13.7422 -6.49114e-06ZM162.242 14L13.7422 14L13.7422 12L162.242 12L162.242 14Z" fill="#2E2E2E" mask="url(#path-5-inside-2_742_69895)"></path><rect x="44.7552" y="21.5" width="86.4738" height="23.5" rx="2.5" fill="#232323" stroke="#2E2E2E"></rect><rect x="44.7552" y="51.5" width="86.4738" height="23.5" rx="2.5" fill="#232323" stroke="#2E2E2E"></rect><rect x="52.9406" y="28" width="19.2318" height="1.5" rx="0.75" fill="#A0A0A0"></rect><rect x="52.9406" y="56.5" width="19.2318" height="1.5" rx="0.75" fill="#A0A0A0"></rect><rect x="78.3762" y="28" width="19.2318" height="1.5" rx="0.75" fill="#EDEDED"></rect><rect x="78.3762" y="56.5" width="19.2318" height="1.5" rx="0.75" fill="#EDEDED"></rect><rect x="78.3762" y="33.25" width="44.0471" height="1.5" rx="0.75" fill="#EDEDED"></rect><rect x="78.3762" y="61.75" width="44.0471" height="1.5" rx="0.75" fill="#EDEDED"></rect><rect x="18.4922" y="4.625" width="20.5" height="3.75" rx="1.875" fill="#3ECF8E"></rect><rect x="44.2552" y="4.625" width="20.5" height="3.75" rx="1.875" fill="#707070"></rect><rect x="69.5052" y="4.625" width="20.5" height="3.75" rx="1.875" fill="#707070"></rect><rect x="101.923" y="28" width="20.5" height="1.5" rx="0.75" fill="#FFB224"></rect><rect x="5.36719" y="4.625" width="3.75" height="3.75" rx="1" fill="#707070"></rect><rect x="5.36719" y="13.375" width="3.75" height="3.75" rx="1" fill="#707070"></rect><rect x="5.36719" y="20.875" width="3.75" height="3.75" rx="1" fill="#707070"></rect><rect x="5.36719" y="28.375" width="3.75" height="3.75" rx="1" fill="#707070"></rect><rect x="5.36719" y="35.875" width="3.75" height="3.75" rx="1" fill="#707070"></rect><rect x="5.36719" y="78.875" width="3.75" height="3.75" rx="1" fill="#707070"></rect><mask id="mask0_742_69895" maskUnits="userSpaceOnUse" x="32" y="0" width="131" height="88"><path d="M130.534 2.34842e-05L32.4507 88H162.131V0L130.534 2.34842e-05Z" fill="black"></path></mask><g mask="url(#mask0_742_69895)"><rect x="0.742188" width="161.5" height="88" fill="#F8F9FA"></rect><mask id="path-27-inside-3_742_69895" fill="white"><path d="M156.242 -2.62268e-07C159.556 -1.17421e-07 162.242 2.68629 162.242 6L162.242 13L13.7422 13L13.7422 -6.49114e-06L156.242 -2.62268e-07Z"></path></mask><path d="M156.242 -2.62268e-07C159.556 -1.17421e-07 162.242 2.68629 162.242 6L162.242 13L13.7422 13L13.7422 -6.49114e-06L156.242 -2.62268e-07Z" fill="#F8F9FA"></path><path d="M162.242 0L162.242 13L162.242 0ZM13.7422 13L13.7422 -6.49114e-06L13.7422 13ZM13.7422 -6.49114e-06L162.242 0L13.7422 -6.49114e-06ZM162.242 14L13.7422 14L13.7422 12L162.242 12L162.242 14Z" fill="#E6E8EB" mask="url(#path-27-inside-3_742_69895)"></path><rect x="44.7552" y="21.5" width="86.4738" height="23.5" rx="2.5" fill="#FCFCFC" stroke="#E6E8EB"></rect><rect x="44.7552" y="51.5" width="86.4738" height="23.5" rx="2.5" fill="#FCFCFC" stroke="#E6E8EB"></rect><rect x="52.9406" y="28" width="19.2318" height="1.5" rx="0.75" fill="#525252"></rect><rect x="52.9406" y="56.5" width="19.2318" height="1.5" rx="0.75" fill="#525252"></rect><rect x="78.3762" y="28" width="19.2318" height="1.5" rx="0.75" fill="#11181C"></rect><rect x="78.3762" y="56.5" width="19.2318" height="1.5" rx="0.75" fill="#11181C"></rect><rect x="78.3762" y="33.25" width="44.0471" height="1.5" rx="0.75" fill="#11181C"></rect><rect x="78.3762" y="61.75" width="44.0471" height="1.5" rx="0.75" fill="#11181C"></rect><rect x="18.4922" y="4.625" width="20.5" height="3.75" rx="1.875" fill="#3FCF8E"></rect><rect x="44.2552" y="4.625" width="20.5" height="3.75" rx="1.875" fill="#B2B2B2"></rect><rect x="69.5052" y="4.625" width="20.5" height="3.75" rx="1.875" fill="#B2B2B2"></rect><rect x="101.923" y="28" width="20.5" height="1.5" rx="0.75" fill="#FFB224"></rect></g></g><rect x="1.24219" y="0.5" width="160.5" height="87" rx="5.5" stroke="#2E2E2E"></rect><defs><clipPath id="clip0_742_69895"><rect x="0.742188" width="161.5" height="88" rx="6" fill="white"></rect></clipPath></defs>
-                  </svg>
+                  <img
+                    src="/assets/appearance/system.svg"
+                    alt="System theme"
+                    class="w-full h-auto block rounded-md"
+                  >
                 </div>
                 <div class="text-center text-[11.5px] font-medium mt-2 text-[var(--text)]">System</div>
               </div>
@@ -560,9 +407,11 @@
               <!-- Dark Theme -->
               <div class="cursor-pointer group" onclick="showToast('info', 'Dark theme selected')">
                 <div class="p-1 rounded-[10px] border-2 border-transparent group-hover:border-[var(--line-strong)] bg-white/5 transition-colors">
-                  <svg class="w-full h-auto block rounded-md" viewBox="0 0 163 88" fill="none" xmlns="http://www.w3.org/2000/svg">
-                    <g clip-path="url(#clip0_701_65549)"><rect x="0.742188" width="161.5" height="88" rx="6" fill="#121212"></rect><mask id="path-3-inside-1_701_65549" fill="white"><path d="M0.742188 6C0.742188 2.68629 3.42848 0 6.74219 0H13.7422V88H6.74219C3.42848 88 0.742188 85.3137 0.742188 82V6Z"></path></mask><path d="M0.742188 6C0.742188 2.68629 3.42848 0 6.74219 0H13.7422V88H6.74219C3.42848 88 0.742188 85.3137 0.742188 82V6Z" fill="#121212"></path><path d="M0.742188 0H13.7422H0.742188ZM13.7422 88H0.742188H13.7422ZM0.742188 88V0V88ZM14.7422 0V88H12.7422V0H14.7422Z" fill="#292929" mask="url(#path-3-inside-1_701_65549)"></path><mask id="path-5-inside-2_701_65549" fill="white"><path d="M156.242 -2.62268e-07C159.556 -1.17421e-07 162.242 2.68629 162.242 6L162.242 13L13.7422 13L13.7422 -6.49114e-06L156.242 -2.62268e-07Z"></path></mask><path d="M156.242 -2.62268e-07C159.556 -1.17421e-07 162.242 2.68629 162.242 6L162.242 13L13.7422 13L13.7422 -6.49114e-06L156.242 -2.62268e-07Z" fill="#121212"></path><path d="M162.242 0L162.242 13L162.242 0ZM13.7422 13L13.7422 -6.49114e-06L13.7422 13ZM13.7422 -6.49114e-06L162.242 0L13.7422 -6.49114e-06ZM162.242 14L13.7422 14L13.7422 12L162.242 12L162.242 14Z" fill="#292929" mask="url(#path-5-inside-2_701_65549)"></path><rect x="44.7552" y="21.5" width="86.4738" height="23.5" rx="2.5" fill="#1F1F1F" stroke="#292929"></rect><rect x="44.7552" y="51.5" width="86.4738" height="23.5" rx="2.5" fill="#1F1F1F" stroke="#292929"></rect><rect x="52.9406" y="28" width="19.2318" height="1.5" rx="0.75" fill="#B4B4B4"></rect><rect x="52.9406" y="56.5" width="19.2318" height="1.5" rx="0.75" fill="#B4B4B4"></rect><rect x="78.3762" y="28" width="19.2318" height="1.5" rx="0.75" fill="#FAFAFA"></rect><rect x="78.3762" y="56.5" width="19.2318" height="1.5" rx="0.75" fill="#FAFAFA"></rect><rect x="78.3762" y="33.25" width="44.0471" height="1.5" rx="0.75" fill="#FAFAFA"></rect><rect x="78.3762" y="61.75" width="44.0471" height="1.5" rx="0.75" fill="#FAFAFA"></rect><rect x="18.4922" y="4.625" width="20.5" height="3.75" rx="1.875" fill="#3ECF8E"></rect><rect x="44.2552" y="4.625" width="20.5" height="3.75" rx="1.875" fill="#4D4D4D"></rect><rect x="69.5052" y="4.625" width="20.5" height="3.75" rx="1.875" fill="#4D4D4D"></rect><rect x="101.923" y="28" width="20.5" height="1.5" rx="0.75" fill="#DB8E00"></rect><rect x="5.36719" y="4.625" width="3.75" height="3.75" rx="1" fill="#4D4D4D"></rect><rect x="5.36719" y="13.375" width="3.75" height="3.75" rx="1" fill="#4D4D4D"></rect><rect x="5.36719" y="20.875" width="3.75" height="3.75" rx="1" fill="#4D4D4D"></rect><rect x="5.36719" y="28.375" width="3.75" height="3.75" rx="1" fill="#4D4D4D"></rect><rect x="5.36719" y="35.875" width="3.75" height="3.75" rx="1" fill="#4D4D4D"></rect><rect x="5.36719" y="78.875" width="3.75" height="3.75" rx="1" fill="#4D4D4D"></rect></g><rect x="1.24219" y="0.5" width="160.5" height="87" rx="5.5" stroke="#292929"></rect><defs><clipPath id="clip0_701_65549"><rect x="0.742188" width="161.5" height="88" rx="6" fill="white"></rect></clipPath></defs>
-                  </svg>
+                  <img
+                    src="/assets/appearance/dark.svg"
+                    alt="Dark theme"
+                    class="w-full h-auto block rounded-md"
+                  >
                 </div>
                 <div class="text-center text-[11.5px] font-medium mt-2 text-[var(--text-dim)] group-hover:text-[var(--text)] transition-colors">Dark</div>
               </div>
@@ -570,9 +419,11 @@
               <!-- Light Theme -->
               <div class="cursor-pointer group" onclick="showToast('info', 'Light mode is coming soon')">
                 <div class="p-1 rounded-[10px] border-2 border-transparent group-hover:border-[var(--line-strong)] bg-white/5 transition-colors">
-                  <svg class="w-full h-auto block rounded-md" viewBox="0 0 162 88" fill="none" xmlns="http://www.w3.org/2000/svg">
-                    <g clip-path="url(#clip0_701_65608)"><rect x="0.242188" width="161.5" height="88" rx="6" fill="#F8F9FA"></rect><mask id="path-3-inside-1_701_65608" fill="white"><path d="M0.242188 6C0.242188 2.68629 2.92848 0 6.24219 0H13.2422V88H6.24219C2.92848 88 0.242188 85.3137 0.242188 82V6Z"></path></mask><path d="M0.242188 6C0.242188 2.68629 2.92848 0 6.24219 0H13.2422V88H6.24219C2.92848 88 0.242188 85.3137 0.242188 82V6Z" fill="#F8F9FA"></path><path d="M0.242188 0H13.2422H0.242188ZM13.2422 88H0.242188H13.2422ZM0.242188 88V0V88ZM14.2422 0V88H12.2422V0H14.2422Z" fill="#E6E8EB" mask="url(#path-3-inside-1_701_65608)"></path><mask id="path-5-inside-2_701_65608" fill="white"><path d="M155.742 -2.62268e-07C159.056 -1.17421e-07 161.742 2.68629 161.742 6L161.742 13L13.2422 13L13.2422 -6.49114e-06L155.742 -2.62268e-07Z"></path></mask><path d="M155.742 -2.62268e-07C159.056 -1.17421e-07 161.742 2.68629 161.742 6L161.742 13L13.2422 13L13.2422 -6.49114e-06L155.742 -2.62268e-07Z" fill="#F8F9FA"></path><path d="M161.742 0L161.742 13L161.742 0ZM13.2422 13L13.2422 -6.49114e-06L13.2422 13ZM13.2422 -6.49114e-06L161.742 0L13.2422 -6.49114e-06ZM161.742 14L13.2422 14L13.2422 12L161.742 12L161.742 14Z" fill="#E6E8EB" mask="url(#path-5-inside-2_701_65608)"></path><rect x="44.2552" y="21.5" width="86.4738" height="23.5" rx="2.5" fill="#FCFCFC" stroke="#E6E8EB"></rect><rect x="44.2552" y="51.5" width="86.4738" height="23.5" rx="2.5" fill="#FCFCFC" stroke="#E6E8EB"></rect><rect x="52.4406" y="28" width="19.2318" height="1.5" rx="0.75" fill="#525252"></rect><rect x="52.4406" y="56.5" width="19.2318" height="1.5" rx="0.75" fill="#525252"></rect><rect x="77.8762" y="28" width="19.2318" height="1.5" rx="0.75" fill="#11181C"></rect><rect x="77.8762" y="56.5" width="19.2318" height="1.5" rx="0.75" fill="#11181C"></rect><rect x="77.8762" y="33.25" width="44.0471" height="1.5" rx="0.75" fill="#11181C"></rect><rect x="77.8762" y="61.75" width="44.0471" height="1.5" rx="0.75" fill="#11181C"></rect><rect x="17.9922" y="4.625" width="20.5" height="3.75" rx="1.875" fill="#3FCF8E"></rect><rect x="43.7552" y="4.625" width="20.5" height="3.75" rx="1.875" fill="#B2B2B2"></rect><rect x="69.0052" y="4.625" width="20.5" height="3.75" rx="1.875" fill="#B2B2B2"></rect><rect x="101.423" y="28" width="20.5" height="1.5" rx="0.75" fill="#FFB224"></rect><rect x="4.86719" y="4.625" width="3.75" height="3.75" rx="1" fill="#B2B2B2"></rect><rect x="4.86719" y="13.375" width="3.75" height="3.75" rx="1" fill="#B2B2B2"></rect><rect x="4.86719" y="20.875" width="3.75" height="3.75" rx="1" fill="#B2B2B2"></rect><rect x="4.86719" y="28.375" width="3.75" height="3.75" rx="1" fill="#B2B2B2"></rect><rect x="4.86719" y="35.875" width="3.75" height="3.75" rx="1" fill="#B2B2B2"></rect><rect x="4.86719" y="78.875" width="3.75" height="3.75" rx="1" fill="#B2B2B2"></rect></g><rect x="0.742188" y="0.5" width="160.5" height="87" rx="5.5" stroke="#E6E8EB"></rect><defs><clipPath id="clip0_701_65608"><rect x="0.242188" width="161.5" height="88" rx="6" fill="white"></rect></clipPath></defs>
-                  </svg>
+                  <img
+                    src="/assets/appearance/light.svg"
+                    alt="Light theme"
+                    class="w-full h-auto block rounded-md"
+                  >
                 </div>
                 <div class="text-center text-[11.5px] font-medium mt-2 text-[var(--text-dim)] group-hover:text-[var(--text)] transition-colors">Light</div>
               </div>
@@ -580,9 +431,11 @@
               <!-- Classic Dark Theme -->
               <div class="cursor-pointer group" onclick="showToast('info', 'Classic Dark theme selected')">
                 <div class="p-1 rounded-[10px] border-2 border-transparent group-hover:border-[var(--line-strong)] bg-white/5 transition-colors">
-                  <svg class="w-full h-auto block rounded-md" viewBox="0 0 162 88" fill="none" xmlns="http://www.w3.org/2000/svg">
-                    <g clip-path="url(#clip0_701_65535)"><rect x="0.242188" width="161.5" height="88" rx="6" fill="#1C1C1C"></rect><mask id="path-3-inside-1_701_65535" fill="white"><path d="M0.242188 6C0.242188 2.68629 2.92848 0 6.24219 0H13.2422V88H6.24219C2.92848 88 0.242188 85.3137 0.242188 82V6Z"></path></mask><path d="M0.242188 6C0.242188 2.68629 2.92848 0 6.24219 0H13.2422V88H6.24219C2.92848 88 0.242188 85.3137 0.242188 82V6Z" fill="#1C1C1C"></path><path d="M0.242188 0H13.2422H0.242188ZM13.2422 88H0.242188H13.2422ZM0.242188 88V0V88ZM14.2422 0V88H12.2422V0H14.2422Z" fill="#2E2E2E" mask="url(#path-3-inside-1_701_65535)"></path><mask id="path-5-inside-2_701_65535" fill="white"><path d="M155.742 -2.62268e-07C159.056 -1.17421e-07 161.742 2.68629 161.742 6L161.742 13L13.2422 13L13.2422 -6.49114e-06L155.742 -2.62268e-07Z"></path></mask><path d="M155.742 -2.62268e-07C159.056 -1.17421e-07 161.742 2.68629 161.742 6L161.742 13L13.2422 13L13.2422 -6.49114e-06L155.742 -2.62268e-07Z" fill="#1C1C1C"></path><path d="M161.742 0L161.742 13L161.742 0ZM13.2422 13L13.2422 -6.49114e-06L13.2422 13ZM13.2422 -6.49114e-06L161.742 0L13.2422 -6.49114e-06ZM161.742 14L13.2422 14L13.2422 12L161.742 12L161.742 14Z" fill="#2E2E2E" mask="url(#path-5-inside-2_701_65535)"></path><rect x="44.2552" y="21.5" width="86.4738" height="23.5" rx="2.5" fill="#232323" stroke="#2E2E2E"></rect><rect x="44.2552" y="51.5" width="86.4738" height="23.5" rx="2.5" fill="#232323" stroke="#2E2E2E"></rect><rect x="52.4406" y="28" width="19.2318" height="1.5" rx="0.75" fill="#A0A0A0"></rect><rect x="52.4406" y="56.5" width="19.2318" height="1.5" rx="0.75" fill="#A0A0A0"></rect><rect x="77.8762" y="28" width="19.2318" height="1.5" rx="0.75" fill="#EDEDED"></rect><rect x="77.8762" y="56.5" width="19.2318" height="1.5" rx="0.75" fill="#EDEDED"></rect><rect x="77.8762" y="33.25" width="44.0471" height="1.5" rx="0.75" fill="#EDEDED"></rect><rect x="77.8762" y="61.75" width="44.0471" height="1.5" rx="0.75" fill="#EDEDED"></rect><rect x="17.9922" y="4.625" width="20.5" height="3.75" rx="1.875" fill="#3ECF8E"></rect><rect x="43.7552" y="4.625" width="20.5" height="3.75" rx="1.875" fill="#707070"></rect><rect x="69.0052" y="4.625" width="20.5" height="3.75" rx="1.875" fill="#707070"></rect><rect x="101.423" y="28" width="20.5" height="1.5" rx="0.75" fill="#FFB224"></rect><rect x="4.86719" y="4.625" width="3.75" height="3.75" rx="1" fill="#707070"></rect><rect x="4.86719" y="13.375" width="3.75" height="3.75" rx="1" fill="#707070"></rect><rect x="4.86719" y="20.875" width="3.75" height="3.75" rx="1" fill="#707070"></rect><rect x="4.86719" y="28.375" width="3.75" height="3.75" rx="1" fill="#707070"></rect><rect x="4.86719" y="35.875" width="3.75" height="3.75" rx="1" fill="#707070"></rect><rect x="4.86719" y="78.875" width="3.75" height="3.75" rx="1" fill="#707070"></rect></g><rect x="0.742188" y="0.5" width="160.5" height="87" rx="5.5" stroke="#2E2E2E"></rect><defs><clipPath id="clip0_701_65535"><rect x="0.242188" width="161.5" height="88" rx="6" fill="white"></rect></clipPath></defs>
-                  </svg>
+                  <img
+                    src="/assets/appearance/classic-dark.svg"
+                    alt="Classic Dark theme"
+                    class="w-full h-auto block rounded-md"
+                  >
                 </div>
                 <div class="text-center text-[11.5px] font-medium mt-2 text-[var(--text-dim)] group-hover:text-[var(--text)] transition-colors">Classic Dark</div>
               </div>
@@ -1139,7 +992,6 @@ async function deleteApiKey() {
 const GENSHIN_BASE = 'https://api.sayraa.xyz/api/v1/genshin';
 const ELEMENT_COLOR = {Pyro:'#f4586b', Hydro:'#5aa7ef', Dendro:'#8b9a68', Electro:'#b48ef0', Anemo:'#34d6b4', Cryo:'#8fd8ef', Geo:'#f5a623'};
 
-/* ---- account state ---- */
 let genshinAccounts = [];
 let genshinActiveId = null;
 let currentGenshinTab = 'banners';
@@ -1216,7 +1068,6 @@ function switchGenshinAccount(id){
   renderGenshinPanel(currentGenshinTab);
 }
 
-/* ---- add account sheet ---- */
 function openAddAccountSheet(){
   openSheet(`
     <h3 class="display font-bold text-[16px] mb-1">Add Genshin Account</h3>
@@ -1275,7 +1126,6 @@ async function submitAddAccount(){
   }
 }
 
-/* ---- account settings sheet ---- */
 function genshinToggleRow(id, label, val, accId, key){
   return `
     <div class="flex items-center justify-between">
@@ -1301,10 +1151,10 @@ function openAccountSettingsSheet(id){
 }
 
 async function toggleGenshinSetting(el, accId, key){
-  if(key === 'is_default' && el.classList.contains('on')) return; // already default, no-op
+  if(key === 'is_default' && el.classList.contains('on')) return;
   const isOn = el.classList.contains('on');
   const newVal = !isOn;
-  el.classList.toggle('on'); // optimistic
+  el.classList.toggle('on');
 
   try{
     const res = await fetch(`${GENSHIN_BASE}/accounts/${accId}`, {
@@ -1327,7 +1177,7 @@ async function toggleGenshinSetting(el, accId, key){
     renderAccountBar();
     showToast('success', 'Setting updated');
   } catch(err){
-    el.classList.toggle('on'); // revert
+    el.classList.toggle('on');
     showToast('error', err.message || 'Failed to update setting');
   }
 }
@@ -1348,7 +1198,6 @@ async function deleteGenshinAccount(id){
   }
 }
 
-/* ---- shared empty states ---- */
 function genshinSignInPrompt(){
   return `<div class="glass card p-6 text-center">
     <i class="fa-solid fa-lock mb-3 text-[22px]" style="color:var(--text-faint)"></i>
@@ -1398,7 +1247,6 @@ function renderGenshinPanel(tab){
   }, 350);
 }
 
-/* Public — no auth required */
 async function renderBanners(panel){
   try{
     const res = await fetch(`${GENSHIN_BASE}?type=banner`);
@@ -1467,7 +1315,6 @@ async function renderCodes(panel){
 
 function copyCode(code){ navigator.clipboard?.writeText(code).catch(()=>{}); showToast('success', `Copied "${code}"`); }
 
-/* Account-scoped — requires sign-in + linked account */
 async function renderDailyNote(panel){
   if(!Sayraa.user) return panel.innerHTML = genshinSignInPrompt();
   const acc = activeGenshinAccount();
@@ -1761,7 +1608,7 @@ function setAccent(c, el){
     let key = 'cyan';
     if(c === '#7c6ff0') key = 'purple';
     if(c === '#34d6b4') key = 'cyan';
-    if(c === '#f5a623') key = 'amber'; // Hoặc màu bác mapping bên db
+    if(c === '#f5a623') key = 'amber';
     if(c === '#f4586b') key = 'red';
     if(c === '#5aa7ef') key = 'blue';
 
