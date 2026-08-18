@@ -17,7 +17,7 @@
 }
 
 .splash-logo {
-  width: min(150px, 36vw);
+  width: min(100px, 16vw);
   height: auto;
   aspect-ratio: 1 / 1;
   object-fit: contain;
