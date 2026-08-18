@@ -40,6 +40,11 @@
 
 </head>
 <body class="min-h-screen">
+<div id="splash-screen">
+  <div class="splash-content">
+    <img src="/assets/splash.svg" alt="Splash" width="1080" height="1080" class="splash-logo">
+  </div>
+</div>
 
 <div id="toast-wrap"></div>
 <div id="drawer-overlay" onclick="closeDrawer()"></div>
@@ -481,6 +486,16 @@
 </div>
 
 <script>
+window.addEventListener('load', () => {
+  setTimeout(() => {
+    const splash = document.getElementById('splash-screen');
+    if (splash) {
+      splash.classList.add('hide');
+      setTimeout(() => splash.remove(), 350);
+    }
+  }, 900);
+});
+
 /* ============ STATE (in-memory & synced with localStorage) ============ */
 const Sayraa = {
   user: null, // {name, email, avatar, providers:[], token}
