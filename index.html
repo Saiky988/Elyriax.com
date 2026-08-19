@@ -486,7 +486,6 @@
 </div>
 
 <script>
-/* ============ ADVANCED SPLASH SCREEN CONTROLLER ============ */
 const Splash = {
   minDuration: 900,
   maxTimeout: 5000,
@@ -502,15 +501,18 @@ const Splash = {
   async wait(tasks = []) {
     const minTimer = new Promise(res => setTimeout(res, this.minDuration));
 
-    const windowLoaded = new Promise(res => {
-      if (document.readyState === 'complete') res();
-      else window.addEventListener('load', res, { once: true });
+    const domReady = new Promise(res => {
+      if (document.readyState === 'interactive' || document.readyState === 'complete') {
+        res();
+      } else {
+        document.addEventListener('DOMContentLoaded', res, { once: true });
+      }
     });
 
     const safetyTimer = setTimeout(() => this.hide(), this.maxTimeout);
 
     try {
-      await Promise.allSettled([minTimer, windowLoaded, ...tasks]);
+      await Promise.allSettled([minTimer, domReady, ...tasks]);
     } finally {
       clearTimeout(safetyTimer);
       this.hide();
