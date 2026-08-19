@@ -1,28 +1,7 @@
 /* ---- Splash Screen ---- */
-#splash-screen {
-  position: fixed;
-  inset: 0;
-  z-index: 9999;
-  background: #000000;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  transition: opacity 0.3s ease, visibility 0.3s ease;
-}
-
-#splash-screen.hide {
-  opacity: 0;
-  visibility: hidden;
-  pointer-events: none;
-}
-
-.splash-logo {
-  width: min(100px, 26vw);
-  height: auto;
-  aspect-ratio: 1 / 1;
-  object-fit: contain;
-}
-
+#splash-screen { position: fixed; inset: 0; z-index: 9999; background: #000000; display: flex; align-items: center; justify-content: center; transition: opacity 0.3s ease, visibility 0.3s ease; }
+#splash-screen.hide { opacity: 0; visibility: hidden; pointer-events: none; }
+.splash-logo { width: min(100px, 26vw); height: auto; aspect-ratio: 1 / 1; object-fit: contain; }
 
 :root{
     --bg:#08090b;
