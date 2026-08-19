@@ -1706,8 +1706,12 @@ function init(){
   const deviceInfoEl = document.getElementById("deviceInfo");
   if(deviceInfoEl) deviceInfoEl.textContent = getDeviceInfo();
 	
-	Splash();
+  const networkTasks = [
+    checkOAuthCallback()
+  ];
 
+  await Splash.wait(networkTasks);
+	
   renderDashboard();
   renderGamesDashboard();
   renderMarkets();
