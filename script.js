@@ -31,9 +31,7 @@ const Splash = {
     }
   }
 };
-</script>
 
-<script>
 /* ============ STATE (in-memory & synced with localStorage) ============ */
 const Sayraa = {
   user: null, // {name, email, avatar, providers:[], token}
