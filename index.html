@@ -1689,10 +1689,10 @@ function getDeviceInfo() {
 }
 
 /* ============ INIT ============ */
-function init(){
+async function init() {
   const savedToken = localStorage.getItem('sayraa_token');
   const savedUser = localStorage.getItem('sayraa_user');
-  if(savedToken && savedUser) {
+  if (savedToken && savedUser) {
     Sayraa.user = JSON.parse(savedUser);
   }
 
@@ -1703,27 +1703,27 @@ function init(){
     window.location.hash = 'dashboard';
   }
 
-  checkOAuthCallback();
-  
   const deviceInfoEl = document.getElementById("deviceInfo");
-  if(deviceInfoEl) deviceInfoEl.textContent = getDeviceInfo();
-	
-  const networkTasks = [
-    checkOAuthCallback(),
-    loadGenshinAccounts()
-  ];
+  if (deviceInfoEl) deviceInfoEl.textContent = getDeviceInfo();
 
-	await Splash.wait(networkTasks);
-	
   renderDashboard();
   renderGamesDashboard();
   renderMarkets();
   renderAuthUI();
   renderAccentSwatches();
-  loadGenshinAccounts();
+
+  const networkTasks = [
+    checkOAuthCallback(),
+    loadGenshinAccounts()
+  ];
+
+  await Splash.wait(networkTasks);
+	
   renderGenshinPanel('banners');
 }
+
 init();
+
 </script>
 
 
