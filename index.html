@@ -40,17 +40,17 @@
 
 </head>
 <body class="min-h-screen">
-<div id="splash-screen">
-  <div class="splash-content">
-    <img src="/assets/splash.svg" alt="Splash" width="1080" height="1080" class="splash-logo">
-  </div>
-</div>
 
 <div id="toast-wrap"></div>
 <div id="drawer-overlay" onclick="closeDrawer()"></div>
 <div id="sheet-overlay" onclick="closeSheet()"></div>
 
 <div class="flex min-h-screen">
+<div id="splash-screen">
+  <div class="splash-content">
+    <img src="/assets/splash.svg" alt="Splash" width="1080" height="1080" class="splash-logo">
+  </div>
+</div>
 
   <!-- DRAWER -->
   <aside id="drawer">
@@ -486,16 +486,40 @@
 </div>
 
 <script>
-window.addEventListener('load', () => {
-  setTimeout(() => {
-    const splash = document.getElementById('splash-screen');
-    if (splash) {
-      splash.classList.add('hide');
-      setTimeout(() => splash.remove(), 350);
-    }
-  }, 900);
-});
+/* ============ ADVANCED SPLASH SCREEN CONTROLLER ============ */
+const Splash = {
+  minDuration: 900,
+  maxTimeout: 5000,
 
+  hide() {
+    const splash = document.getElementById('splash-screen');
+    if (!splash || splash.classList.contains('hide')) return;
+    
+    splash.classList.add('hide');
+    setTimeout(() => splash.remove(), 300);
+  },
+
+  async wait(tasks = []) {
+    const minTimer = new Promise(res => setTimeout(res, this.minDuration));
+
+    const windowLoaded = new Promise(res => {
+      if (document.readyState === 'complete') res();
+      else window.addEventListener('load', res, { once: true });
+    });
+
+    const safetyTimer = setTimeout(() => this.hide(), this.maxTimeout);
+
+    try {
+      await Promise.allSettled([minTimer, windowLoaded, ...tasks]);
+    } finally {
+      clearTimeout(safetyTimer);
+      this.hide();
+    }
+  }
+};
+</script>
+
+<script>
 /* ============ STATE (in-memory & synced with localStorage) ============ */
 const Sayraa = {
   user: null, // {name, email, avatar, providers:[], token}
