@@ -1707,10 +1707,11 @@ function init(){
   if(deviceInfoEl) deviceInfoEl.textContent = getDeviceInfo();
 	
   const networkTasks = [
-    checkOAuthCallback()
+    checkOAuthCallback(),
+    loadGenshinAccounts()
   ];
 
-  await Splash.wait(networkTasks);
+	await Splash.wait(networkTasks);
 	
   renderDashboard();
   renderGamesDashboard();
