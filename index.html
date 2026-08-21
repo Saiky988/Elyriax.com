@@ -221,15 +221,16 @@
           <p class="text-[12.5px] mt-1" style="color:var(--text-dim)">Digital accounts, mailboxes &amp; API keys.</p>
         </div>
 
-        <div class="flex gap-2 mb-4 overflow-x-auto -mx-1 px-1">
-          <button class="btn btn-ghost btn-sm" onclick="showToast('info','Order history — mock only')"><i class="fa-solid fa-receipt"></i> Orders</button>
-          <button class="btn btn-ghost btn-sm" onclick="showToast('info','Wishlist — mock only')"><i class="fa-regular fa-heart"></i> Wishlist</button>
-          <button class="btn btn-ghost btn-sm" onclick="showToast('info','Support — mock only')"><i class="fa-regular fa-life-ring"></i> Support</button>
+        <div class="flex gap-2 mb-4 overflow-x-auto -mx-1 px-1" id="market-actions">
+          <button class="btn btn-ghost btn-sm" onclick="openOrders()"><i class="fa-solid fa-receipt"></i> Orders</button>
+          <button class="btn btn-ghost btn-sm" onclick="openWishlist()"><i class="fa-regular fa-heart"></i> Wishlist</button>
+          <button class="btn btn-ghost btn-sm relative" onclick="openCart()" id="market-cart-btn"><i class="fa-solid fa-cart-shopping"></i> Cart <span class="cart-badge" id="cart-badge" style="display:none">0</span></button>
+          <button class="btn btn-ghost btn-sm" onclick="openSupport()"><i class="fa-regular fa-life-ring"></i> Support</button>
         </div>
 
         <div class="relative mb-4">
           <i class="fa-solid fa-magnifying-glass absolute text-[13px]" style="left:14px; top:50%; transform:translateY(-50%); color:var(--text-faint)"></i>
-          <input class="input" style="padding-left:36px" placeholder="Search products…" oninput="searchMarkets(this.value)" />
+          <input id="market-search" class="input" style="padding-left:36px" placeholder="Search products…" oninput="searchMarkets(this.value)" />
         </div>
 
         <div class="flex gap-1.5 overflow-x-auto mb-6 -mx-1 px-1" id="market-chips"></div>

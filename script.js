@@ -90,6 +90,7 @@ const ROUTE_META = {
 };
 
 function navigate(route){
+  closeSheet();
   if(window.location.hash !== `#${route}`) { window.location.hash = route; return; }
   renderView(route);
 }
@@ -204,64 +205,454 @@ function renderGamesDashboard(){
 
 /* ============ MARKETS (mock) ============ */
 const MARKET_PRODUCTS = [
-  { id:'gdl12h', name:'Google domain account live 12h', category:'Accounts', icon:'fa-brands fa-google', color:'#ea4335', price:'$0.01', stock:'Infinite', rating:4.8, featured:true },
-  { id:'gdl10m', name:'Google domain account live 10 min', category:'Accounts', icon:'fa-solid fa-graduation-cap', color:'#5aa7ef', price:'$0.005', stock:42, rating:4.6, featured:true },
-  { id:'outlook', name:'Outlook Account', category:'Accounts', icon:'fa-brands fa-microsoft', color:'#00a4ef', price:'$1.29', stock:310, rating:4.5 },
-  { id:'proton', name:'Proton Mail', category:'Email', icon:'fa-solid fa-shield-halved', color:'#6d4aff', price:'$3.99', stock:76, rating:4.9, featured:true },
-  { id:'tempmail', name:'Temporary Email', category:'Email', icon:'fa-solid fa-inbox', color:'#34d6b4', price:'Free', stock:999, rating:4.2 },
-  { id:'openai', name:'OpenAI API', category:'API Keys', icon:'fa-solid fa-brain', color:'#10a37f', price:'$9.99', stock:54, rating:4.7 },
-  { id:'gemini', name:'Gemini API', category:'API Keys', icon:'fa-solid fa-star', color:'#8b7ff5', price:'$8.49', stock:61, rating:4.6 },
-  { id:'claude', name:'Claude API', category:'API Keys', icon:'fa-solid fa-comment-dots', color:'#c99a5b', price:'$11.99', stock:38, rating:4.9 },
+  { id:'gdl12h', name:'Google Domain Account 12h', shortDescription:'Live Google account with domain access, 12h warranty.', description:'High-quality Google account registered on custom domain. Perfect for development and testing. 12-hour replacement warranty included.', category:'Accounts', icon:'fa-brands fa-google', color:'#ea4335', price:'$0.01', numericPrice:0.01, stock:'Infinite', rating:4.8, reviews:124, featured:true, badge:'Best Seller', tags:['google','domain','dev'], delivery:'Instant', variants:[{id:'12h',name:'12 Hours',price:0.01},{id:'24h',name:'24 Hours',price:0.02}] },
+  { id:'gdl10m', name:'Google Domain Account 10m', shortDescription:'Short-term Google account for quick tasks.', description:'Disposable Google account with domain access. Ideal for one-time use or short-lived automation. 10-minute active window.', category:'Accounts', icon:'fa-solid fa-graduation-cap', color:'#5aa7ef', price:'$0.005', numericPrice:0.005, stock:42, rating:4.6, reviews:89, featured:true, badge:null, tags:['google','temp','dev'], delivery:'Instant', variants:[{id:'10m',name:'10 Minutes',price:0.005}] },
+  { id:'outlook', name:'Outlook Account', shortDescription:'Fresh Outlook / Hotmail account.', description:'Verified Outlook account ready to use. Clean IP history, fully unlocked. Suitable for personal or business registration.', category:'Accounts', icon:'fa-brands fa-microsoft', color:'#00a4ef', price:'$1.29', numericPrice:1.29, stock:310, rating:4.5, reviews:256, featured:false, badge:null, tags:['microsoft','email','fresh'], delivery:'Instant', variants:[] },
+  { id:'proton', name:'Proton Mail Plus', shortDescription:'Secure encrypted email account.', description:'Proton Mail Plus account with premium features. End-to-end encryption, custom domains, and priority support.', category:'Email', icon:'fa-solid fa-shield-halved', color:'#6d4aff', price:'$3.99', numericPrice:3.99, stock:76, rating:4.9, reviews:412, featured:true, badge:'Top Rated', tags:['privacy','encrypted','secure'], delivery:'Instant', variants:[{id:'1m',name:'1 Month',price:3.99},{id:'1y',name:'1 Year',price:29.99}] },
+  { id:'tempmail', name:'Temporary Email', shortDescription:'Instant disposable inbox.', description:'One-click temporary email address. No registration required. Auto-expires after 24 hours. Perfect for sign-up verification.', category:'Email', icon:'fa-solid fa-inbox', color:'#34d6b4', price:'Free', numericPrice:0, stock:999, rating:4.2, reviews:1034, featured:false, badge:null, tags:['temp','disposable','free'], delivery:'Instant', variants:[] },
+  { id:'openai', name:'OpenAI API Key', shortDescription:'Ready-to-use OpenAI API credit.', description:'Pre-loaded OpenAI API key with active billing. Use for ChatGPT, GPT-4, DALL·E, and Whisper integrations.', category:'API Keys', icon:'fa-solid fa-brain', color:'#10a37f', price:'$9.99', numericPrice:9.99, stock:54, rating:4.7, reviews:178, featured:false, badge:null, tags:['openai','gpt','ai'], delivery:'Instant', variants:[{id:'5',name:'$5 Credit',price:5.99},{id:'10',name:'$10 Credit',price:9.99},{id:'25',name:'$25 Credit',price:19.99}] },
+  { id:'gemini', name:'Gemini API Key', shortDescription:'Google Gemini API access.', description:'Google Gemini API key with quota available. Supports Gemini 1.5 Pro and Flash models. Great for AI-powered apps.', category:'API Keys', icon:'fa-solid fa-star', color:'#8b7ff5', price:'$8.49', numericPrice:8.49, stock:61, rating:4.6, reviews:134, featured:false, badge:null, tags:['google','gemini','ai'], delivery:'Instant', variants:[{id:'std',name:'Standard',price:8.49},{id:'pro',name:'Pro',price:14.99}] },
+  { id:'claude', name:'Claude API Key', shortDescription:'Anthropic Claude API access.', description:'Anthropic Claude API key with usage quota. Claude 3.5 Sonnet and Opus ready. High-quality reasoning model.', category:'API Keys', icon:'fa-solid fa-comment-dots', color:'#c99a5b', price:'$11.99', numericPrice:11.99, stock:38, rating:4.9, reviews:95, featured:true, badge:'Hot', tags:['anthropic','claude','ai'], delivery:'Instant', variants:[{id:'std',name:'Standard',price:11.99}] },
+  { id:'netflix', name:'Netflix Premium 1m', shortDescription:'1-month Netflix Premium shared.', description:'Netflix Premium (UHD) shared profile. 1-month warranty. Works on TV, mobile, and browser. Global catalog.', category:'Services', icon:'fa-solid fa-film', color:'#e50914', price:'$4.99', numericPrice:4.99, stock:120, rating:4.4, reviews:567, featured:false, badge:null, tags:['streaming','video','entertainment'], delivery:'5 min', variants:[{id:'1m',name:'1 Month',price:4.99},{id:'3m',name:'3 Months',price:12.99}] },
+  { id:'spotify', name:'Spotify Premium 1m', shortDescription:'1-month Spotify Premium.', description:'Spotify Premium individual plan. No ads, offline downloads, and high-quality audio. 1-month guaranteed.', category:'Services', icon:'fa-brands fa-spotify', color:'#1db954', price:'$2.99', numericPrice:2.99, stock:200, rating:4.5, reviews:423, featured:false, badge:null, tags:['music','streaming','audio'], delivery:'5 min', variants:[{id:'1m',name:'1 Month',price:2.99},{id:'3m',name:'3 Months',price:7.99}] },
+  { id:'canva', name:'Canva Pro 1y', shortDescription:'1-year Canva Pro subscription.', description:'Canva Pro team invite. Full access to premium templates, Brand Kit, Background Remover, and Magic Resize.', category:'Services', icon:'fa-solid fa-palette', color:'#00c4cc', price:'$9.99', numericPrice:9.99, stock:45, rating:4.7, reviews:312, featured:false, badge:null, tags:['design','graphics','tool'], delivery:'10 min', variants:[{id:'1y',name:'1 Year',price:9.99}] },
+  { id:'chatgpt', name:'ChatGPT Plus 1m', shortDescription:'1-month ChatGPT Plus.', description:'ChatGPT Plus subscription. GPT-4 access, faster response, plugins, and browsing. Delivered via account upgrade or gift.', category:'Services', icon:'fa-solid fa-robot', color:'#10a37f', price:'$5.99', numericPrice:5.99, stock:88, rating:4.6, reviews:289, featured:true, badge:'Popular', tags:['ai','chatgpt','gpt4'], delivery:'10 min', variants:[{id:'1m',name:'1 Month',price:5.99}] },
+  { id:'tempmailapi', name:'Temp Mail API', shortDescription:'API for disposable email.', description:'Developer API for temporary email generation. RESTful endpoints, webhooks, and high delivery rate. Perfect for QA.', category:'API Keys', icon:'fa-solid fa-envelope-open-text', color:'#34d6b4', price:'$1.49', numericPrice:1.49, stock:999, rating:4.3, reviews:76, featured:false, badge:null, tags:['api','email','dev'], delivery:'Instant', variants:[{id:'1k',name:'1K requests',price:1.49},{id:'10k',name:'10K requests',price:9.99}] },
+  { id:'edumail', name:'Edu Mail Account', shortDescription:'Student email with benefits.', description:'Valid .edu email address. Unlocks student discounts (GitHub Student, AWS Educate, JetBrains, etc.).', category:'Email', icon:'fa-solid fa-school', color:'#f5a623', price:'$2.49', numericPrice:2.49, stock:34, rating:4.5, reviews:198, featured:false, badge:null, tags:['student','edu','discount'], delivery:'30 min', variants:[] },
+  { id:'workspace', name:'Google Workspace', shortDescription:'Business Google account.', description:'Google Workspace Business Starter account. Custom domain, 30 GB cloud storage, and admin panel access.', category:'Accounts', icon:'fa-brands fa-google', color:'#ea4335', price:'$3.99', numericPrice:3.99, stock:12, rating:4.6, reviews:45, featured:false, badge:null, tags:['google','business','cloud'], delivery:'15 min', variants:[{id:'starter',name:'Starter',price:3.99},{id:'std',name:'Standard',price:7.99}] }
 ];
 
+const MARKET_STATE = { category: 'All', search: '', loading: false };
+let MARKET_CART = [];
+let MARKET_WISHLIST = [];
+let MARKET_ORDERS = [];
+
+function loadMarketState(){
+  try{
+    MARKET_CART = JSON.parse(localStorage.getItem('sayraa_market_cart')) || [];
+    MARKET_WISHLIST = JSON.parse(localStorage.getItem('sayraa_market_wishlist')) || [];
+    MARKET_ORDERS = JSON.parse(localStorage.getItem('sayraa_market_orders')) || [];
+  }catch(e){}
+}
+function saveMarketState(){
+  try{
+    localStorage.setItem('sayraa_market_cart', JSON.stringify(MARKET_CART));
+    localStorage.setItem('sayraa_market_wishlist', JSON.stringify(MARKET_WISHLIST));
+    localStorage.setItem('sayraa_market_orders', JSON.stringify(MARKET_ORDERS));
+  }catch(e){}
+}
+function formatMarketPrice(n){
+  if(n===0||n===undefined||n===null) return 'Free';
+  return '$' + n.toFixed(n < 0.01 ? 3 : 2);
+}
+
+function marketEmptyHTML(type){
+  const map = {
+    search:{i:'fa-magnifying-glass',t:'No products found',m:'Try another search or category.',a:'<button class="btn btn-ghost btn-sm mt-4" onclick="clearMarketFilters()">Clear filters</button>'},
+    cart:{i:'fa-cart-shopping',t:'Your cart is empty',m:'Browse the market and add some items.',a:'<button class="btn btn-primary btn-sm mt-4" onclick="closeSheet()">Start Shopping</button>'},
+    wishlist:{i:'fa-heart',t:'Your wishlist is empty',m:'Save items you like for later.',a:'<button class="btn btn-primary btn-sm mt-4" onclick="closeSheet()">Browse Products</button>'},
+    orders:{i:'fa-receipt',t:'No orders yet',m:'Your completed orders will appear here.',a:'<button class="btn btn-primary btn-sm mt-4" onclick="closeSheet()">Start Shopping</button>'}
+  };
+  const x = map[type] || map.search;
+  return `<div class="col-span-full market-empty"><div class="market-empty-icon"><i class="fa-solid ${x.i} text-[22px]" style="color:var(--text-faint)"></i></div><h3 class="font-semibold text-[15px] mb-1">${x.t}</h3><p class="text-[13px]" style="color:var(--text-dim)">${x.m}</p>${x.a}</div>`;
+}
+
+function showMarketSkeleton(){
+  const sk = `<div class="glass module-card card p-4"><div class="flex items-start gap-3.5 mb-4"><div class="skel w-11 h-11 rounded-xl"></div><div class="flex-1 space-y-2"><div class="skel h-4 w-3/4"></div><div class="skel h-3 w-1/2"></div><div class="skel h-3 w-full"></div></div></div><div class="skel h-8 w-20 ml-auto"></div></div>`;
+  const grid = `<div class="grid sm:grid-cols-2 gap-3 col-span-full w-full">${sk}${sk}${sk}${sk}</div>`;
+  document.getElementById('market-grid').innerHTML = grid;
+  document.getElementById('market-featured').innerHTML = grid;
+}
+
+function clearMarketFilters(){
+  MARKET_STATE.category = 'All';
+  MARKET_STATE.search = '';
+  const el = document.getElementById('market-search');
+  if(el) el.value = '';
+  renderMarketCategories();
+  renderMarketFeatured();
+  renderMarketGrid();
+}
+
+let marketSearchTimer = null;
+function searchMarkets(q){
+  clearTimeout(marketSearchTimer);
+  marketSearchTimer = setTimeout(()=>{
+    MARKET_STATE.search = q.toLowerCase().trim();
+    renderMarketGrid();
+  }, 250);
+}
+
+function getFilteredProducts(){
+  return MARKET_PRODUCTS.filter(p=>{
+    const mc = MARKET_STATE.category === 'All' || p.category === MARKET_STATE.category;
+    const q = MARKET_STATE.search;
+    if(!q) return mc;
+    const hay = (p.name+' '+p.shortDescription+' '+p.description+' '+p.category+' '+p.tags.join(' ')).toLowerCase();
+    return mc && hay.includes(q);
+  });
+}
+
+function initMarkets(){
+  loadMarketState();
+  showMarketSkeleton();
+  setTimeout(()=>{
+    renderMarketCategories();
+    renderMarketFeatured();
+    renderMarketGrid();
+    updateCartBadge();
+  }, 400);
+}
+
+function renderMarketCategories(){
+  const cats = ['All', ...new Set(MARKET_PRODUCTS.map(p=>p.category))];
+  document.getElementById('market-chips').innerHTML = cats.map(c=>
+    `<button class="tab-pill ${c===MARKET_STATE.category?'active':''}" onclick="filterMarkets('${c}', this)">${c}</button>`
+  ).join('');
+}
+function filterMarkets(cat, el){
+  MARKET_STATE.category = cat;
+  document.querySelectorAll('#market-chips .tab-pill').forEach(b=>b.classList.remove('active'));
+  el.classList.add('active');
+  renderMarketFeatured();
+  renderMarketGrid();
+}
+
+function renderMarketFeatured(){
+  const f = MARKET_PRODUCTS.filter(p=>p.featured);
+  document.getElementById('market-featured').innerHTML = f.length ? f.map(productCard).join('') : marketEmptyHTML('search');
+}
+
+function renderMarketGrid(){
+  const filtered = getFilteredProducts();
+  document.getElementById('market-grid').innerHTML = filtered.length ? filtered.map(productCard).join('') : marketEmptyHTML('search');
+  document.getElementById('market-count').textContent = `${filtered.length} items`;
+}
+
 function productCard(p){
+  const isW = MARKET_WISHLIST.includes(p.id);
+  const oos = p.stock === 0 || p.stock === '0';
   return `
-  <div class="glass module-card card p-4">
+  <div class="glass module-card card p-4 cursor-pointer relative" onclick="openProductDetail('${p.id}')">
+    <button class="wishlist-btn ${isW?'on':''}" onclick="event.stopPropagation(); toggleWishlist('${p.id}')" title="Wishlist"><i class="${isW?'fa-solid':'fa-regular'} fa-heart"></i></button>
     <div class="flex items-start gap-3.5">
       <div class="icon-tile" style="background:${p.color}22; color:${p.color}"><i class="${p.icon}"></i></div>
       <div class="flex-1 min-w-0">
-        <div class="flex items-center gap-2"><h3 class="font-semibold text-[13.5px] truncate">${p.name}</h3>${p.featured?`<span class="pill" style="background:rgba(52,214,180,.14); color:var(--teal)">Featured</span>`:''}</div>
-        <div class="text-[11px] mt-0.5" style="color:var(--text-faint)">${p.category} · <i class="fa-solid fa-star" style="color:var(--amber)"></i> ${p.rating}</div>
+        <div class="flex items-center gap-2 flex-wrap">
+          <h3 class="font-semibold text-[13.5px] truncate">${p.name}</h3>
+          ${p.badge?`<span class="pill" style="background:rgba(245,166,35,.14); color:var(--amber)">${p.badge}</span>`:''}
+          ${p.featured&&!p.badge?`<span class="pill" style="background:rgba(52,214,180,.14); color:var(--teal)">Featured</span>`:''}
+        </div>
+        <div class="text-[11px] mt-0.5" style="color:var(--text-faint)">${p.category} · <i class="fa-solid fa-star" style="color:var(--amber)"></i> ${p.rating} <span style="color:var(--text-faint)">(${p.reviews})</span></div>
+        <p class="text-[12px] mt-1 line-clamp-2" style="color:var(--text-dim)">${p.shortDescription}</p>
+        <div class="flex items-center gap-1.5 mt-2 text-[11px]" style="color:var(--text-faint)"><i class="fa-solid fa-bolt" style="color:var(--teal); font-size:10px"></i> ${p.delivery}</div>
       </div>
     </div>
     <div class="flex items-center justify-between mt-4">
       <div>
         <div class="font-bold text-[15px] mono">${p.price}</div>
-        <div class="text-[10.5px]" style="color:var(--text-faint)">${p.stock} in stock</div>
+        <div class="text-[10.5px] ${oos?'text-[var(--rose)]':''}" style="color:var(--text-faint)">${oos?'Out of stock':p.stock+' in stock'}</div>
       </div>
-      <button class="btn btn-primary btn-sm" onclick="buyProduct('${p.id}')">Buy</button>
+      <button class="btn btn-primary btn-sm ${oos?'opacity-50 cursor-not-allowed':''}" onclick="event.stopPropagation(); ${oos?'':`quickAddToCart('${p.id}')`}" ${oos?'disabled':''}>${oos?'Unavailable':'Add'}</button>
     </div>
   </div>`;
 }
 
-function renderMarketChips(){
-  const cats = ['All', ...new Set(MARKET_PRODUCTS.map(p=>p.category))];
-  document.getElementById('market-chips').innerHTML = cats.map(c=>`<button class="tab-pill ${c===Sayraa.marketCategory?'active':''}" onclick="filterMarkets('${c}', this)">${c}</button>`).join('');
-}
-function filterMarkets(cat, el){
-  Sayraa.marketCategory = cat;
-  document.querySelectorAll('#market-chips .tab-pill').forEach(b=>b.classList.remove('active'));
-  el.classList.add('active');
-  renderMarketGrid();
-}
-function searchMarkets(q){ Sayraa.marketSearch = q.toLowerCase(); renderMarketGrid(); }
-function renderMarketGrid(){
-  const filtered = MARKET_PRODUCTS.filter(p =>
-    (Sayraa.marketCategory === 'All' || p.category === Sayraa.marketCategory) &&
-    p.name.toLowerCase().includes(Sayraa.marketSearch)
-  );
-  document.getElementById('market-grid').innerHTML = filtered.map(productCard).join('') ||
-    `<div class="col-span-2 text-center py-10 text-[13px]" style="color:var(--text-faint)">No products match your search.</div>`;
-  document.getElementById('market-count').textContent = `${filtered.length} items`;
-}
-function renderMarketFeatured(){
-  document.getElementById('market-featured').innerHTML = MARKET_PRODUCTS.filter(p=>p.featured).map(productCard).join('');
-}
-function buyProduct(id){
+function openProductDetail(id){
   const p = MARKET_PRODUCTS.find(x=>x.id===id);
-  showToast('success', `${p.name} added to cart — mock checkout only`);
+  if(!p) return;
+  const isW = MARKET_WISHLIST.includes(id);
+  const oos = p.stock === 0 || p.stock === '0';
+  const hasV = p.variants && p.variants.length > 0;
+  let vHTML = '';
+  if(hasV){
+    vHTML = `<div class="mb-4"><div class="text-[12px] mb-2" style="color:var(--text-dim)">Select variant</div><div class="flex flex-wrap gap-2">`+
+      p.variants.map((v,idx)=>`<button class="variant-chip ${idx===0?'active':''}" data-vid="${v.id}" onclick="selectVariant(this,'${v.id}',${v.price})">${v.name} — ${formatMarketPrice(v.price)}</button>`).join('')+
+    `</div></div>`;
+  }
+  openSheet(`
+    <div class="flex items-start gap-3.5 mb-4">
+      <div class="icon-tile" style="background:${p.color}22; color:${p.color}"><i class="${p.icon} text-[20px]"></i></div>
+      <div class="flex-1 min-w-0">
+        <h3 class="display font-bold text-[17px]">${p.name}</h3>
+        <div class="text-[12px] mt-0.5" style="color:var(--text-faint)">${p.category} · <i class="fa-solid fa-star" style="color:var(--amber)"></i> ${p.rating} · ${p.reviews} reviews</div>
+      </div>
+      <button class="wishlist-btn wishlist-btn-lg ${isW?'on':''}" onclick="toggleWishlist('${p.id}'); this.classList.toggle('on'); const ic=this.querySelector('i'); ic.className='${isW?'fa-regular':'fa-solid'} fa-heart'" title="Wishlist"><i class="${isW?'fa-solid':'fa-regular'} fa-heart"></i></button>
+    </div>
+    <p class="text-[13px] mb-4" style="color:var(--text-dim)">${p.description}</p>
+    <div class="flex flex-wrap gap-1.5 mb-4">${p.tags.map(t=>`<span class="pill" style="background:rgba(255,255,255,.06); color:var(--text-dim)">${t}</span>`).join('')}</div>
+    <div class="flex items-center gap-4 mb-4 text-[12px]" style="color:var(--text-faint)">
+      <span><i class="fa-solid fa-box" style="color:var(--accent)"></i> ${oos?'<span style="color:var(--rose)">Out of stock</span>':p.stock+' in stock'}</span>
+      <span><i class="fa-solid fa-bolt" style="color:var(--teal)"></i> ${p.delivery}</span>
+    </div>
+    ${vHTML}
+    <div class="flex items-center justify-between mb-5">
+      <div>
+        <div class="text-[12px]" style="color:var(--text-dim)">Quantity</div>
+        <div class="quantity-control mt-1.5">
+          <button onclick="adjustDetailQty(-1)" ${oos?'disabled':''}>-</button>
+          <span id="detail-qty">1</span>
+          <button onclick="adjustDetailQty(1)" ${oos?'disabled':''}>+</button>
+        </div>
+      </div>
+      <div class="text-right">
+        <div class="text-[12px]" style="color:var(--text-dim)">Total</div>
+        <div class="font-bold text-[18px] mono" id="detail-total">${p.price}</div>
+      </div>
+    </div>
+    <div class="flex gap-2.5">
+      <button class="btn btn-ghost flex-1" onclick="closeSheet()">Close</button>
+      <button class="btn btn-primary flex-1 ${oos?'opacity-50 cursor-not-allowed':''}" onclick="${oos?'':`confirmAddToCart('${p.id}')`}" ${oos?'disabled':''}>${oos?'Out of Stock':'Add to Cart'}</button>
+    </div>
+    ${!oos?`<button class="btn btn-primary w-full mt-2.5" style="background:linear-gradient(180deg,var(--teal),#2bb89a)" onclick="buyNow('${p.id}')"><i class="fa-solid fa-bolt"></i> Buy Now</button>`:''}
+  `);
+  window._detailProduct = p;
+  window._detailVariant = hasV ? p.variants[0] : null;
+  window._detailQty = 1;
 }
-function renderMarkets(){ renderMarketChips(); renderMarketFeatured(); renderMarketGrid(); }
+function selectVariant(btn,vid,price){
+  document.querySelectorAll('.variant-chip').forEach(b=>b.classList.remove('active'));
+  btn.classList.add('active');
+  window._detailVariant = window._detailProduct.variants.find(v=>v.id===vid);
+  updateDetailTotal();
+}
+function adjustDetailQty(delta){
+  if(!window._detailProduct) return;
+  const max = typeof window._detailProduct.stock === 'number' ? window._detailProduct.stock : 999;
+  window._detailQty = Math.max(1, Math.min(max, window._detailQty + delta));
+  const el = document.getElementById('detail-qty');
+  if(el) el.textContent = window._detailQty;
+  updateDetailTotal();
+}
+function updateDetailTotal(){
+  const p = window._detailProduct;
+  const v = window._detailVariant;
+  const price = v ? v.price : p.numericPrice;
+  const el = document.getElementById('detail-total');
+  if(el) el.textContent = formatMarketPrice(price * window._detailQty);
+}
+function confirmAddToCart(id){
+  addToCart(id, window._detailVariant ? window._detailVariant.id : null, window._detailQty);
+  closeSheet();
+}
+function buyNow(id){
+  confirmAddToCart(id);
+  openCheckout();
+}
+function quickAddToCart(id){
+  addToCart(id, null, 1);
+}
+
+function addToCart(id, variantId, qty){
+  const p = MARKET_PRODUCTS.find(x=>x.id===id);
+  if(!p) return;
+  const ex = MARKET_CART.find(i=>i.productId===id && i.variantId===variantId);
+  if(ex) ex.quantity += qty;
+  else MARKET_CART.push({productId:id, variantId:variantId, quantity:qty, addedAt:Date.now()});
+  saveMarketState();
+  updateCartBadge();
+  showToast('success', `${p.name} added to cart`);
+}
+function removeFromCart(id, variantId){
+  MARKET_CART = MARKET_CART.filter(i=>!(i.productId===id && i.variantId===variantId));
+  saveMarketState();
+  updateCartBadge();
+  renderCart();
+}
+function updateCartQuantity(id, variantId, delta){
+  const item = MARKET_CART.find(i=>i.productId===id && i.variantId===variantId);
+  if(!item) return;
+  item.quantity = Math.max(1, item.quantity + delta);
+  saveMarketState();
+  renderCart();
+}
+function getCartTotal(){
+  return MARKET_CART.reduce((sum,item)=>{
+    const p = MARKET_PRODUCTS.find(x=>x.id===item.productId);
+    if(!p) return sum;
+    const price = item.variantId ? (p.variants.find(v=>v.id===item.variantId)?.price || p.numericPrice) : p.numericPrice;
+    return sum + (price * item.quantity);
+  },0);
+}
+function updateCartBadge(){
+  const badge = document.getElementById('cart-badge');
+  const count = MARKET_CART.reduce((a,b)=>a+b.quantity,0);
+  if(badge){
+    badge.textContent = count;
+    badge.style.display = count > 0 ? 'flex' : 'none';
+  }
+}
+function openCart(){ renderCart(); }
+function renderCart(){
+  if(MARKET_CART.length===0){
+    openSheet(`<h3 class="display font-bold text-[17px] mb-1">Your Cart</h3>${marketEmptyHTML('cart')}`);
+    return;
+  }
+  const items = MARKET_CART.map(item=>{
+    const p = MARKET_PRODUCTS.find(x=>x.id===item.productId);
+    if(!p) return '';
+    const v = item.variantId ? p.variants.find(x=>x.id===item.variantId) : null;
+    const price = v ? v.price : p.numericPrice;
+    const tot = price * item.quantity;
+    return `
+      <div class="flex items-center gap-3 py-3 border-b" style="border-color:var(--line)">
+        <div class="icon-tile" style="background:${p.color}22; color:${p.color}"><i class="${p.icon}"></i></div>
+        <div class="flex-1 min-w-0">
+          <div class="text-[13px] font-medium truncate">${p.name}</div>
+          <div class="text-[11px]" style="color:var(--text-faint)">${v?v.name:'Standard'} · ${formatMarketPrice(price)}</div>
+        </div>
+        <div class="quantity-control">
+          <button onclick="updateCartQuantity('${item.productId}','${item.variantId||''}',-1)">-</button>
+          <span>${item.quantity}</span>
+          <button onclick="updateCartQuantity('${item.productId}','${item.variantId||''}',1)">+</button>
+        </div>
+        <div class="text-[13px] font-semibold mono w-16 text-right">${formatMarketPrice(tot)}</div>
+        <button onclick="removeFromCart('${item.productId}','${item.variantId||''}')" class="w-7 h-7 rounded-lg flex items-center justify-center hover:bg-white/5 text-[var(--rose)]"><i class="fa-solid fa-trash text-[11px]"></i></button>
+      </div>`;
+  }).join('');
+  const sub = getCartTotal();
+  openSheet(`
+    <h3 class="display font-bold text-[17px] mb-4">Your Cart (${MARKET_CART.reduce((a,b)=>a+b.quantity,0)})</h3>
+    <div class="max-h-[50vh] overflow-y-auto mb-4">${items}</div>
+    <div class="border-t pt-4 mb-4" style="border-color:var(--line)">
+      <div class="flex items-center justify-between text-[13px] mb-1"><span style="color:var(--text-dim)">Subtotal</span><span class="mono">${formatMarketPrice(sub)}</span></div>
+      <div class="flex items-center justify-between text-[13px] mb-1"><span style="color:var(--text-dim)">Tax</span><span class="mono">$0.00</span></div>
+      <div class="flex items-center justify-between text-[15px] font-bold mt-2 pt-2 border-t" style="border-color:var(--line)"><span>Total</span><span class="mono">${formatMarketPrice(sub)}</span></div>
+    </div>
+    <button class="btn btn-primary w-full mb-2.5" onclick="openCheckout()"><i class="fa-solid fa-credit-card"></i> Checkout</button>
+    <button class="btn btn-ghost w-full" onclick="closeSheet()">Continue Shopping</button>
+  `);
+}
+
+function openCheckout(){
+  if(MARKET_CART.length===0) return showToast('error','Your cart is empty');
+  const total = getCartTotal();
+  openSheet(`
+    <h3 class="display font-bold text-[17px] mb-1">Checkout</h3>
+    <p class="text-[13px] mb-5" style="color:var(--text-dim)">Guest checkout — no account required.</p>
+    <div class="glass card p-3 mb-4 space-y-2">
+      ${MARKET_CART.map(item=>{
+        const p = MARKET_PRODUCTS.find(x=>x.id===item.productId);
+        const v = item.variantId ? p.variants.find(x=>x.id===item.variantId) : null;
+        const price = v ? v.price : p.numericPrice;
+        return `<div class="flex items-center justify-between text-[12.5px]"><span class="truncate flex-1">${p.name} ${v?'('+v.name+')':''} ×${item.quantity}</span><span class="mono">${formatMarketPrice(price*item.quantity)}</span></div>`;
+      }).join('')}
+      <div class="border-t pt-2 mt-2 flex items-center justify-between font-bold text-[14px]" style="border-color:var(--line)"><span>Total</span><span class="mono">${formatMarketPrice(total)}</span></div>
+    </div>
+    <div class="text-[12px] font-semibold mb-2" style="color:var(--text-dim)">Payment Method</div>
+    <div class="space-y-2 mb-5">
+      <label class="flex items-center gap-3 p-3 rounded-xl cursor-pointer" style="background:rgba(255,255,255,.04); border:1px solid var(--line)"><input type="radio" name="pay" value="wallet" checked class="accent-radio"><i class="fa-solid fa-wallet" style="color:var(--accent)"></i><span class="text-[13px]">Wallet Balance</span></label>
+      <label class="flex items-center gap-3 p-3 rounded-xl cursor-pointer" style="background:rgba(255,255,255,.04); border:1px solid var(--line)"><input type="radio" name="pay" value="card" class="accent-radio"><i class="fa-solid fa-credit-card" style="color:var(--teal)"></i><span class="text-[13px]">Credit Card</span></label>
+      <label class="flex items-center gap-3 p-3 rounded-xl cursor-pointer" style="background:rgba(255,255,255,.04); border:1px solid var(--line)"><input type="radio" name="pay" value="crypto" class="accent-radio"><i class="fa-brands fa-bitcoin" style="color:var(--amber)"></i><span class="text-[13px]">Crypto</span></label>
+    </div>
+    <button class="btn btn-primary w-full" onclick="placeMockOrder()"><i class="fa-solid fa-lock"></i> Place Order</button>
+  `);
+}
+function placeMockOrder(){
+  const method = document.querySelector('input[name="pay"]:checked')?.value || 'wallet';
+  const total = getCartTotal();
+  const orderId = 'ELX-'+new Date().toISOString().slice(0,10).replace(/-/g,'')+'-'+String(MARKET_ORDERS.length+1).padStart(3,'0');
+  MARKET_ORDERS.unshift({id:orderId, createdAt:new Date().toISOString(), status:'Pending', items:[...MARKET_CART], total:total, paymentMethod:method});
+  MARKET_CART = [];
+  saveMarketState();
+  updateCartBadge();
+  closeSheet();
+  setTimeout(()=>{
+    openSheet(`
+      <div class="text-center py-4">
+        <div class="w-16 h-16 mx-auto rounded-full flex items-center justify-center mb-3" style="background:rgba(52,214,180,.14)"><i class="fa-solid fa-check text-[24px]" style="color:var(--teal)"></i></div>
+        <h3 class="display font-bold text-[18px] mb-1">Order Placed!</h3>
+        <p class="text-[13px] mb-4" style="color:var(--text-dim)">Your order <span class="mono" style="color:var(--accent)">${orderId}</span> is pending.</p>
+        <div class="glass card p-3 mb-5 text-left">
+          <div class="flex items-center justify-between text-[12.5px] mb-1"><span style="color:var(--text-dim)">Status</span><span class="pill" style="background:rgba(245,166,35,.14); color:var(--amber)">Pending</span></div>
+          <div class="flex items-center justify-between text-[12.5px]"><span style="color:var(--text-dim)">Total</span><span class="mono font-bold">${formatMarketPrice(total)}</span></div>
+        </div>
+        <button class="btn btn-primary w-full" onclick="closeSheet(); openOrders();">View Orders</button>
+      </div>
+    `);
+  }, 300);
+  showToast('success', `Order ${orderId} placed successfully`);
+}
+
+function openOrders(){ renderOrders(); }
+function renderOrders(){
+  if(MARKET_ORDERS.length===0){
+    openSheet(`<h3 class="display font-bold text-[17px] mb-1">Order History</h3>${marketEmptyHTML('orders')}`);
+    return;
+  }
+  const sc = {Pending:{bg:'rgba(245,166,35,.14)',color:'var(--amber)'},Processing:{bg:'rgba(90,167,239,.14)',color:'var(--accent)'},Completed:{bg:'rgba(52,214,180,.14)',color:'var(--teal)'},Cancelled:{bg:'rgba(244,88,107,.14)',color:'var(--rose)'}};
+  const list = MARKET_ORDERS.map(o=>{
+    const s = sc[o.status] || sc.Pending;
+    const d = new Date(o.createdAt).toLocaleDateString();
+    return `
+      <div class="glass card p-3.5 mb-2.5">
+        <div class="flex items-center justify-between mb-2"><span class="mono text-[12px]" style="color:var(--accent)">${o.id}</span><span class="pill" style="background:${s.bg}; color:${s.color}">${o.status}</span></div>
+        <div class="text-[11.5px] mb-2" style="color:var(--text-faint)">${o.items.length} item${o.items.length>1?'s':''} · ${d}</div>
+        <div class="flex items-center justify-between text-[13px] font-bold"><span>Total</span><span class="mono">${formatMarketPrice(o.total)}</span></div>
+      </div>`;
+  }).join('');
+  openSheet(`<h3 class="display font-bold text-[17px] mb-4">Order History</h3><div class="max-h-[60vh] overflow-y-auto">${list}</div><button class="btn btn-ghost w-full mt-4" onclick="closeSheet()">Close</button>`);
+}
+
+function toggleWishlist(id){
+  const idx = MARKET_WISHLIST.indexOf(id);
+  if(idx>-1){ MARKET_WISHLIST.splice(idx,1); showToast('info','Removed from wishlist'); }
+  else { MARKET_WISHLIST.push(id); showToast('success','Added to wishlist'); }
+  saveMarketState();
+  renderMarketGrid();
+  renderMarketFeatured();
+}
+function openWishlist(){ renderWishlist(); }
+function renderWishlist(){
+  if(MARKET_WISHLIST.length===0){
+    openSheet(`<h3 class="display font-bold text-[17px] mb-1">Wishlist</h3>${marketEmptyHTML('wishlist')}`);
+    return;
+  }
+  const list = MARKET_WISHLIST.map(id=>{
+    const p = MARKET_PRODUCTS.find(x=>x.id===id);
+    if(!p) return '';
+    return `
+      <div class="flex items-center gap-3 py-3 border-b cursor-pointer" style="border-color:var(--line)" onclick="closeSheet(); openProductDetail('${p.id}')">
+        <div class="icon-tile" style="background:${p.color}22; color:${p.color}"><i class="${p.icon}"></i></div>
+        <div class="flex-1 min-w-0"><div class="text-[13px] font-medium truncate">${p.name}</div><div class="text-[11px]" style="color:var(--text-faint)">${p.price}</div></div>
+        <button class="btn btn-ghost btn-sm" onclick="event.stopPropagation(); addToCart('${p.id}',null,1); showToast('success','Added to cart')">Add</button>
+        <button onclick="event.stopPropagation(); toggleWishlist('${p.id}'); openWishlist();" class="w-7 h-7 rounded-lg flex items-center justify-center hover:bg-white/5 text-[var(--rose)]"><i class="fa-solid fa-trash text-[11px]"></i></button>
+      </div>`;
+  }).join('');
+  openSheet(`<h3 class="display font-bold text-[17px] mb-4">Wishlist (${MARKET_WISHLIST.length})</h3><div class="max-h-[50vh] overflow-y-auto mb-4">${list}</div><button class="btn btn-ghost w-full" onclick="closeSheet()">Close</button>`);
+}
+
+function openSupport(){
+  openSheet(`
+    <h3 class="display font-bold text-[17px] mb-1">Support</h3>
+    <p class="text-[13px] mb-5" style="color:var(--text-dim)">How can we help you today?</p>
+    <div class="grid grid-cols-2 gap-2 mb-4">
+      <button class="btn btn-ghost btn-sm" onclick="setSupportTopic('Order issue')"><i class="fa-solid fa-box-open"></i> Order Issue</button>
+      <button class="btn btn-ghost btn-sm" onclick="setSupportTopic('Product question')"><i class="fa-solid fa-tag"></i> Product Q</button>
+      <button class="btn btn-ghost btn-sm" onclick="setSupportTopic('Payment issue')"><i class="fa-solid fa-credit-card"></i> Payment</button>
+      <button class="btn btn-ghost btn-sm" onclick="setSupportTopic('Account issue')"><i class="fa-solid fa-user-shield"></i> Account</button>
+    </div>
+    <div class="mb-4">
+      <div class="text-[12px] mb-1.5" style="color:var(--text-dim)">Topic</div>
+      <input id="support-topic" class="input mb-3" placeholder="Select a topic above" readonly>
+      <div class="text-[12px] mb-1.5" style="color:var(--text-dim)">Message</div>
+      <textarea id="support-msg" class="input" rows="3" placeholder="Describe your issue..."></textarea>
+    </div>
+    <button class="btn btn-primary w-full" onclick="submitSupport()"><i class="fa-solid fa-paper-plane"></i> Submit Request</button>
+  `);
+}
+function setSupportTopic(t){ const el=document.getElementById('support-topic'); if(el) el.value=t; }
+function submitSupport(){
+  const topic=document.getElementById('support-topic')?.value;
+  const msg=document.getElementById('support-msg')?.value;
+  if(!topic||!msg) return showToast('error','Please fill in all fields');
+  closeSheet();
+  showToast('success','Support request submitted. We will reply shortly.');
+}
+
+function renderMarkets(){ initMarkets(); }
+
+
 
 /* ============ AUTHENTICATION ============ */
 const PROVIDERS = [
@@ -1218,7 +1609,7 @@ async function init() {
 
   renderDashboard();
   renderGamesDashboard();
-  renderMarkets();
+  initMarkets();
   renderAuthUI();
   renderAccentSwatches();
 
