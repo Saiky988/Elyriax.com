@@ -488,7 +488,6 @@
 </div>
 
 <script>
-/* ============ INIT ============ */
 async function init() {
   const savedToken = localStorage.getItem('sayraa_token');
   const savedUser = localStorage.getItem('sayraa_user');
@@ -497,32 +496,35 @@ async function init() {
   }
 
   const initialRoute = window.location.hash.replace('#', '') || 'dashboard';
-  if (ROUTE_META[initialRoute]) {
+  if (typeof ROUTE_META !== 'undefined' && ROUTE_META[initialRoute]) {
     renderView(initialRoute);
   } else {
     window.location.hash = 'dashboard';
   }
 
   const deviceInfoEl = document.getElementById("deviceInfo");
-  if (deviceInfoEl) deviceInfoEl.textContent = getDeviceInfo();
+  if (deviceInfoEl && typeof getDeviceInfo === 'function') deviceInfoEl.textContent = getDeviceInfo();
 
-  renderDashboard();
-  renderGamesDashboard();
-  initMarkets();
-  renderAuthUI();
-  renderAccentSwatches();
+  if (typeof renderDashboard === 'function') renderDashboard();
+  if (typeof renderGamesDashboard === 'function') renderGamesDashboard();
+  if (typeof initMarkets === 'function') initMarkets();
+  if (typeof renderAuthUI === 'function') renderAuthUI();
+  if (typeof renderAccentSwatches === 'function') renderAccentSwatches();
 
   const networkTasks = [
-    checkOAuthCallback(),
-    loadGenshinAccounts()
+    typeof checkOAuthCallback === 'function' ? checkOAuthCallback() : Promise.resolve(),
+    typeof loadGenshinAccounts === 'function' ? loadGenshinAccounts() : Promise.resolve()
   ];
 
-  await Splash.wait(networkTasks);
+  if (typeof Splash !== 'undefined') {
+    await Splash.wait(networkTasks);
+  }
 	
-  renderGenshinPanel('banners');
+  if (typeof renderGenshinPanel === 'function') renderGenshinPanel('banners');
 }
 
-init();
+// Chờ các file defer nạp xong rồi mới chạy init
+window.addEventListener('DOMContentLoaded', init);
 </script>
 
 </body>
