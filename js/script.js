@@ -1,3 +1,37 @@
+const Splash = {
+  minDuration: 900,
+  maxTimeout: 5000,
+
+  hide() {
+    const splash = document.getElementById('splash-screen');
+    if (!splash || splash.classList.contains('hide')) return;
+    
+    splash.classList.add('hide');
+    setTimeout(() => splash.remove(), 300);
+  },
+
+  async wait(tasks = []) {
+    const minTimer = new Promise(res => setTimeout(res, this.minDuration));
+
+    const domReady = new Promise(res => {
+      if (document.readyState === 'interactive' || document.readyState === 'complete') {
+        res();
+      } else {
+        document.addEventListener('DOMContentLoaded', res, { once: true });
+      }
+    });
+
+    const safetyTimer = setTimeout(() => this.hide(), this.maxTimeout);
+
+    try {
+      await Promise.allSettled([minTimer, domReady, ...tasks]);
+    } finally {
+      clearTimeout(safetyTimer);
+      this.hide();
+    }
+  }
+};
+
 /* ============ STATE (in-memory & synced with localStorage) ============ */
 const Sayraa = {
   user: null, // {name, email, avatar, providers:[], token}
@@ -1554,39 +1588,3 @@ function getDeviceInfo() {
 
     return `${device} (${os})`;
 }
-
-/* ============ INIT ============ */
-async function init() {
-  const savedToken = localStorage.getItem('sayraa_token');
-  const savedUser = localStorage.getItem('sayraa_user');
-  if (savedToken && savedUser) {
-    Sayraa.user = JSON.parse(savedUser);
-  }
-
-  const initialRoute = window.location.hash.replace('#', '') || 'dashboard';
-  if (ROUTE_META[initialRoute]) {
-    renderView(initialRoute);
-  } else {
-    window.location.hash = 'dashboard';
-  }
-
-  const deviceInfoEl = document.getElementById("deviceInfo");
-  if (deviceInfoEl) deviceInfoEl.textContent = getDeviceInfo();
-
-  renderDashboard();
-  renderGamesDashboard();
-  initMarkets();
-  renderAuthUI();
-  renderAccentSwatches();
-
-  const networkTasks = [
-    checkOAuthCallback(),
-    loadGenshinAccounts()
-  ];
-
-  await Splash.wait(networkTasks);
-	
-  renderGenshinPanel('banners');
-}
-
-init();
