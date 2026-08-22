@@ -1,37 +1,3 @@
-const Splash = {
-  minDuration: 900,
-  maxTimeout: 5000,
-
-  hide() {
-    const splash = document.getElementById('splash-screen');
-    if (!splash || splash.classList.contains('hide')) return;
-    
-    splash.classList.add('hide');
-    setTimeout(() => splash.remove(), 300);
-  },
-
-  async wait(tasks = []) {
-    const minTimer = new Promise(res => setTimeout(res, this.minDuration));
-
-    const domReady = new Promise(res => {
-      if (document.readyState === 'interactive' || document.readyState === 'complete') {
-        res();
-      } else {
-        document.addEventListener('DOMContentLoaded', res, { once: true });
-      }
-    });
-
-    const safetyTimer = setTimeout(() => this.hide(), this.maxTimeout);
-
-    try {
-      await Promise.allSettled([minTimer, domReady, ...tasks]);
-    } finally {
-      clearTimeout(safetyTimer);
-      this.hide();
-    }
-  }
-};
-
 /* ============ STATE (in-memory & synced with localStorage) ============ */
 const Sayraa = {
   user: null, // {name, email, avatar, providers:[], token}
@@ -43,8 +9,8 @@ const Sayraa = {
 };
 
 const ACCENTS = ['#7c6ff0','#34d6b4','#f5a623','#f4586b','#5aa7ef'];
-const OAUTH_BASE = 'https://api.elyriax.com/v1/auth';
-const SETTINGS_BASE = 'https://api.elyriax.com/v1/settings';
+const OAUTH_BASE = 'https://apis.elyriax.com/v1/auth';
+const SETTINGS_BASE = 'https://apis.elyriax.com/v1/settings';
 
 const MODULES = [
   { id:'auth', route:'settings', name:'Authentication', icon:'fa-fingerprint', color:'#7c6ff0', live:true, desc:'OAuth login & account linking across providers.', activity:'Ready — synced' },
@@ -931,7 +897,7 @@ async function deleteApiKey() {
 }
 
 /* ============ GENSHIN MODULE ============ */
-const GENSHIN_BASE = 'https://api.elyriax.com/v1/genshin';
+const GENSHIN_BASE = 'https://apis.elyriax.com/v1/genshin';
 const ELEMENT_COLOR = {Pyro:'#f4586b', Hydro:'#5aa7ef', Dendro:'#8b9a68', Electro:'#b48ef0', Anemo:'#34d6b4', Cryo:'#8fd8ef', Geo:'#f5a623'};
 
 let genshinAccounts = [];
