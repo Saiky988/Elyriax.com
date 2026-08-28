@@ -1087,11 +1087,17 @@ async function init() {
     Sayraa.user = JSON.parse(savedUser);
   }
 
-  const initialRoute = window.location.hash.replace('#', '') || 'dashboard';
+  const initialRoute = (typeof getRouteFromUrl === 'function') ? getRouteFromUrl() : (window.location.hash.replace(/^#\/?/, '') || 'dashboard');
   if (typeof ROUTE_META !== 'undefined' && ROUTE_META[initialRoute]) {
+    if (window.location.hash) {
+      const cleanPath = initialRoute === 'dashboard' ? '/' : `/${initialRoute}`;
+      try {
+        history.replaceState({ route: initialRoute }, '', cleanPath);
+      } catch (e) {}
+    }
     renderView(initialRoute);
   } else {
-    window.location.hash = 'dashboard';
+    renderView('dashboard');
   }
 
   const deviceInfoEl = document.getElementById("deviceInfo");

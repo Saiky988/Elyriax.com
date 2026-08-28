@@ -171,9 +171,52 @@ const ROUTE_META = {
 
 };
 
-function navigate(route){
+function getRouteFromUrl() {
+  // 0. Query parameter hoặc stored redirect
+  const params = new URLSearchParams(window.location.search);
+  const queryRoute = params.get('route');
+  if (queryRoute && ROUTE_META[queryRoute]) {
+    return queryRoute;
+  }
+
+  const storedRedirect = sessionStorage.getItem('elyriax_redirect_route');
+  if (storedRedirect) {
+    sessionStorage.removeItem('elyriax_redirect_route');
+    if (ROUTE_META[storedRedirect]) return storedRedirect;
+  }
+
+  // 1. Phân tích đường dẫn pathname (bỏ #)
+  const path = window.location.pathname.replace(/^\/+|\/+$/g, '').toLowerCase();
+  const firstSegment = path.split('/')[0].replace(/\.html$/, '');
+
+  if (firstSegment && ROUTE_META[firstSegment]) {
+    return firstSegment;
+  }
+
+  // 2. Phân tích hash nếu có (tự động chuyển đổi sạch)
+  const hash = window.location.hash.replace(/^#\/?/, '').toLowerCase();
+  if (hash && ROUTE_META[hash]) {
+    return hash;
+  }
+
+  return 'dashboard';
+}
+
+function navigate(route, updateHistory = true){
   closeSheet();
-  if(window.location.hash !== `#${route}`) { window.location.hash = route; return; }
+  if (route === 'order') route = 'orders';
+
+  if (updateHistory) {
+    const currentRoute = getRouteFromUrl();
+    const newPath = route === 'dashboard' ? '/' : `/${route}`;
+    
+    if (currentRoute !== route || window.location.hash || window.location.pathname !== newPath) {
+      try {
+        history.pushState({ route }, '', newPath);
+      } catch (e) {}
+    }
+  }
+
   renderView(route);
 }
 
@@ -253,9 +296,22 @@ function renderView(route) {
   if(asyncSection) loadAsyncView(asyncSection);
 }
 
+window.addEventListener('popstate', (e) => {
+  const route = (e.state && e.state.route) || getRouteFromUrl();
+  if (ROUTE_META[route]) {
+    renderView(route);
+  } else {
+    renderView('dashboard');
+  }
+});
+
 window.addEventListener('hashchange', () => {
-  const route = window.location.hash.replace('#', '') || 'dashboard';
-  if(ROUTE_META[route]) renderView(route); else window.location.hash = 'dashboard';
+  const route = getRouteFromUrl();
+  const cleanPath = route === 'dashboard' ? '/' : `/${route}`;
+  try {
+    history.replaceState({ route }, '', cleanPath);
+  } catch (e) {}
+  if (ROUTE_META[route]) renderView(route); else renderView('dashboard');
 });
 
 function renderComingSoon(section){
