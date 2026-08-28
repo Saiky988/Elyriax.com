@@ -271,6 +271,16 @@ input[type="range"].studio-slider::-webkit-slider-thumb:active {
   text-rendering: optimizeLegibility;
 }
 
+#blur-bounding-box,
+.resize-handle,
+#subtitle-live-overlay {
+  touch-action: none;
+  -webkit-touch-callout: none;
+  -webkit-user-select: none;
+  user-select: none;
+}
+
+
 /* Watermark Overlay */
 .watermark-overlay {
   position: absolute;
