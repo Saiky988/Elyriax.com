@@ -50,9 +50,14 @@ const CanvasOverlay = (function () {
   function setupBlurInteractions() {
     // 1. Kéo di chuyển toàn bộ Blur Box
     blurBox.addEventListener('pointerdown', (e) => {
-      if (e.target.classList.contains('resize-handle')) return; // để handle xử lý riêng
+      if (e.target.classList.contains('resize-handle')) return;
       e.preventDefault();
       e.stopPropagation();
+
+      // Giữ pointer trên màn hình cảm ứng
+      if (e.target.setPointerCapture) {
+        e.target.setPointerCapture(e.pointerId);
+      }
 
       isDraggingBlur = true;
       blurBox.classList.add('active');
@@ -68,8 +73,9 @@ const CanvasOverlay = (function () {
         height: boxRect.height
       };
 
-      window.addEventListener('pointermove', onBlurPointerMove);
+      window.addEventListener('pointermove', onBlurPointerMove, { passive: false });
       window.addEventListener('pointerup', onBlurPointerUp);
+      window.addEventListener('pointercancel', onBlurPointerUp); // Xử lý khi ngón tay bị hủy trên mobile
     });
 
     // 2. Co giãn từ 8 điểm neo
@@ -78,6 +84,10 @@ const CanvasOverlay = (function () {
       handle.addEventListener('pointerdown', (e) => {
         e.preventDefault();
         e.stopPropagation();
+
+        if (handle.setPointerCapture) {
+          handle.setPointerCapture(e.pointerId);
+        }
 
         isResizingBlur = true;
         activeResizeHandle = handle.dataset.handle;
@@ -94,9 +104,39 @@ const CanvasOverlay = (function () {
           height: boxRect.height
         };
 
-        window.addEventListener('pointermove', onBlurPointerMove);
+        window.addEventListener('pointermove', onBlurPointerMove, { passive: false });
         window.addEventListener('pointerup', onBlurPointerUp);
+        window.addEventListener('pointercancel', onBlurPointerUp);
       });
+    });
+  }
+
+  function setupSubtitleInteractions() {
+    if (!subOverlay) return;
+
+    subOverlay.addEventListener('pointerdown', (e) => {
+      e.preventDefault();
+      e.stopPropagation();
+
+      if (subOverlay.setPointerCapture) {
+        subOverlay.setPointerCapture(e.pointerId);
+      }
+
+      isDraggingSub = true;
+      subOverlay.classList.add('dragging');
+      startPointer = { x: e.clientX, y: e.clientY };
+
+      const wrapperRect = videoWrapper.getBoundingClientRect();
+      const subRect = subOverlay.getBoundingClientRect();
+
+      const subCenterX = subRect.left + subRect.width / 2 - wrapperRect.left;
+      const subCenterY = subRect.top + subRect.height / 2 - wrapperRect.top;
+
+      startSubPos = { x: subCenterX, y: subCenterY };
+
+      window.addEventListener('pointermove', onSubPointerMove, { passive: false });
+      window.addEventListener('pointerup', onSubPointerUp);
+      window.addEventListener('pointercancel', onSubPointerUp);
     });
   }
 
@@ -202,6 +242,7 @@ const CanvasOverlay = (function () {
     if (blurBox) blurBox.classList.remove('active');
     window.removeEventListener('pointermove', onBlurPointerMove);
     window.removeEventListener('pointerup', onBlurPointerUp);
+    window.removeEventListener('pointercancel', onBlurPointerUp);
   }
 
   /**
@@ -265,6 +306,7 @@ const CanvasOverlay = (function () {
     if (subOverlay) subOverlay.classList.remove('dragging');
     window.removeEventListener('pointermove', onSubPointerMove);
     window.removeEventListener('pointerup', onSubPointerUp);
+    window.removeEventListener('pointercancel', onSubPointerUp);
   }
 
   function setupResizeObserver() {
