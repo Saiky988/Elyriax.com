@@ -1,0 +1,48 @@
+/* ---- Splash Screen ---- */
+#splash-screen {
+  position: fixed;
+  inset: 0;
+  z-index: 9999;
+  background: var(--bg, #08090b);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: opacity 0.3s ease, visibility 0.3s ease;
+}
+
+#splash-screen.hide {
+  opacity: 0;
+  visibility: hidden;
+  pointer-events: none;
+}
+
+.splash-logo {
+  width: min(100px, 26vw);
+  height: auto;
+  aspect-ratio: 1 / 1;
+  object-fit: contain;
+  transition: filter 0.2s ease;
+}
+
+/* Light Theme Splash */
+html[data-theme-effective="light"] #splash-screen,
+html[data-theme="light"] #splash-screen {
+  background: #f8fafc;
+}
+
+html[data-theme-effective="light"] .splash-logo,
+html[data-theme="light"] .splash-logo {
+  filter: invert(1) brightness(0.15);
+}
+
+/* Classic Dark Theme Splash */
+html[data-theme-effective="classic_dark"] #splash-screen,
+html[data-theme="classic_dark"] #splash-screen {
+  background: #0d1117;
+}
+
+/* Modern Dark Theme Splash */
+html[data-theme-effective="dark"] #splash-screen,
+html[data-theme="dark"] #splash-screen {
+  background: #08090b;
+}

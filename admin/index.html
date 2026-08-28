@@ -1,0 +1,569 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>Elyriax - Admin Control Panel</title>
+<script src="https://cdn.tailwindcss.com"></script>
+    <link rel="icon" type="image/x-icon" href="https://elyriax.com/assets/favicon.ico">
+    <link rel="icon" type="image/png" sizes="32x32" href="https://elyriax.com/assets/favicon-32x32.png">
+    <link rel="icon" type="image/png" sizes="16x16" href="https://elyriax.com/assets/favicon-16x16.png">
+    <link rel="apple-touch-icon" sizes="180x180" href="https://elyriax.com/assets/apple-touch-icon.png">
+    <link rel="manifest" href="/site2.webmanifest">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@600;700;800&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+<style>
+  :root{
+    --bg:#08090b;
+    --surface-solid:#15171b;
+    --surface-solid-2:#1b1e23;
+    --line: rgba(255,255,255,0.08);
+    --line-strong: rgba(255,255,255,0.14);
+    --text:#f0f1f4;
+    --text-dim:#989ca6;
+    --text-faint:#5b5f68;
+    --accent:#7c6ff0;
+    --accent-soft: rgba(124,111,240,0.14);
+    --teal:#34d6b4;
+    --amber:#f5a623;
+    --rose:#f4586b;
+  }
+  body{
+    background: radial-gradient(900px 500px at 50% -10%, rgba(124,111,240,0.08), transparent 60%), var(--bg);
+    color:var(--text);
+    font-family:'Inter',sans-serif;
+    -webkit-font-smoothing:antialiased;
+  }
+  .display{font-family:'Plus Jakarta Sans',sans-serif;}
+  .mono{font-family:'JetBrains Mono',monospace;}
+  .glass-card{ background:var(--surface-solid); border:1px solid var(--line); border-radius:20px; }
+  .input{ width:100%; background:rgba(255,255,255,0.04); border:1px solid var(--line); border-radius:12px; padding:10px 14px; font-size:14px; color:var(--text); transition:border-color .2s; }
+  .input:focus{ border-color:var(--accent); outline:none; }
+  .btn{ display:inline-flex; align-items:center; justify-content:center; gap:8px; font-weight:600; font-size:13.5px; border-radius:13px; padding:10px 16px; transition:all .2s; }
+  .btn:active{ transform:scale(.97); }
+  .btn-primary{ background:linear-gradient(180deg, #8b7ff5, var(--accent)); color:#fff; box-shadow:0 6px 18px -4px rgba(124,111,240,.4); }
+  .btn-primary:hover{ filter:brightness(1.1); }
+  .btn-ghost{ background:rgba(255,255,255,0.05); border:1px solid var(--line); color:var(--text); }
+  .btn-ghost:hover{ background:rgba(255,255,255,0.08); }
+  .btn-danger{ background:rgba(244,88,107,0.12); color:var(--rose); border:1px solid rgba(244,88,107,0.25); }
+  .btn-danger:hover{ background:rgba(244,88,107,0.18); }
+  .btn-sm{ padding:6px 12px; font-size:12.5px; border-radius:10px; }
+  
+  #toast-wrap{ position:fixed; top:20px; right:20px; z-index:90; display:flex; flex-direction:column; gap:8px; }
+  .toast{ display:flex; align-items:center; gap:10px; padding:12px 18px; border-radius:13px; font-size:13.5px; background:var(--surface-solid-2); border:1px solid var(--line-strong); box-shadow:0 12px 30px rgba(0,0,0,.5); animation:toastIn .3s ease; }
+  @keyframes toastIn{ from{opacity:0; transform:translateY(-10px);} to{opacity:1; transform:translateY(0);} }
+</style>
+</head>
+<body class="min-h-screen p-4 lg:p-8 flex justify-center">
+
+<div id="toast-wrap"></div>
+
+<div class="max-w-6xl w-full space-y-6">
+  
+  <!-- HEADER -->
+  <header class="flex flex-col md:flex-row md:items-center justify-between gap-5 border-b pb-5" style="border-color:var(--line)">
+    <div>
+      <h1 class="display text-2xl font-extrabold tracking-tight flex items-center gap-2">
+        <i class="fa-solid fa-toolbox text-[--accent]"></i> Elyriax Market Admin Panel
+      </h1>
+      <p class="text-[13px] text-[--text-dim] mt-0.5">Quản trị Catalog, Kho hàng (Inventory) &amp; Đồng bộ Stock tự động</p>
+    </div>
+    
+    <!-- KHỐI XÁC THỰC -->
+    <div class="flex flex-col sm:flex-row gap-3">
+      <div class="space-y-1">
+        <label class="text-[10px] font-bold uppercase tracking-wider text-[--text-faint]">Tài khoản Hệ thống (.env)</label>
+        <div class="flex gap-1.5">
+          <input type="text" id="admin-user" class="input text-[12px] !py-1.5 !px-3" placeholder="Admin User...">
+          <input type="password" id="admin-pass" class="input text-[12px] !py-1.5 !px-3" placeholder="Admin Password...">
+        </div>
+      </div>
+      <div class="space-y-1">
+        <label class="text-[10px] font-bold uppercase tracking-wider text-[--text-faint]">Hoặc JWT Token</label>
+        <input type="text" id="admin-token" class="input text-[12px] mono !py-1.5" placeholder="Bearer Token...">
+      </div>
+    </div>
+  </header>
+
+  <!-- GRID CHÍNH -->
+  <div class="grid lg:grid-cols-3 gap-6">
+    
+    <!-- CỘT TRÁI: FORM SẢN PHẨM -->
+    <div class="lg:col-span-1 space-y-6">
+      <div class="glass-card p-5 space-y-4">
+        <div class="flex items-center justify-between">
+          <h2 class="display font-bold text-[16px] text-[--accent] flex items-center gap-2" id="form-title">
+            <i class="fa-solid fa-plus-circle"></i> Thêm Sản Phẩm Mới
+          </h2>
+          <button type="button" id="btn-cancel-edit" onclick="resetProductForm()" class="text-[12px] text-[--rose] hidden hover:underline">Hủy sửa</button>
+        </div>
+
+        <form id="product-form" class="space-y-3" onsubmit="handleSaveProduct(event)">
+          <input type="hidden" id="edit-product-id" value="">
+          <div>
+            <label class="text-[12px] text-[--text-dim] mb-1 block">Product Code (Unique)</label>
+            <input type="text" id="p-code" class="input font-semibold uppercase" placeholder="Ví dụ: MAIL-001" required>
+          </div>
+          <div>
+            <label class="text-[12px] text-[--text-dim] mb-1 block">Tên sản phẩm</label>
+            <input type="text" id="p-name" class="input" placeholder="Ví dụ: Google Mail 12h" required>
+          </div>
+          <div class="grid grid-cols-2 gap-2">
+            <div>
+              <label class="text-[12px] text-[--text-dim] mb-1 block">Category</label>
+              <select id="p-category" class="input">
+                <option value="mail">Mail</option>
+                <option value="api">API</option>
+                <option value="account">Account</option>
+                <option value="license">License</option>
+                <option value="giftcard">Giftcard</option>
+                <option value="game">Game</option>
+              </select>
+            </div>
+            <div>
+              <label class="text-[12px] text-[--text-dim] mb-1 block">Delivery</label>
+              <select id="p-delivery" class="input">
+                <option value="automatic">Tự động (Auto)</option>
+                <option value="manual">Thủ công (Manual)</option>
+              </select>
+            </div>
+          </div>
+          <div class="grid grid-cols-2 gap-2">
+            <div>
+              <label class="text-[12px] text-[--text-dim] mb-1 block">Giá bán (VND)</label>
+              <input type="number" id="p-price" class="input" placeholder="10000" required>
+            </div>
+            <div>
+              <label class="text-[12px] text-[--text-dim] mb-1 block">Trạng thái</label>
+              <select id="p-status" class="input">
+                <option value="active">Active (Hiện)</option>
+                <option value="hidden">Hidden (Ẩn)</option>
+                <option value="disabled">Disabled (Khóa)</option>
+              </select>
+            </div>
+          </div>
+          <div>
+            <label class="text-[12px] text-[--text-dim] mb-1 block">Thumbnail URL</label>
+            <input type="text" id="p-thumbnail" class="input text-[12px]" placeholder="https://...">
+          </div>
+          <div>
+            <label class="text-[12px] text-[--text-dim] mb-1 block">Mô tả sản phẩm</label>
+            <textarea id="p-desc" class="input" rows="2" placeholder="Nhập mô tả ngắn..."></textarea>
+          </div>
+          <button type="submit" id="btn-submit-product" class="btn btn-primary w-full mt-2">
+            <i class="fa-solid fa-paper-plane"></i> Lưu Sản Phẩm
+          </button>
+        </form>
+      </div>
+
+      <!-- ĐIỀU HƯỚNG NHANH -->
+      <div class="glass-card p-5 space-y-3">
+        <h3 class="display font-bold text-[14px]">Chọn ID Kho Cần Xem</h3>
+        <div class="flex gap-2">
+          <input type="number" id="quick-id" class="input" placeholder="ID sản phẩm (Ví dụ: 1)">
+          <button onclick="loadInventoryTable()" class="btn btn-ghost btn-sm whitespace-nowrap">Xem Kho</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- CỘT PHẢI: CATALOG & KHO HÀNG -->
+    <div class="lg:col-span-2 space-y-6">
+      
+      <!-- DANH SÁCH CATALOG SẢN PHẨM -->
+      <div class="glass-card p-5 space-y-4">
+        <div class="flex items-center justify-between">
+          <h2 class="display font-bold text-[16px] text-[--teal] flex items-center gap-2">
+            <i class="fa-solid fa-list-check"></i> Danh Sách Sản Phẩm (Catalog)
+          </h2>
+          <button onclick="loadProductsTable()" class="btn btn-ghost btn-sm"><i class="fa-solid fa-rotate mr-1"></i> Làm mới</button>
+        </div>
+
+        <div class="overflow-x-auto border rounded-xl" style="border-color:var(--line)">
+          <table class="w-full text-left border-collapse text-[13px]">
+            <thead>
+              <tr class="bg-white/[0.02] border-b uppercase font-semibold text-[11px] tracking-wider text-[--text-faint]" style="border-color:var(--line)">
+                <th class="p-3">ID / Code</th>
+                <th class="p-3">Tên sản phẩm</th>
+                <th class="p-3">Giá</th>
+                <th class="p-3">Stock</th>
+                <th class="p-3">Status</th>
+                <th class="p-3 text-right">Thao tác</th>
+              </tr>
+            </thead>
+            <tbody id="products-tbody" class="divide-y" style="--tw-divide-opacity: 1; border-color: var(--line)">
+              <tr>
+                <td colspan="6" class="p-4 text-center text-[--text-faint] italic">Đang tải danh sách catalog...</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- IMPORT DATA VÀO KHO -->
+      <div class="glass-card p-5 space-y-4">
+        <div class="flex items-center justify-between">
+          <h2 class="display font-bold text-[16px] text-[--amber] flex items-center gap-2">
+            <i class="fa-solid fa-file-import"></i> Nạp Dữ Liệu Kho Hàng Loạt
+          </h2>
+          <span class="text-[12px] text-[--text-faint]">Tự lọc trùng &amp; Đồng bộ Stock</span>
+        </div>
+        <div class="grid grid-cols-3 gap-3 items-end">
+          <div class="col-span-1">
+            <label class="text-[12px] text-[--text-dim] mb-1 block">ID SP Đích</label>
+            <input type="number" id="import-p-id" class="input font-semibold" placeholder="ID (vd: 1)">
+          </div>
+          <div class="col-span-2 text-[11px] text-[--text-dim] pb-1">
+            Mỗi tài nguyên một dòng. Backend tự tách 30 ký tự đầu làm Identifier.
+          </div>
+        </div>
+        <div>
+          <textarea id="import-content" class="input mono text-[12px]" rows="4" placeholder="mail1@domain.com|pass1&#10;mail2@domain.com|pass2"></textarea>
+        </div>
+        <div class="flex justify-end">
+          <button onclick="handleImportItems()" class="btn btn-primary bg-gradient-to-r from-amber-500 to-orange-600 shadow-orange-500/20">
+            <i class="fa-solid fa-cloud-arrow-up"></i> Nạp Vào Kho
+          </button>
+        </div>
+      </div>
+
+      <!-- BẢNG CHI TIẾT KHO -->
+      <div class="glass-card p-5 space-y-4">
+        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+          <h2 class="display font-bold text-[16px] text-[--accent] flex items-center gap-2">
+            <i class="fa-solid fa-boxes-stacked"></i> Kho Hàng: <span id="current-viewing-product" class="text-white">Chưa chọn</span>
+          </h2>
+          <div class="flex gap-2">
+            <input type="text" id="filter-search" class="input py-1 text-[13px]" placeholder="Tìm identifier / content..." oninput="loadInventoryTable()">
+            <select id="filter-status" class="input py-1 text-[13px] !w-32" onchange="loadInventoryTable()">
+              <option value="">Tất cả</option>
+              <option value="available">Available</option>
+              <option value="sold">Sold</option>
+              <option value="deleted">Deleted</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="overflow-x-auto border rounded-xl" style="border-color:var(--line)">
+          <table class="w-full text-left border-collapse text-[13px]">
+            <thead>
+              <tr class="bg-white/[0.02] border-b uppercase font-semibold text-[11px] tracking-wider text-[--text-faint]" style="border-color:var(--line)">
+                <th class="p-3">ID</th>
+                <th class="p-3">Identifier</th>
+                <th class="p-3">Content (Dữ liệu thật)</th>
+                <th class="p-3">Status</th>
+                <th class="p-3 text-right">Xóa</th>
+              </tr>
+            </thead>
+            <tbody id="inventory-tbody" class="divide-y" style="--tw-divide-opacity: 1; border-color: var(--line)">
+              <tr>
+                <td colspan="5" class="p-8 text-center text-[--text-faint] italic">Hãy bấm "Xem Kho" ở mục sản phẩm bên trên để hiển thị chi tiết.</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<script>
+const BACKEND_BASE = 'https://apis.elyriax.com/v1';
+
+function showToast(type, msg) {
+  const el = document.createElement('div');
+  el.className = 'toast';
+  const color = type === 'success' ? 'var(--teal)' : 'var(--rose)';
+  const icon = type === 'success' ? 'fa-circle-check' : 'fa-circle-exclamation';
+  el.innerHTML = `<i class="fa-solid ${icon}" style="color:${color}"></i><span>${msg}</span>`;
+  document.getElementById('toast-wrap').appendChild(el);
+  setTimeout(() => el.remove(), 4000);
+}
+
+function getHeaders() {
+  const token = document.getElementById('admin-token').value.trim();
+  const adminUser = document.getElementById('admin-user').value.trim();
+  const adminPass = document.getElementById('admin-pass').value.trim();
+  
+  const headers = { 'Content-Type': 'application/json' };
+  if (token) headers['Authorization'] = `Bearer ${token}`;
+  if (adminUser) headers['x-admin-user'] = adminUser;
+  if (adminPass) headers['x-admin-pass'] = adminPass;
+  return headers;
+}
+
+// 1. TẢI DANH SÁCH CATALOG SẢN PHẨM
+async function loadProductsTable() {
+  const tbody = document.getElementById('products-tbody');
+  tbody.innerHTML = `<tr><td colspan="6" class="p-4 text-center text-[--accent]"><i class="fa-solid fa-spinner fa-spin mr-2"></i> Đang tải catalog...</td></tr>`;
+
+  try {
+    const res = await fetch(`${BACKEND_BASE}/products?limit=50`);
+    const data = await res.json();
+
+    if (!res.ok || !data.success) {
+      tbody.innerHTML = `<tr><td colspan="6" class="p-4 text-center text-[--rose]">${data.message || 'Lỗi tải catalog'}</td></tr>`;
+      return;
+    }
+
+    const items = data.data.items;
+    if (items.length === 0) {
+      tbody.innerHTML = `<tr><td colspan="6" class="p-4 text-center text-[--text-faint]">Chưa có sản phẩm nào trong catalog.</td></tr>`;
+      return;
+    }
+
+    tbody.innerHTML = items.map(p => {
+      let statusColor = 'text-[--teal] bg-[--teal]/10';
+      if (p.status === 'hidden') statusColor = 'text-[--amber] bg-[--amber]/10';
+      if (p.status === 'disabled') statusColor = 'text-[--rose] bg-[--rose]/10';
+
+      return `
+        <tr class="hover:bg-white/[0.01]">
+          <td class="p-3 font-semibold text-[--text-dim]">${p.product_code}</td>
+          <td class="p-3 font-medium text-white">${escapeHtml(p.name)}</td>
+          <td class="p-3 font-mono">${Number(p.price).toLocaleString()}đ</td>
+          <td class="p-3 font-mono font-bold ${p.stock > 0 ? 'text-[--teal]' : 'text-[--rose]'}">${p.stock}</td>
+          <td class="p-3"><span class="px-2 py-0.5 rounded-full text-[10px] font-bold uppercase ${statusColor}">${p.status || 'active'}</span></td>
+          <td class="p-3 text-right whitespace-nowrap space-x-1">
+            <button onclick="selectProductForInventory('${p.product_code}', '${escapeHtml(p.name)}')" class="btn btn-ghost btn-sm !py-1 !px-2 text-[--teal]" title="Xem kho">
+              <i class="fa-solid fa-boxes-stacked"></i> Kho
+            </button>
+            <button onclick="populateEditForm(${JSON.stringify(p).replace(/"/g, '&quot;')})" class="btn btn-ghost btn-sm !py-1 !px-2 text-[--amber]" title="Sửa">
+              <i class="fa-solid fa-pen-to-square"></i>
+            </button>
+          </td>
+        </tr>
+      `;
+    }).join('');
+
+  } catch (err) {
+    console.error('[loadProductsTable Error]:', err);
+    tbody.innerHTML = `<tr><td colspan="6" class="p-4 text-center text-[--rose]">Lỗi kết nối API: ${err.message}</td></tr>`;
+  }
+}
+
+// 2. CHỌN SẢN PHẨM ĐỂ XEM KHO NHANH
+async function selectProductForInventory(productCode, productName) {
+  try {
+    const res = await fetch(`${BACKEND_BASE}/products/${productCode}`);
+    const data = await res.json();
+    if (res.ok && data.success) {
+      document.getElementById('quick-id').value = data.data.id || 1;
+      document.getElementById('import-p-id').value = data.data.id || 1;
+      document.getElementById('current-viewing-product').textContent = `${productName} (${productCode})`;
+      loadInventoryTable();
+    }
+  } catch(e) {
+    console.error('[selectProductForInventory Error]:', e);
+    showToast('error', 'Không lấy được ID sản phẩm: ' + e.message);
+  }
+}
+
+// 3. TẠO HOẶC CẬP NHẬT SẢN PHẨM
+async function handleSaveProduct(e) {
+  e.preventDefault();
+  const editId = document.getElementById('edit-product-id').value;
+  const payload = {
+    product_code: document.getElementById('p-code').value.trim(),
+    category: document.getElementById('p-category').value,
+    name: document.getElementById('p-name').value.trim(),
+    description: document.getElementById('p-desc').value.trim(),
+    price: Number(document.getElementById('p-price').value),
+    delivery_type: document.getElementById('p-delivery').value,
+    status: document.getElementById('p-status').value,
+    thumbnail: document.getElementById('p-thumbnail').value.trim() || null
+  };
+
+  const isEdit = Boolean(editId);
+  const url = isEdit ? `${BACKEND_BASE}/admin/products/${editId}` : `${BACKEND_BASE}/admin/products`;
+  const method = isEdit ? 'PATCH' : 'POST';
+
+  try {
+    const res = await fetch(url, {
+      method,
+      headers: getHeaders(),
+      body: JSON.stringify(payload)
+    });
+    const data = await res.json();
+    
+    if (res.ok && data.success) {
+      showToast('success', isEdit ? 'Cập nhật sản phẩm thành công!' : 'Tạo sản phẩm thành công!');
+      resetProductForm();
+      loadProductsTable();
+    } else {
+      console.error('[handleSaveProduct Server Error]:', data);
+      showToast('error', data.message || `Lỗi HTTP ${res.status}`);
+    }
+  } catch (err) { 
+    console.error('[handleSaveProduct Network Error]:', err);
+    showToast('error', 'Lỗi kết nối / CORS: ' + err.message); 
+  }
+}
+
+function populateEditForm(p) {
+  document.getElementById('edit-product-id').value = p.id || '';
+  document.getElementById('p-code').value = p.product_code || '';
+  document.getElementById('p-name').value = p.name || '';
+  document.getElementById('p-category').value = p.category || 'mail';
+  document.getElementById('p-delivery').value = p.delivery_type || 'automatic';
+  document.getElementById('p-price').value = p.price || 0;
+  document.getElementById('p-status').value = p.status || 'active';
+  document.getElementById('p-thumbnail').value = p.thumbnail || '';
+  document.getElementById('p-desc').value = p.description || '';
+
+  document.getElementById('form-title').innerHTML = `<i class="fa-solid fa-pen-to-square"></i> Sửa SP: ${p.product_code}`;
+  document.getElementById('btn-submit-product').innerHTML = `<i class="fa-solid fa-check"></i> Cập Nhật Thay Đổi`;
+  document.getElementById('btn-cancel-edit').classList.remove('hidden');
+}
+
+function resetProductForm() {
+  document.getElementById('product-form').reset();
+  document.getElementById('edit-product-id').value = '';
+  document.getElementById('form-title').innerHTML = `<i class="fa-solid fa-plus-circle"></i> Thêm Sản Phẩm Mới`;
+  document.getElementById('btn-submit-product').innerHTML = `<i class="fa-solid fa-paper-plane"></i> Lưu Sản Phẩm`;
+  document.getElementById('btn-cancel-edit').classList.add('hidden');
+}
+
+// 4. IMPORT KHO
+async function handleImportItems() {
+  const productId = document.getElementById('import-p-id').value;
+  const rawContent = document.getElementById('import-content').value;
+
+  if (!productId) return showToast('error', 'Hãy nhập ID sản phẩm đích');
+  if (!rawContent.trim()) return showToast('error', 'Hãy nhập nội dung hàng');
+
+  const contentArray = rawContent.split('\n');
+
+  try {
+    const res = await fetch(`${BACKEND_BASE}/admin/products/${productId}/items/import`, {
+      method: 'POST',
+      headers: getHeaders(),
+      body: JSON.stringify({ content: contentArray })
+    });
+    const data = await res.json();
+
+    if (res.ok && data.success) {
+      showToast('success', `Đã nạp kho! Thêm: ${data.data.inserted}, Trùng: ${data.data.duplicate}`);
+      document.getElementById('import-content').value = '';
+      document.getElementById('quick-id').value = productId;
+      loadInventoryTable();
+      loadProductsTable();
+    } else { 
+      console.error('[handleImportItems Server Error]:', data);
+      showToast('error', data.message || `Lỗi HTTP ${res.status}`); 
+    }
+  } catch (err) { 
+    console.error('[handleImportItems Network Error]:', err);
+    showToast('error', 'Lỗi kết nối / CORS: ' + err.message); 
+  }
+}
+
+// 5. XEM KHO HÀNG
+async function loadInventoryTable() {
+  const productId = document.getElementById('quick-id').value;
+  if (!productId) return showToast('error', 'Hãy nhập ID sản phẩm để xem kho');
+
+  const status = document.getElementById('filter-status').value;
+  const search = document.getElementById('filter-search').value.trim();
+
+  const url = new URL(`${BACKEND_BASE}/admin/products/${productId}/items`);
+  if (status) url.searchParams.set('status', status);
+  if (search) url.searchParams.set('search', search);
+
+  const tbody = document.getElementById('inventory-tbody');
+  tbody.innerHTML = `<tr><td colspan="5" class="p-4 text-center text-[--accent]"><i class="fa-solid fa-spinner fa-spin mr-2"></i> Đang tải kho...</td></tr>`;
+
+  try {
+    const res = await fetch(url.toString(), { method: 'GET', headers: getHeaders() });
+    const data = await res.json();
+
+    if (!res.ok || !data.success) {
+      tbody.innerHTML = `<tr><td colspan="5" class="p-4 text-center text-[--rose]">${data.message || 'Lỗi tải kho'}</td></tr>`;
+      return;
+    }
+
+    const items = data.data.items;
+    if (items.length === 0) {
+      tbody.innerHTML = `<tr><td colspan="5" class="p-8 text-center text-[--text-faint]">Kho hàng trống.</td></tr>`;
+      return;
+    }
+
+    tbody.innerHTML = items.map(item => {
+      let statusColor = 'text-[--teal] bg-[--teal]/10';
+      if (item.status === 'sold') statusColor = 'text-[--amber] bg-[--amber]/10';
+      if (item.status === 'deleted') statusColor = 'text-[--rose] bg-[--rose]/10';
+
+      return `
+        <tr class="hover:bg-white/[0.01]">
+          <td class="p-3 font-semibold text-[--text-faint]">${item.id}</td>
+          <td class="p-3 font-medium text-[--text-dim] truncate max-w-[130px]">${escapeHtml(item.identifier)}</td>
+          <td class="p-3"><input type="text" class="input py-1 text-[12px] font-mono" value="${escapeHtml(item.content)}" onchange="handleUpdateItem(${item.id}, this.value)"></td>
+          <td class="p-3"><span class="px-2 py-0.5 rounded-full text-[10px] font-bold uppercase ${statusColor}">${item.status}</span></td>
+          <td class="p-3 text-right">
+            <button onclick="handleDeleteItem(${item.id})" class="btn btn-danger btn-sm !py-1 !px-2.5" ${item.status === 'deleted' ? 'disabled style="opacity:0.3"' : ''}>
+              <i class="fa-solid fa-trash-can"></i>
+            </button>
+          </td>
+        </tr>
+      `;
+    }).join('');
+
+  } catch (err) { 
+    console.error('[loadInventoryTable Network Error]:', err);
+    tbody.innerHTML = `<tr><td colspan="5" class="p-4 text-center text-[--rose]">Lỗi kết nối Server: ${err.message}</td></tr>`; 
+  }
+}
+
+// 6. SỬA & XÓA ITEM KHO
+async function handleUpdateItem(itemId, newContent) {
+  try {
+    const res = await fetch(`${BACKEND_BASE}/admin/product-items/${itemId}`, {
+      method: 'PATCH',
+      headers: getHeaders(),
+      body: JSON.stringify({ content: newContent })
+    });
+    const data = await res.json();
+    if (res.ok && data.success) { 
+      showToast('success', `Đã sửa item ${itemId}`); 
+    } else { 
+      showToast('error', data.message || `Lỗi HTTP ${res.status}`); 
+    }
+  } catch (err) { 
+    console.error('[handleUpdateItem Network Error]:', err);
+    showToast('error', 'Lỗi kết nối Server: ' + err.message); 
+  }
+}
+
+async function handleDeleteItem(itemId) {
+  if (!confirm(`Bạn có chắc muốn xóa item ${itemId}? Stock sẽ tự động giảm trừ.`)) return;
+  try {
+    const res = await fetch(`${BACKEND_BASE}/admin/product-items/${itemId}`, {
+      method: 'DELETE',
+      headers: getHeaders()
+    });
+    const data = await res.json();
+    if (res.ok && data.success) {
+      showToast('success', 'Đã xóa item và cập nhật lại stock.');
+      loadInventoryTable();
+      loadProductsTable();
+    } else { 
+      showToast('error', data.message || `Lỗi HTTP ${res.status}`); 
+    }
+  } catch (err) { 
+    console.error('[handleDeleteItem Network Error]:', err);
+    showToast('error', 'Lỗi kết nối Server: ' + err.message); 
+  }
+}
+
+function escapeHtml(s) { return s ? s.replace(/[&<>]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;'}[c])) : ''; }
+
+// Khởi chạy khi load trang
+document.addEventListener('DOMContentLoaded', () => {
+  const savedToken = sessionStorage.getItem('sayraa_token');
+  if(savedToken) document.getElementById('admin-token').value = savedToken;
+  loadProductsTable();
+});
+</script>
+</body>
+</html>

@@ -1,0 +1,368 @@
+# Tài liệu Hướng dẫn Sử dụng API: Douyin Auto Vietsub Renderer
+
+Tài liệu chi tiết toàn bộ các API trong hệ thống tự động nhận dạng, dịch thuật và xuất video Vietsub Douyin.
+
+---
+
+## 1. Tổng quan & Luồng hoạt động
+
+```text
+[Video Gốc]
+     │
+     ▼
+[POST /api/v1/transcribe] ──► Trích xuất audio & nhận dạng tiếng Trung (Groq Whisper)
+     │
+     ▼
+[POST /api/v1/translate]  ──► Dịch tiếng Trung sang Vietsub tự nhiên (Gemini AI)
+     │
+     ▼
+[POST /api/v1/render]     ──► Tạo Job render bất đồng bộ (Xóa sub gốc + Gán Vietsub + Logo)
+     │
+     ▼
+[GET /api/v1/render/{id}] ──► Polling tiến trình (0% → 100%)
+     │
+     ▼
+[GET /api/v1/render/{id}/download] ──► Tải video hoàn chỉnh (.mp4)
+
+```
+
+* **Base URL:** `http://<SERVER_IP>:<PORT>/api/v1`
+* **Môi trường yêu cầu:** Biến môi trường `GROQ_API_KEY` và `GEMINI_API_KEY` trong file `.env`.
+
+---
+
+## 2. Chi tiết các Endpoint
+
+### 2.1. Transcribe Video (Nhận dạng giọng nói)
+
+Trích xuất âm thanh từ video và chuyển thành các đoạn text tiếng Trung có kèm mốc thời gian (`start`, `end`).
+
+* **Method:** `POST`
+* **Path:** `/api/v1/transcribe`
+* **Content-Type:** `multipart/form-data`
+
+**Request Parameters:**
+
+| Tham số | Kiểu | Bắt buộc | Mô tả |
+| --- | --- | --- | --- |
+| `file` | Binary File | Có | Tệp video định dạng `.mp4`, `.mov`, `.mkv`, `.webm` (tối đa 100MB). |
+
+**Response (HTTP 200):**
+
+```json
+{
+  "language": "chinese",
+  "duration": 4.25,
+  "text": "转身快步走出山洞 回到医院后",
+  "segments": [
+    {
+      "id": 0,
+      "start": 0.0,
+      "end": 1.85,
+      "text": "转身快步走出山洞"
+    },
+    {
+      "id": 1,
+      "start": 1.85,
+      "end": 4.25,
+      "text": "回到医院后"
+    }
+  ]
+}
+
+```
+
+**cURL Example:**
+
+```bash
+curl -X POST "http://localhost:25405/api/v1/transcribe" \
+  -F "file=@video_goc.mp4"
+
+```
+
+---
+
+### 2.2. Translate Subtitles (Dịch ngữ cảnh sang tiếng Việt)
+
+Gửi danh sách segments tiếng Trung sang Gemini API để dịch theo văn phong hoạt hình / Douyin.
+
+* **Method:** `POST`
+* **Path:** `/api/v1/translate`
+* **Content-Type:** `application/json`
+
+**Request Body:**
+
+```json
+{
+  "segments": [
+    {
+      "id": 0,
+      "start": 0.0,
+      "end": 1.85,
+      "text": "转身快步走出山洞"
+    },
+    {
+      "id": 1,
+      "start": 1.85,
+      "end": 4.25,
+      "text": "回到医院后"
+    }
+  ]
+}
+
+```
+
+**Response (HTTP 200):**
+
+```json
+{
+  "segments": [
+    {
+      "id": 0,
+      "start": 0.0,
+      "end": 1.85,
+      "source": "转身快步走出山洞",
+      "text": "Anh quay người, nhanh chóng bước ra khỏi hang."
+    },
+    {
+      "id": 1,
+      "start": 1.85,
+      "end": 4.25,
+      "source": "回到医院后",
+      "text": "Sau khi trở về bệnh viện,"
+    }
+  ]
+}
+
+```
+
+**cURL Example:**
+
+```bash
+curl -X POST "http://localhost:25405/api/v1/translate" \
+  -H "Content-Type: application/json" \
+  -d '{"segments": [{"id": 0, "start": 0.0, "end": 1.85, "text": "转身快步走出山洞"}]}'
+
+```
+
+---
+
+### 2.3. Tạo Render Job (Bất đồng bộ)
+
+Khởi tạo tác vụ render video với các bộ lọc: che sub cũ bằng hiệu ứng kính mờ tán xạ ánh sáng, tạo phụ đề tiếng Việt chuẩn kích thước và đè watermark/logo.
+
+* **Method:** `POST`
+* **Path:** `/api/v1/render`
+* **Content-Type:** `multipart/form-data`
+
+**Request Parameters:**
+
+| Field | Kiểu | Bắt buộc | Mô tả |
+| --- | --- | --- | --- |
+| `video` | Binary File | Có | Video gốc cần xử lý. |
+| `logo` | Binary File | Không | Tệp ảnh logo định dạng `.png`, `.jpg`, `.webp`. |
+| `segments` | String (JSON) | Có | Chuỗi JSON chứa danh sách `RenderSegment`. |
+| `config` | String (JSON) | Có | Chuỗi JSON chứa `RenderConfig`. |
+
+**Chi tiết cấu hình `config`:**
+
+```json
+{
+  "subtitle": {
+    "font": "Inter",            // Font chữ (Inter, Roboto, Arial, DejaVu Sans...)
+    "fontSize": 15,             // Cỡ chữ (tự động scale theo độ phân giải màn hình)
+    "position": { "x": 50, "y": 88 }, // Tọa độ hiển thị (% chiều rộng, % chiều cao)
+    "outline": 1.5,             // Độ dày viền chữ
+    "shadow": 1.0,              // Đổ bóng chữ
+    "weight": 700,              // 400 (thường), 700 (đậm)
+    "color": "#ffffff",         // Mã màu HEX
+    "fadeInOut": true,          // Hiệu ứng mờ dần khi xuất hiện/biến mất
+    "maxCharsPerLine": 28,      // Số ký tự tối đa trên 1 dòng
+    "maxLines": 2,              // Số dòng tối đa hiển thị cùng lúc
+    "autoSplitLong": true       // Tự chia câu dài thành các timeline ngắn liên tiếp
+  },
+  "blur": {
+    "enabled": true,            // Bật/tắt che phụ đề gốc
+    "x": 15, "y": 83,           // Vị trí góc trên bên trái của vùng làm mờ (%)
+    "width": 70, "height": 11,  // Kích thước vùng làm mờ (%)
+    "strength": 3.5,            // Độ mờ
+    "borderRadius": 18,         // Bán kính bo tròn 4 góc (px)
+    "liquidGlass": true,        // Viền chuyển tiếp mềm mại trên/dưới
+    "lightDiffusion": 0.03      // Tán xạ ánh sáng quang học giúp xóa sạch vết chữ
+  },
+  "logo": {
+    "enabled": true,            // Bật/tắt gắn logo
+    "position": "top-right",    // "top-left" | "top-right" | "bottom-left" | "bottom-right"
+    "size": 8,                  // Chiều rộng logo theo % chiều ngang video
+    "opacity": 100,             // Độ trong suốt (0 - 100)
+    "margin": 20                // Khoảng cách mép video (px)
+  }
+}
+
+```
+
+**Response (HTTP 202 Accepted):**
+
+```json
+{
+  "job_id": "40b8f413d96443c5b525d88684fa0c55",
+  "status": "queued"
+}
+
+```
+
+**cURL Example:**
+
+```bash
+curl -X POST "http://localhost:25405/api/v1/render" \
+  -F "video=@input.mp4" \
+  -F "logo=@logo.png" \
+  -F 'segments=[{"id":0,"start":0.0,"end":1.85,"source":"...","text":"Nội dung dịch"}]' \
+  -F 'config={"subtitle":{"font":"Inter","fontSize":15,"position":{"x":50,"y":88},"color":"#ffffff"}}'
+
+```
+
+---
+
+### 2.4. Kiểm tra tiến độ Render (Polling)
+
+Kiểm tra trạng thái xử lý và % tiến độ render video.
+
+* **Method:** `GET`
+* **Path:** `/api/v1/render/{job_id}`
+
+**Trạng thái trả về (`status`):**
+
+* `queued`: Đang chờ trong hàng đợi Semaphore.
+* `processing`: Đang render (tiến độ từ `1%` đến `99%`).
+* `completed`: Render thành công (tiến độ `100%`, có kèm link download).
+* `failed`: Render thất bại (có kèm thông báo lỗi `error`).
+
+**Response khi đang xử lý (HTTP 200):**
+
+```json
+{
+  "job_id": "40b8f413d96443c5b525d88684fa0c55",
+  "status": "processing",
+  "progress": 65,
+  "message": "Rendering video (58%)",
+  "download_url": null,
+  "error": null
+}
+
+```
+
+**Response khi hoàn thành (HTTP 200):**
+
+```json
+{
+  "job_id": "40b8f413d96443c5b525d88684fa0c55",
+  "status": "completed",
+  "progress": 100,
+  "message": "Render completed successfully",
+  "download_url": "/api/v1/render/40b8f413d96443c5b525d88684fa0c55/download",
+  "error": null
+}
+
+```
+
+**cURL Example:**
+
+```bash
+curl "http://localhost:25405/api/v1/render/40b8f413d96443c5b525d88684fa0c55"
+
+```
+
+---
+
+### 2.5. Tải Video Vietsub
+
+Tải về file MP4 đã render hoàn thiện.
+
+* **Method:** `GET`
+* **Path:** `/api/v1/render/{job_id}/download`
+
+**Mã trạng thái HTTP:**
+
+* `200 OK`: Trả về luồng file video `video/mp4` với header `Content-Disposition: attachment; filename="vietsub_<job_id>.mp4"`.
+* `404 Not Found`: Không tìm thấy Job ID hoặc file đã bị xóa sau thời gian TTL (1 giờ).
+* `409 Conflict`: Video đang xử lý hoặc chưa hoàn thành.
+
+**cURL Example:**
+
+```bash
+curl -OJ "http://localhost:25405/api/v1/render/40b8f413d96443c5b525d88684fa0c55/download"
+
+```
+
+---
+
+## 3. Bảng mã lỗi HTTP (Error Codes)
+
+| Mã lỗi | Trạng thái | Nguyên nhân thường gặp |
+| --- | --- | --- |
+| **400** | Bad Request | Gửi sai định dạng video/ảnh, JSON segments hoặc config bị lỗi cú pháp. |
+| **404** | Not Found | Job ID không tồn tại hoặc file kết quả đã bị hệ thống cleanup. |
+| **409** | Conflict | Yêu cầu download khi job chưa hoàn tất hoặc render thất bại. |
+| **413** | Payload Too Large | Kích thước video vượt quá 100MB hoặc ảnh logo vượt quá 10MB. |
+| **422** | Unprocessable Entity | Dữ liệu gửi lên không khớp với Pydantic schema. |
+| **502** | Bad Gateway | Gọi sang API Groq Whisper hoặc Gemini bị lỗi/hết quota/sai key. |
+| **500** | Internal Server Error | Lỗi tiến trình FFmpeg nội bộ. |
+
+---
+
+## 4. Code mẫu tích hợp Frontend (JavaScript)
+
+```javascript
+const API_BASE = "http://localhost:25405/api/v1";
+
+async function fullPipeline(videoFile, logoFile) {
+  // 1. Transcribe
+  const formTranscribe = new FormData();
+  formTranscribe.append("file", videoFile);
+  const resTranscribe = await fetch(`${API_BASE}/transcribe`, { method: "POST", body: formTranscribe });
+  const dataTranscribe = await resTranscribe.json();
+
+  // 2. Translate
+  const resTranslate = await fetch(`${API_BASE}/translate`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ segments: dataTranscribe.segments })
+  });
+  const dataTranslate = await resTranslate.json();
+
+  // 3. Render Video
+  const renderConfig = {
+    subtitle: { font: "Inter", fontSize: 15, position: { x: 50, y: 88 }, color: "#ffffff", autoSplitLong: true },
+    blur: { enabled: true, x: 15, y: 83, width: 70, height: 11, strength: 3.5, borderRadius: 18, liquidGlass: true, lightDiffusion: 0.03 },
+    logo: { enabled: Boolean(logoFile), position: "top-right", size: 8, opacity: 100, margin: 20 }
+  };
+
+  const formRender = new FormData();
+  formRender.append("video", videoFile);
+  if (logoFile) formRender.append("logo", logoFile);
+  formRender.append("segments", JSON.stringify(dataTranslate.segments));
+  formRender.append("config", JSON.stringify(renderConfig));
+
+  const resRender = await fetch(`${API_BASE}/render`, { method: "POST", body: formRender });
+  const { job_id } = await resRender.json();
+
+  // 4. Polling trạng thái
+  const checkStatus = setInterval(async () => {
+    const resStatus = await fetch(`${API_BASE}/render/${job_id}`);
+    const job = await resStatus.json();
+    console.log(`Tiến độ: ${job.progress}% - ${job.message}`);
+
+    if (job.status === "completed") {
+      clearInterval(checkStatus);
+      const downloadLink = `${API_BASE}${job.download_url}`;
+      console.log("Link tải video hoàn tất:", downloadLink);
+      window.open(downloadLink, "_blank");
+    } else if (job.status === "failed") {
+      clearInterval(checkStatus);
+      console.error("Render thất bại:", job.error);
+    }
+  }, 1500);
+}
+
+```

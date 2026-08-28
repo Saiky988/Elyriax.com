@@ -1,0 +1,662 @@
+/* ==========================================================================
+   Elyriax Video & Vietsub Studio - Remade Pro CapCut / Premiere Web Stylesheet
+   Expansive, Large-Scale, Dark Glassmorphism, Theme-Aware & 100% Mobile Ready
+   ========================================================================== */
+
+:root {
+  --studio-bg: var(--bg, #08090b);
+  --studio-surface: var(--surface-solid, #15171b);
+  --studio-surface-alt: var(--surface-solid-2, #1b1e23);
+  --studio-border: var(--line, rgba(255, 255, 255, 0.08));
+  --studio-border-strong: var(--line-strong, rgba(255, 255, 255, 0.16));
+  --studio-glass: var(--surface, rgba(255, 255, 255, 0.045));
+  --accent-emerald: var(--teal, #34d6b4);
+  --accent-emerald-glow: rgba(52, 214, 180, 0.35);
+  --accent-indigo: var(--accent, #7c6ff0);
+  --accent-indigo-glow: rgba(124, 111, 240, 0.35);
+  --accent-amber: var(--amber, #f5a623);
+  --accent-rose: var(--rose, #f4586b);
+  --text-primary: var(--text, #f0f1f4);
+  --text-secondary: var(--text-dim, #989ca6);
+  --text-muted: var(--text-faint, #5b5f68);
+  --timeline-track-bg: rgba(0, 0, 0, 0.35);
+  --timeline-ruler-bg: rgba(0, 0, 0, 0.5);
+  --timeline-playhead: var(--rose, #f4586b);
+  --sub-chip-bg: rgba(124, 111, 240, 0.22);
+  --sub-chip-border: rgba(124, 111, 240, 0.6);
+  --sub-chip-active: var(--accent, #7c6ff0);
+}
+
+/* Light Theme Variables Adaptation */
+html[data-theme-effective="light"] {
+  --timeline-track-bg: rgba(0, 0, 0, 0.05);
+  --timeline-ruler-bg: rgba(0, 0, 0, 0.08);
+  --sub-chip-bg: rgba(124, 111, 240, 0.14);
+}
+
+/* Expansive Studio Viewport */
+#vietsub-view {
+  width: 100%;
+}
+
+.studio-main-container {
+  width: 100%;
+  max-width: 100%;
+  margin: 0 auto;
+}
+
+/* Glass Panels */
+.glass-panel {
+  background: var(--surface);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid var(--studio-border);
+}
+
+.glass-card {
+  background: var(--surface);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid var(--studio-border);
+  border-radius: 14px;
+}
+
+/* Custom Scrollbars */
+.custom-scrollbar::-webkit-scrollbar {
+  width: 5px;
+  height: 5px;
+}
+.custom-scrollbar::-webkit-scrollbar-track {
+  background: rgba(0, 0, 0, 0.05);
+}
+.custom-scrollbar::-webkit-scrollbar-thumb {
+  background: var(--line-strong);
+  border-radius: 4px;
+}
+.custom-scrollbar::-webkit-scrollbar-thumb:hover {
+  background: var(--text-faint);
+}
+
+/* Sliders */
+input[type="range"].studio-slider {
+  -webkit-appearance: none;
+  width: 100%;
+  height: 6px;
+  border-radius: 4px;
+  background: var(--line-strong);
+  outline: none;
+  touch-action: pan-y;
+}
+input[type="range"].studio-slider::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  background: #ffffff;
+  cursor: pointer;
+  box-shadow: 0 0 6px rgba(0, 0, 0, 0.4), 0 0 10px var(--accent-indigo-glow);
+  transition: transform 0.15s ease, background 0.15s ease;
+}
+input[type="range"].studio-slider::-webkit-slider-thumb:hover,
+input[type="range"].studio-slider::-webkit-slider-thumb:active {
+  transform: scale(1.3);
+  background: var(--accent);
+}
+
+/* ==========================================================================
+   EXPANSIVE VIDEO STAGE & INTERACTIVE BOUNDING BOX
+   ========================================================================== */
+
+#video-stage-container {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: transparent;
+  overflow: hidden;
+  border-radius: 12px;
+  width: 100%;
+  min-height: 180px;
+  max-height: 68vh;
+  padding: 0;
+  touch-action: pan-y;
+}
+
+.video-wrapper {
+  position: relative;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.6), 0 0 0 1px var(--studio-border);
+  border-radius: 12px;
+  overflow: hidden;
+  background: #000000;
+  width: 100%;
+  max-height: 68vh;
+  touch-action: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0 auto;
+}
+
+.video-wrapper video {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+/* Blur Box Overlay (Frosted Glass simulation) */
+.blur-bounding-box {
+  position: absolute;
+  cursor: move;
+  border: 2px dashed var(--accent);
+  background: rgba(124, 111, 240, 0.18);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  box-sizing: border-box;
+  z-index: 20;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  pointer-events: auto;
+  touch-action: none;
+  transition: border-color 0.15s ease, background-color 0.15s ease;
+}
+
+.blur-bounding-box.active {
+  border-color: #38bdf8;
+  border-style: solid;
+  box-shadow: 0 0 20px rgba(56, 189, 248, 0.5);
+}
+
+.blur-bounding-box.disabled {
+  display: none !important;
+}
+
+/* Simulated Liquid Glass gradient edges */
+.blur-bounding-box.liquid-glass-fx::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; right: 0; height: 35%;
+  background: linear-gradient(to bottom, rgba(255,255,255,0.25), transparent);
+  pointer-events: none;
+  border-top-left-radius: inherit;
+  border-top-right-radius: inherit;
+}
+.blur-bounding-box.liquid-glass-fx::after {
+  content: '';
+  position: absolute;
+  bottom: 0; left: 0; right: 0; height: 35%;
+  background: linear-gradient(to top, rgba(255,255,255,0.25), transparent);
+  pointer-events: none;
+  border-bottom-left-radius: inherit;
+  border-bottom-right-radius: inherit;
+}
+
+.blur-box-label {
+  position: absolute;
+  top: -24px;
+  left: 0;
+  font-size: 10.5px;
+  font-family: 'JetBrains Mono', monospace;
+  background: var(--accent);
+  color: #ffffff;
+  padding: 2px 7px;
+  border-radius: 4px;
+  white-space: nowrap;
+  pointer-events: none;
+  font-weight: 600;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.5);
+}
+
+/* 8 Resizing Handles */
+.resize-handle {
+  position: absolute;
+  width: 14px;
+  height: 14px;
+  background: #ffffff;
+  border: 2px solid var(--accent);
+  border-radius: 3px;
+  box-shadow: 0 0 6px rgba(0, 0, 0, 0.7);
+  z-index: 25;
+  touch-action: none;
+  transition: transform 0.1s ease, background 0.1s ease;
+}
+
+.resize-handle:hover,
+.resize-handle:active {
+  transform: scale(1.4);
+  background: #38bdf8;
+  border-color: #ffffff;
+}
+
+.resize-handle.nw { top: -7px; left: -7px; cursor: nwse-resize; }
+.resize-handle.n  { top: -7px; left: calc(50% - 7px); cursor: ns-resize; }
+.resize-handle.ne { top: -7px; right: -7px; cursor: nesw-resize; }
+.resize-handle.e  { top: calc(50% - 7px); right: -7px; cursor: ew-resize; }
+.resize-handle.se { bottom: -7px; right: -7px; cursor: nwse-resize; }
+.resize-handle.s  { bottom: -7px; left: calc(50% - 7px); cursor: ns-resize; }
+.resize-handle.sw { bottom: -7px; left: -7px; cursor: nesw-resize; }
+.resize-handle.w  { top: calc(50% - 7px); left: -7px; cursor: ew-resize; }
+
+/* Subtitle Live Overlay */
+.subtitle-live-overlay {
+  position: absolute;
+  transform: translate(-50%, -50%);
+  text-align: center;
+  pointer-events: auto;
+  cursor: grab;
+  z-index: 30;
+  width: max-content;
+  max-width: 92%;
+  padding: 4px 8px;
+  border-radius: 4px;
+  user-select: none;
+  touch-action: none;
+  transition: opacity 0.15s ease-out;
+}
+.subtitle-live-overlay:active {
+  cursor: grabbing;
+}
+.subtitle-live-overlay.dragging {
+  outline: 2px dashed var(--teal);
+  background: rgba(52, 214, 180, 0.2);
+}
+
+.subtitle-live-overlay .sub-text {
+  display: inline-block;
+  line-height: 1.25;
+  word-break: break-word;
+  white-space: pre-wrap;
+  text-rendering: optimizeLegibility;
+}
+
+/* Watermark Overlay */
+.watermark-overlay {
+  position: absolute;
+  z-index: 28;
+  pointer-events: none;
+  user-select: none;
+}
+.watermark-overlay img {
+  display: block;
+  width: 100%;
+  height: auto;
+  object-fit: contain;
+}
+
+/* ==========================================================================
+   EXPANSIVE TIMELINE TRACK SYSTEM
+   ========================================================================== */
+
+#timeline-container {
+  background: var(--timeline-track-bg);
+  border: 1px solid var(--studio-border);
+  border-radius: 12px;
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  height: 160px;
+}
+
+.timeline-ruler {
+  height: 26px;
+  background: var(--timeline-ruler-bg);
+  border-bottom: 1px solid var(--studio-border);
+  position: relative;
+  overflow: hidden;
+  cursor: pointer;
+  touch-action: none;
+}
+
+.ruler-tick {
+  position: absolute;
+  bottom: 0;
+  width: 1px;
+  background: var(--line);
+  height: 8px;
+}
+
+.ruler-tick.major {
+  height: 15px;
+  background: var(--line-strong);
+}
+
+.ruler-time-label {
+  position: absolute;
+  top: 3px;
+  font-size: 10px;
+  font-family: 'JetBrains Mono', monospace;
+  color: var(--text-faint);
+  transform: translateX(-50%);
+  pointer-events: none;
+}
+
+/* Playhead Scrubber */
+.timeline-playhead {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  width: 2px;
+  background: var(--timeline-playhead);
+  z-index: 50;
+  pointer-events: none;
+  transform: translateX(-50%);
+  box-shadow: 0 0 12px rgba(244, 88, 107, 0.7);
+}
+
+.playhead-handle {
+  position: absolute;
+  top: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 14px;
+  height: 15px;
+  background: var(--timeline-playhead);
+  clip-path: polygon(0 0, 100% 0, 100% 60%, 50% 100%, 0 60%);
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.6);
+}
+
+.playhead-time-pill {
+  position: absolute;
+  top: -19px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: var(--timeline-playhead);
+  color: #ffffff;
+  font-size: 9.5px;
+  font-family: 'JetBrains Mono', monospace;
+  font-weight: 700;
+  padding: 1px 5px;
+  border-radius: 3px;
+  white-space: nowrap;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.5);
+}
+
+/* Tracks Area */
+.tracks-scroll-area {
+  position: relative;
+  flex: 1;
+  overflow-x: auto;
+  overflow-y: hidden;
+  cursor: crosshair;
+  -webkit-overflow-scrolling: touch;
+}
+
+.track-row {
+  position: relative;
+  height: 48px;
+  border-bottom: 1px solid var(--studio-border);
+  display: flex;
+  align-items: center;
+}
+
+.track-label {
+  width: 110px;
+  height: 100%;
+  background: var(--surface-solid, #15171b);
+  border-right: 1px solid var(--studio-border);
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 0 10px;
+  font-size: 11.5px;
+  font-weight: 600;
+  color: var(--text-dim);
+  shrink: 0;
+  z-index: 10;
+}
+
+@media (max-width: 640px) {
+  .track-label {
+    width: 75px;
+    font-size: 10.5px;
+    padding: 0 5px;
+  }
+}
+
+.track-content {
+  position: relative;
+  height: 100%;
+  flex: 1;
+}
+
+/* Waveform Canvas */
+.waveform-canvas {
+  width: 100%;
+  height: 100%;
+  display: block;
+  opacity: 0.75;
+}
+
+/* Subtitle Segment Chips */
+.segment-chip {
+  position: absolute;
+  top: 5px;
+  bottom: 5px;
+  background: var(--sub-chip-bg);
+  border: 1.5px solid var(--sub-chip-border);
+  border-radius: 7px;
+  cursor: pointer;
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  padding: 0 8px;
+  color: var(--text);
+  font-size: 11.5px;
+  font-weight: 500;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  transition: background 0.15s ease, border-color 0.15s ease, box-shadow 0.15s ease;
+  z-index: 5;
+  touch-action: none;
+}
+
+.segment-chip:hover {
+  background: rgba(124, 111, 240, 0.4);
+  border-color: var(--accent);
+}
+
+.segment-chip.active {
+  background: rgba(124, 111, 240, 0.65);
+  border-color: #a5b4fc;
+  box-shadow: 0 0 14px rgba(124, 111, 240, 0.6);
+  color: #ffffff;
+  font-weight: 700;
+}
+
+.chip-trim-handle {
+  position: absolute;
+  top: 0; bottom: 0;
+  width: 8px;
+  background: transparent;
+  cursor: ew-resize;
+  touch-action: none;
+}
+.chip-trim-handle.left { left: 0; }
+.chip-trim-handle.right { right: 0; }
+.chip-trim-handle:hover,
+.chip-trim-handle:active {
+  background: #ffffff;
+}
+
+/* ==========================================================================
+   INSPECTOR DOCK & SCRIPT EDITOR
+   ========================================================================= */
+
+.inspector-tab-btn {
+  padding: 8px 14px;
+  font-size: 12.5px;
+  font-weight: 600;
+  color: var(--text-dim);
+  border-bottom: 2px solid transparent;
+  transition: all 0.15s ease;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  white-space: nowrap;
+  cursor: pointer;
+}
+.inspector-tab-btn:hover {
+  color: var(--text);
+}
+.inspector-tab-btn.active {
+  color: var(--teal);
+  border-bottom-color: var(--teal);
+}
+
+.script-item-card {
+  background: var(--surface);
+  border: 1px solid var(--studio-border);
+  border-radius: 10px;
+  padding: 12px;
+  transition: all 0.2s ease;
+}
+.script-item-card:hover {
+  border-color: var(--studio-border-strong);
+}
+.script-item-card.active {
+  border-color: var(--accent);
+  background: rgba(124, 111, 240, 0.12);
+  box-shadow: 0 0 15px rgba(124, 111, 240, 0.18);
+}
+
+/* Color Swatches */
+.color-swatch-btn {
+  width: 26px;
+  height: 26px;
+  border-radius: 50%;
+  border: 2px solid transparent;
+  cursor: pointer;
+  transition: transform 0.15s ease, border-color 0.15s ease;
+}
+.color-swatch-btn:hover,
+.color-swatch-btn:active {
+  transform: scale(1.2);
+}
+.color-swatch-btn.active {
+  border-color: #ffffff;
+  box-shadow: 0 0 8px rgba(255, 255, 255, 0.9);
+}
+
+/* Corner Matrix buttons */
+.corner-matrix-btn {
+  width: 40px;
+  height: 40px;
+  border-radius: 8px;
+  background: var(--surface);
+  border: 1px solid var(--studio-border);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  color: var(--text-dim);
+}
+.corner-matrix-btn:hover {
+  background: var(--line-strong);
+  color: var(--text);
+}
+.corner-matrix-btn.active {
+  background: var(--accent);
+  border-color: var(--accent);
+  color: #ffffff;
+  box-shadow: 0 0 10px rgba(124, 111, 240, 0.4);
+}
+
+/* ==========================================================================
+   MODAL & EXPORT DIALOG
+   ========================================================================= */
+
+.studio-modal-backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.8);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  z-index: 1000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 16px;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.25s ease;
+}
+.studio-modal-backdrop.open {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+.studio-modal-box {
+  background: var(--surface-solid, #15171b);
+  border: 1px solid var(--studio-border-strong);
+  border-radius: 18px;
+  width: 100%;
+  max-width: 560px;
+  box-shadow: 0 25px 60px rgba(0, 0, 0, 0.8), 0 0 30px rgba(52, 214, 180, 0.15);
+  transform: scale(0.95);
+  transition: transform 0.25s cubic-bezier(0.34, 1.56, 0.64, 1);
+  overflow: hidden;
+}
+.studio-modal-backdrop.open .studio-modal-box {
+  transform: scale(1);
+}
+
+/* Animated Progress Bar */
+.gradient-progress-bar {
+  height: 8px;
+  background: var(--line);
+  border-radius: 4px;
+  overflow: hidden;
+  position: relative;
+}
+.gradient-progress-fill {
+  height: 100%;
+  background: linear-gradient(90deg, var(--teal), var(--accent), #38bdf8);
+  background-size: 200% 100%;
+  animation: shimmerProgress 2s linear infinite;
+  transition: width 0.3s ease-out;
+}
+
+@keyframes shimmerProgress {
+  0% { background-position: 100% 0; }
+  100% { background-position: -100% 0; }
+}
+
+.export-step-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 7px 0;
+  font-size: 13px;
+  color: var(--text-dim);
+}
+.export-step-item.active {
+  color: var(--text);
+  font-weight: 600;
+}
+.export-step-item.done {
+  color: var(--teal);
+}
+.export-step-dot {
+  width: 9px;
+  height: 9px;
+  border-radius: 50%;
+  background: var(--line-strong);
+}
+.export-step-item.active .export-step-dot {
+  background: var(--accent);
+  box-shadow: 0 0 8px var(--accent);
+  animation: pulseDot 1s infinite alternate;
+}
+.export-step-item.done .export-step-dot {
+  background: var(--teal);
+  box-shadow: 0 0 8px var(--teal);
+}
+
+@keyframes pulseDot {
+  from { transform: scale(0.9); opacity: 0.7; }
+  to { transform: scale(1.3); opacity: 1; }
+}

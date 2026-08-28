@@ -1,0 +1,1124 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, user-scalable=no">
+    
+    <title>Elyriax</title>
+    
+    <meta name="description" content="Elyriax - Nền tảng trực tuyến cung cấp các giải pháp và tiện ích công nghệ thế hệ mới dành cho người dùng và nhà phát triển.">
+    <meta name="keywords" content="Elyriax, elyriax.com">
+    <meta name="robots" content="index, follow">
+    <link rel="canonical" href="https://elyriax.com/">
+
+    <link rel="icon" type="image/x-icon" href="https://elyriax.com/assets/favicon.ico">
+    <link rel="icon" type="image/png" sizes="32x32" href="https://elyriax.com/assets/favicon-32x32.png">
+    <link rel="icon" type="image/png" sizes="16x16" href="https://elyriax.com/assets/favicon-16x16.png">
+    <link rel="apple-touch-icon" sizes="180x180" href="https://elyriax.com/assets/apple-touch-icon.png">
+    <link rel="manifest" href="/site.webmanifest">
+
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="https://elyriax.com/">
+    <meta property="og:title" content="Elyriax">
+    <meta property="og:description" content="Trang web chính thức của Elyriax. Khám phá không gian trải nghiệm và các dịch vụ trực tuyến của chúng tôi.">
+    <meta property="og:image" content="https://elyriax.com/assets/og-image.png">
+
+    <meta property="twitter:card" content="summary_large_image">
+    <meta property="twitter:url" content="https://elyriax.com/">
+    <meta property="twitter:title" content="Elyriax">
+    <meta property="twitter:description" content="Trang web chính thức của Elyriax. Khám phá không gian trải nghiệm và các dịch vụ trực tuyến của chúng tôi.">
+    <meta property="twitter:image" content="https://elyriax.com/assets/og-image.png">
+
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@500;600;700;800&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+
+    <script>
+      (function() {
+        try {
+          var saved = localStorage.getItem('appearance') || localStorage.getItem('sayraa_theme');
+          var valid = ['system', 'dark', 'light', 'classic_dark'];
+          if (!valid.includes(saved)) saved = 'system';
+          var isDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
+          var effective = saved === 'system' ? (isDark ? 'dark' : 'light') : saved;
+          document.documentElement.setAttribute('data-theme', saved);
+          document.documentElement.setAttribute('data-theme-effective', effective);
+        } catch(e) {}
+      })();
+    </script>
+    <link rel="stylesheet" href="/css/style.css">
+		<link rel="stylesheet" href="/css/splash.css">
+		<link rel="stylesheet" href="/assets/css/vietsub-studio.css">
+		<script src="/js/script.js" defer></script>
+		<script src="/js/splash.js" defer></script>
+		<script src="/assets/js/vietsub/api.js" defer></script>
+		<script src="/assets/js/vietsub/canvas-overlay.js" defer></script>
+		<script src="/assets/js/vietsub/timeline.js" defer></script>
+		<script src="/assets/js/vietsub/app.js" defer></script>
+
+</head>
+<body class="min-h-screen">
+
+<div id="toast-wrap" role="status" aria-live="polite"></div>
+<div id="drawer-overlay" onclick="closeDrawer()"></div>
+<div id="sheet-overlay" onclick="closeSheet()"></div>
+
+<div class="flex min-h-screen">
+<div id="splash-screen">
+  <div class="splash-content">
+    <img src="/assets/splash.svg" alt="Splash" width="1080" height="1080" class="splash-logo">
+  </div>
+</div>
+
+  <!-- DRAWER -->
+  <aside id="drawer">
+    <div class="flex items-center gap-2.5 px-5 py-5 border-b" style="border-color:var(--line)">
+      <div class="w-9 h-9 rounded-xl flex items-center justify-center cursor-pointer" style="background:linear-gradient(140deg,#8b7ff5,var(--accent))" onclick="navigate('dashboard')">
+				
+				<img src="/assets/icon.png">
+      </div>
+      <span class="display font-extrabold text-[17px] tracking-tight cursor-pointer" onclick="navigate('dashboard')">Elyriax</span>
+      <button onclick="closeDrawer()" class="ml-auto lg:hidden w-8 h-8 rounded-lg flex items-center justify-center text-[--text-dim] hover:bg-white/5">
+        <i class="fa-solid fa-xmark"></i>
+      </button>
+    </div>
+
+    <nav class="flex-1 overflow-y-auto px-3 py-3">
+      <a class="nav-link active" data-route="dashboard" onclick="navigate('dashboard')">
+        <i class="fa-solid fa-chart-line"></i> Dashboard
+      </a>
+
+      <div class="nav-group-label">Games</div>
+      <div class="group open">
+        <div class="nav-link" onclick="toggleGroup(this)">
+          <i class="fa-solid fa-gamepad"></i> Games <i class="fa-solid fa-chevron-right chev ml-auto"></i>
+        </div>
+        <div class="group-body">
+          <a class="nav-sub" data-route="genshin" onclick="navigate('genshin')">Genshin Impact <span class="status-dot on"></span></a>
+          <a class="nav-sub" data-route="hsr" onclick="navigate('hsr')">Honkai Star Rail <span class="pill" style="background:rgba(255,255,255,.06); color:var(--text-faint)">Soon</span></a>
+          <a class="nav-sub" data-route="zzz" onclick="navigate('zzz')">Zenless Zone Zero <span class="pill" style="background:rgba(255,255,255,.06); color:var(--text-faint)">Soon</span></a>
+        </div>
+      </div>
+
+      <div class="nav-group-label">Markets</div>
+      <div class="group">
+        <div class="nav-link" onclick="toggleGroup(this)">
+          <i class="fa-solid fa-basket-shopping"></i> Markets <i class="fa-solid fa-chevron-right chev ml-auto"></i>
+
+        </div>
+        <div class="group-body">
+          <a class="nav-sub" data-route="markets" onclick="navigate('markets')">Markets <span class="status-dot on"></span></a>
+          <a class="nav-sub" data-route="wallet" onclick="navigate('wallet')">Wallet  <span class="status-dot on"></span></a>
+          <a class="nav-sub" data-route="wishlist" onclick="navigate('wishlist')">Wishlist  <span class="status-dot on"></span></a>
+          <a class="nav-sub" data-route="orders" onclick="navigate('orders')">Orders  <span class="status-dot on"></span></a>
+        </div>
+      </div>
+			
+      <div class="nav-group-label">Developer</div>
+      <div class="group">
+        <div class="nav-link" onclick="toggleGroup(this)">
+          <i class="fa-solid fa-code"></i> Developer <i class="fa-solid fa-chevron-right chev ml-auto"></i>
+        </div>
+        <div class="group-body">
+          <a class="nav-sub" data-route="vietsub" onclick="navigate('vietsub')">Vietsub Studio <span class="pill" style="background:rgba(52,214,180,.12); color:var(--teal)">CapCut AI</span></a>
+          <a class="nav-sub" data-route="portfolio" onclick="navigate('portfolio')">Portfolio <span class="pill" style="background:rgba(52,214,180,.12); color:var(--teal)">Shiori Saiky</span></a>
+          <a class="nav-sub" data-route="downloader" onclick="navigate('downloader')">Downloader <span class="pill" style="background:rgba(255,255,255,.06); color:var(--text-faint)">Soon</span></a>
+          <a class="nav-sub" data-route="apis" onclick="navigate('apis')">APIs <span class="pill" style="background:rgba(255,255,255,.06); color:var(--text-faint)">Soon</span></a>
+          <a class="nav-sub" data-route="translation" onclick="navigate('translation')">Translation <span class="pill" style="background:rgba(255,255,255,.06); color:var(--text-faint)">Soon</span></a>
+          <a class="nav-sub" data-route="ai" onclick="navigate('ai')">AI Tools <span class="pill" style="background:rgba(255,255,255,.06); color:var(--text-faint)">Soon</span></a>
+          <a class="nav-sub" data-route="image" onclick="navigate('image')">Image Tools <span class="pill" style="background:rgba(255,255,255,.06); color:var(--text-faint)">Soon</span></a>
+        </div>
+      </div>
+
+      <div class="nav-group-label">General</div>
+      <a class="nav-link" data-route="settings" onclick="navigate('settings')">
+        <i class="fa-solid fa-gear"></i> Settings
+      </a>
+    </nav>
+
+    <div class="px-4 py-4 border-t" style="border-color:var(--line)" id="drawer-account">
+      <!-- filled by JS -->
+    </div>
+  </aside>
+
+  <!-- MAIN -->
+  <div class="flex-1 min-w-0 flex flex-col">
+    <header id="topbar" class="flex items-center gap-3 px-4 py-3.5 lg:px-7">
+      <button onclick="openDrawer()" class="lg:hidden w-9 h-9 rounded-xl flex items-center justify-center glass" aria-label="Open navigation menu">
+        <i class="fa-solid fa-bars text-[15px]"></i>
+      </button>
+      <div>
+        <div class="text-[15px] font-semibold" id="topbar-title">Dashboard</div>
+        <div class="text-[11.5px] mono" style="color:var(--text-faint)" id="topbar-sub">All systems operational</div>
+      </div>
+      <div class="ml-auto flex items-center gap-2.5">
+        <button onclick="showToast('info','No new notifications')" class="w-9 h-9 rounded-xl flex items-center justify-center glass relative" aria-label="Notifications">
+          <i class="fa-regular fa-bell text-[14px]"></i>
+          <span class="absolute top-1.5 right-1.5 w-1.5 h-1.5 rounded-full" style="background:var(--rose)"></span>
+        </button>
+        <button onclick="handleAvatarClick()" id="avatar-btn" class="w-9 h-9 rounded-xl overflow-hidden flex items-center justify-center glass font-semibold text-[13px]" aria-label="Account">?</button>
+      </div>
+    </header>
+
+    <main class="flex-1 px-4 py-5 lg:px-7 lg:py-7 pb-28 lg:pb-10 max-w-5xl w-full">
+
+      <!-- DASHBOARD VIEW -->
+      <section class="view active" data-view="dashboard" id="dashboard-view">
+        <!-- Hero Card -->
+        <div id="dash-hero" class="mb-6"></div>
+
+        <!-- Live Metrics Ribbon -->
+        <div class="grid grid-cols-2 sm:grid-cols-4 gap-2.5 sm:gap-3 mb-6" id="dash-stats"></div>
+
+        <!-- Quick Launchpad Spotlight -->
+        <div class="mb-6">
+          <div class="flex items-center justify-between mb-3">
+            <h2 class="display text-[15px] font-bold">Quick Launchpad</h2>
+            <span class="text-[11.5px] mono" style="color:var(--text-faint)">Explore Hub</span>
+          </div>
+          <div class="grid grid-cols-1 md:grid-cols-3 gap-3.5" id="dash-launchpad"></div>
+        </div>
+
+        <!-- All Services & Modules Grid -->
+        <div class="mb-6">
+          <div class="flex items-center justify-between mb-3">
+            <h2 class="display text-[15px] font-bold">Services &amp; Tools</h2>
+            <span class="text-[11.5px] mono" id="dash-modules-count" style="color:var(--text-faint)"></span>
+          </div>
+          <div id="dashboard-grid" class="grid grid-cols-1 sm:grid-cols-2 gap-3"></div>
+        </div>
+
+        <!-- Trust & Support Banner -->
+        <div class="glass card p-4 sm:p-5 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3.5 border border-white/5 bg-gradient-to-r from-white/[0.02] to-transparent">
+          <div class="flex items-center gap-3">
+            <div class="w-10 h-10 rounded-xl flex items-center justify-center text-[18px] shrink-0" style="background:rgba(52,214,180,.12); color:var(--teal)">
+              <i class="fa-solid fa-shield-halved"></i>
+            </div>
+            <div>
+              <div class="font-semibold text-[13.5px]">Giao dịch tự động &amp; Bảo mật 24/7</div>
+              <div class="text-[12px]" style="color:var(--text-dim)">Hệ thống nạp VietQR tự động, xử lý tài nguyên và bàn giao tức thì.</div>
+            </div>
+          </div>
+          <button class="btn btn-ghost btn-sm shrink-0 w-full sm:w-auto" onclick="openSupport()">
+            <i class="fa-regular fa-life-ring mr-1"></i> Trợ giúp
+          </button>
+        </div>
+      </section>
+
+      <!-- GAME DASHBOARD VIEW -->
+      <section class="view" data-view="games">
+        <div class="mb-6">
+          <h1 class="display text-[21px] font-extrabold tracking-tight">Game Dashboard</h1>
+          <p class="text-[12.5px] mt-1" style="color:var(--text-dim)">Pick a title to open its banners, codes &amp; account tools.</p>
+        </div>
+        <div id="games-grid" class="grid grid-cols-1 sm:grid-cols-2 gap-3.5"></div>
+      </section>
+
+      <!-- GENSHIN VIEW -->
+      <section class="view" data-view="genshin">
+        <div class="flex items-center gap-3 mb-5">
+          <div class="icon-tile overflow-hidden" style="background:rgba(245,166,35,.14); color:var(--amber)">
+            <img src="https://t3.gstatic.com/faviconV2?client=SOCIAL&type=FAVICON&fallback_opts=TYPE,SIZE,URL&url=http://genshin.hoyoverse.com&size=256" alt="Genshin Impact" class="w-7 h-7 object-contain" />
+          </div>
+          <div>
+            <h1 class="display text-[21px] font-extrabold">Genshin Impact</h1>
+            <p class="text-[12.5px]" style="color:var(--text-dim)">Banners, gift codes, check-in &amp; account stats</p>
+          </div>
+        </div>
+
+        <div id="genshin-account-bar" class="mb-5"></div>
+
+        <div class="flex gap-1.5 overflow-x-auto mb-5 -mx-1 px-1 no-scrollbar" id="genshin-tabs">
+          <button class="tab-pill active" onclick="genshinTab('banners', this)">Banners</button>
+          <button class="tab-pill" onclick="genshinTab('codes', this)">Gift Codes</button>
+          <button class="tab-pill" onclick="genshinTab('notes', this)">Daily Note</button>
+          <button class="tab-pill" onclick="genshinTab('stats', this)">Role Stats</button>
+          <button class="tab-pill" onclick="genshinTab('calendar', this)">Rewards Calendar</button>
+        </div>
+
+        <div id="genshin-panel"></div>
+      </section>
+
+      <!-- COMING SOON TEMPLATE VIEWS -->
+      <template id="tpl-coming-soon"></template>
+      <section class="view" data-view="hsr" data-title="Honkai Star Rail" data-icon="fa-train" data-color="var(--slate,#7c8db3)"></section>
+      <section class="view" data-view="zzz" data-title="Zenless Zone Zero" data-icon="fa-bolt-lightning"></section>
+      <section class="view" data-view="wuwa" data-title="Wuthering Waves" data-icon="fa-wind"></section>
+
+      <section class="view" data-view="mail" data-title="Mail" data-icon="fa-regular fa-envelope"></section>
+
+      <!-- MARKETS VIEW -->
+      <section class="view" data-view="markets">
+        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-5">
+          <div>
+            <h1 class="display text-[21px] font-extrabold tracking-tight">Markets</h1>
+            <p class="text-[12.5px] mt-0.5" style="color:var(--text-dim)">Digital accounts, mailboxes &amp; API keys.</p>
+          </div>
+          <div class="flex items-center gap-2">
+            <button class="btn btn-ghost btn-sm relative" onclick="openCart()" id="market-cart-btn" aria-label="Shopping cart"><i class="fa-solid fa-cart-shopping"></i> Cart <span class="cart-badge" id="cart-badge" style="display:none">0</span></button>
+            <button class="btn btn-ghost btn-sm" onclick="openSupport()" aria-label="Support"><i class="fa-regular fa-life-ring"></i> Support</button>
+          </div>
+        </div>
+
+        <div class="relative mb-4">
+          <i class="fa-solid fa-magnifying-glass absolute text-[13px]" style="left:14px; top:50%; transform:translateY(-50%); color:var(--text-faint)"></i>
+          <input id="market-search" class="input" style="padding-left:36px" placeholder="Search products…" oninput="searchMarkets(this.value)" />
+        </div>
+
+        <div class="flex gap-1.5 overflow-x-auto mb-5 -mx-1 px-1 no-scrollbar" id="market-chips"></div>
+
+        <div id="market-featured" style="display:none"></div>
+
+        <div class="flex items-center justify-between mb-3">
+          <h2 class="display text-[15px] font-bold">Products</h2>
+          <span class="text-[11.5px] mono" id="market-count" style="color:var(--text-faint)"></span>
+        </div>
+        <div id="market-grid" class="grid grid-cols-1 sm:grid-cols-2 gap-3"></div>
+      </section>
+
+      <!-- WALLET VIEW -->
+      <section class="view" data-view="wallet" id="wallet-view"></section>
+
+      <!-- ORDERS VIEW -->
+      <section class="view" data-view="orders" id="orders-view"></section>
+
+      <!-- WISHLIST VIEW -->
+      <section class="view" data-view="wishlist" id="wishlist-view"></section>
+
+      <!-- VIETSUB STUDIO VIEW (REMADE PRO CAPCUT WEB) -->
+      <section class="view studio-main-container w-full" data-view="vietsub" id="vietsub-view">
+        
+        <!-- Header & Action Workflow Pipeline -->
+        <div class="flex flex-col lg:flex-row lg:items-center justify-between gap-4 mb-5 pb-4 border-b" style="border-color:var(--line)">
+          <div>
+            <div class="flex items-center gap-2.5">
+              <div class="w-9 h-9 rounded-xl flex items-center justify-center font-bold text-white shadow-lg" style="background:linear-gradient(135deg, var(--teal), var(--accent))">
+                <i class="fa-solid fa-wand-magic-sparkles text-[15px]"></i>
+              </div>
+              <div>
+                <div class="flex items-center gap-2">
+                  <h1 class="display text-[22px] font-extrabold tracking-tight">AI Vietsub Studio</h1>
+                  <span class="pill text-[11px] font-bold" style="background:rgba(52,214,180,.12); color:var(--teal)">CapCut Pro Engine</span>
+                </div>
+                <p class="text-[12.5px]" style="color:var(--text-dim)">
+                  Dựng video &amp; biên tập Vietsub Douyin/TikTok AI tự động (Xóa sub Liquid Glass, Whisper &amp; Gemini).
+                </p>
+              </div>
+            </div>
+          </div>
+
+          <!-- 3-Step AI Workflow Bar -->
+          <div class="flex flex-wrap items-center gap-2">
+            <button id="btn-action-transcribe" class="btn btn-ghost btn-sm text-xs font-semibold px-3 py-2" title="Trích xuất audio & nhận dạng tiếng Trung (Groq Whisper)">
+              <i class="fa-solid fa-microphone-lines text-[13px]" style="color:var(--accent)"></i>
+              <span>1. Trích xuất Voice</span>
+            </button>
+            <i class="fa-solid fa-chevron-right text-[10px] hidden sm:inline" style="color:var(--text-faint)"></i>
+            <button id="btn-action-translate" class="btn btn-ghost btn-sm text-xs font-semibold px-3 py-2" title="Dịch tiếng Trung sang Vietsub tự nhiên (Gemini AI)">
+              <i class="fa-solid fa-language text-[14px]" style="color:var(--teal)"></i>
+              <span>2. Dịch phụ đề</span>
+            </button>
+            <i class="fa-solid fa-chevron-right text-[10px] hidden sm:inline" style="color:var(--text-faint)"></i>
+            <button id="btn-action-export" class="btn btn-primary btn-sm text-xs font-bold px-4 py-2 shadow-lg" title="Render video với hiệu ứng kính mờ và phụ đề">
+              <i class="fa-solid fa-wand-magic-sparkles"></i>
+              <span>3. Xuất Video</span>
+            </button>
+            <button id="btn-open-settings" class="btn btn-ghost btn-sm w-9 h-9 p-0 ml-1" title="Cài đặt API Base URL">
+              <i class="fa-solid fa-sliders text-[13px]"></i>
+            </button>
+          </div>
+        </div>
+
+        <!-- Main Studio Grid (Large 12-col layout) -->
+        <div class="grid grid-cols-1 lg:grid-cols-12 gap-5 mb-6">
+          
+          <!-- LEFT COLUMN: CINEMATIC STAGE & FULL TIMELINE (8 COLS) -->
+          <div class="lg:col-span-8 flex flex-col gap-4">
+            
+            <!-- Video Stage Card (Large Size) -->
+            <div class="glass card p-4 flex flex-col shadow-xl">
+              
+              <!-- Stage Header: Aspect Ratio & File Switcher -->
+              <div class="flex items-center justify-between text-xs pb-3 mb-3 border-b" style="border-color:var(--line)">
+                <div class="flex items-center gap-2">
+                  <span class="text-[11.5px] font-bold uppercase tracking-wider" style="color:var(--text-dim)">Tỉ lệ khung hình:</span>
+                  <div class="flex items-center p-0.5 rounded-lg border" style="background:var(--surface); border-color:var(--line)">
+                    <button class="aspect-btn active px-2.5 py-1 rounded text-[11.5px] font-semibold" data-ratio="auto">Tự động (Fit)</button>
+                    <button class="aspect-btn px-2.5 py-1 rounded text-[11.5px] font-semibold" data-ratio="9:16">9:16 (Dọc)</button>
+                    <button class="aspect-btn px-2.5 py-1 rounded text-[11.5px] font-semibold" data-ratio="16:9">16:9 (Ngang)</button>
+                    <button class="aspect-btn px-2.5 py-1 rounded text-[11.5px] font-semibold" data-ratio="1:1">1:1 (Vuông)</button>
+                  </div>
+                </div>
+
+                <div class="flex items-center gap-2">
+                  <span id="project-filename-display" class="mono text-[11.5px] truncate max-w-[160px] sm:max-w-[240px] font-medium" style="color:var(--text-dim)">Chưa chọn video</span>
+                  <label for="video-file-input" class="btn btn-ghost btn-sm text-[11.5px] font-semibold cursor-pointer py-1 px-2.5">
+                    <i class="fa-solid fa-cloud-arrow-up mr-1 text-[var(--accent)]"></i> Chọn Video
+                  </label>
+                  <input type="file" id="video-file-input" accept="video/mp4,video/mov,video/mkv,video/webm" class="hidden">
+                </div>
+              </div>
+
+              <!-- Large Central Video Screen -->
+              <div id="video-stage-container" class="relative flex items-center justify-center overflow-hidden rounded-xl">
+                
+                <!-- Video Player Wrapper (Auto Fits snugly without black bars) -->
+                <div id="video-wrapper" class="video-wrapper relative" style="display: none;">
+                  <video id="main-video" playsinline preload="auto" class="w-full h-full block"></video>
+
+                  <!-- Interactive Blur Box (8 handles) -->
+                  <div id="blur-bounding-box" class="blur-bounding-box liquid-glass-fx" style="left: 15%; top: 83%; width: 70%; height: 11%;">
+                    <div class="blur-box-label">
+                      <i class="fa-solid fa-eye-slash mr-1"></i> Che Sub Gốc
+                    </div>
+                    <div class="resize-handle nw" data-handle="nw"></div>
+                    <div class="resize-handle n"  data-handle="n"></div>
+                    <div class="resize-handle ne" data-handle="ne"></div>
+                    <div class="resize-handle e"  data-handle="e"></div>
+                    <div class="resize-handle se" data-handle="se"></div>
+                    <div class="resize-handle s"  data-handle="s"></div>
+                    <div class="resize-handle sw" data-handle="sw"></div>
+                    <div class="resize-handle w"  data-handle="w"></div>
+                  </div>
+
+                  <!-- Live Subtitle Overlay -->
+                  <div id="subtitle-live-overlay" class="subtitle-live-overlay" style="left: 50%; top: 88%;">
+                    <span class="sub-text">Xem trước phụ đề Vietsub trực tiếp</span>
+                  </div>
+
+                  <!-- Watermark / Logo Overlay -->
+                  <div id="watermark-live-overlay" class="watermark-overlay" style="display: none;">
+                    <img src="" alt="Watermark Logo">
+                  </div>
+                </div>
+
+                <!-- Clean Upload Box (when no video is active) -->
+                <div id="stage-upload-placeholder" class="flex flex-col items-center justify-center text-center p-8 studio-dropzone w-full max-w-md my-6 cursor-pointer" onclick="document.getElementById('video-file-input').click()">
+                  <div class="w-16 h-16 rounded-2xl flex items-center justify-center text-[26px] mb-3.5 border shadow-xl" style="background:rgba(124,111,240,.14); color:var(--accent); border-color:var(--line);">
+                    <i class="fa-solid fa-cloud-arrow-up"></i>
+                  </div>
+                  <h3 class="display font-bold text-[16px] mb-1.5">Tải lên Video Douyin / TikTok</h3>
+                  <p class="text-[12.5px] mb-4 max-w-xs" style="color:var(--text-dim)">
+                    Kéo thả hoặc nhấp để chọn tệp (.mp4, .mov, .mkv, .webm, tối đa 100MB)
+                  </p>
+                  <label for="video-file-input" class="btn btn-primary btn-sm px-4 py-2 font-bold cursor-pointer">
+                    <i class="fa-solid fa-folder-open mr-1"></i> Duyệt tệp từ máy
+                  </label>
+                </div>
+
+              </div>
+
+              <!-- Player Controls Bar -->
+              <div class="flex items-center justify-between pt-3.5 mt-3 border-t text-xs" style="border-color:var(--line)">
+                <div class="flex items-center gap-2">
+                  <button id="player-back-5s" class="btn btn-ghost btn-sm w-9 h-9 p-0" title="Lùi 5s">
+                    <i class="fa-solid fa-rotate-left text-[12px]"></i>
+                  </button>
+                  <button id="player-play-btn" class="btn btn-primary btn-sm w-10 h-10 p-0 text-base shadow-lg" title="Phát / Tạm dừng (Space)">
+                    <i class="fa-solid fa-play"></i>
+                  </button>
+                  <button id="player-forward-5s" class="btn btn-ghost btn-sm w-9 h-9 p-0" title="Tiến 5s">
+                    <i class="fa-solid fa-rotate-right text-[12px]"></i>
+                  </button>
+                  <div class="mono text-[12px] font-bold px-3 py-1.5 rounded-lg bg-white/5 border border-white/5 ml-1" id="player-timecode">
+                    00:00.0 / 00:00.0
+                  </div>
+                </div>
+
+                <div class="flex items-center gap-3 text-[11.5px] mono font-medium" style="color:var(--text-dim)">
+                  <span class="hidden md:inline"><i class="fa-solid fa-arrows-up-down-left-right text-[var(--accent)] mr-1"></i> Kéo hộp viền trên video để đổi vùng che sub</span>
+                </div>
+              </div>
+
+            </div>
+
+            <!-- Multi-Track Timeline Card (Expansive) -->
+            <div class="glass card p-4 shadow-xl">
+              <div class="flex items-center justify-between mb-3">
+                <div class="flex items-center gap-2">
+                  <span class="text-[13px] font-extrabold uppercase tracking-wider" style="color:var(--text)">
+                    <i class="fa-solid fa-layer-group text-[var(--accent)] mr-1.5"></i> Multi-Track Timeline
+                  </span>
+                </div>
+
+                <div class="flex items-center gap-1.5">
+                  <button id="timeline-zoom-out" class="btn btn-ghost btn-sm w-7 h-7 p-0 text-[11px]" title="Thu nhỏ timeline">
+                    <i class="fa-solid fa-minus"></i>
+                  </button>
+                  <button id="timeline-zoom-fit" class="btn btn-ghost btn-sm px-2 py-1 text-[11px] mono font-bold" title="Khớp vừa khung hình">
+                    FIT
+                  </button>
+                  <button id="timeline-zoom-in" class="btn btn-ghost btn-sm w-7 h-7 p-0 text-[11px]" title="Phóng to timeline">
+                    <i class="fa-solid fa-plus"></i>
+                  </button>
+                </div>
+              </div>
+
+              <!-- Tracks Container -->
+              <div id="timeline-container" class="flex flex-col relative overflow-hidden shadow-inner">
+                <div id="tracks-scroll-area" class="tracks-scroll-area custom-scrollbar flex-1 relative">
+                  <div id="tracks-inner" class="relative min-w-full h-full">
+                    <div id="timeline-ruler" class="timeline-ruler"></div>
+                    <div id="timeline-playhead" class="timeline-playhead" style="left: 0px;">
+                      <div class="playhead-handle"></div>
+                      <div id="playhead-time-pill" class="playhead-time-pill">00:00.0</div>
+                    </div>
+                    <div class="track-row">
+                      <div class="track-label">
+                        <i class="fa-solid fa-waveform-lines text-[13px]" style="color:var(--teal)"></i> Voice Audio
+                      </div>
+                      <div class="track-content">
+                        <canvas id="waveform-canvas" class="waveform-canvas"></canvas>
+                      </div>
+                    </div>
+                    <div class="track-row">
+                      <div class="track-label">
+                        <i class="fa-solid fa-closed-captioning text-[13px]" style="color:var(--accent)"></i> Phụ Đề
+                      </div>
+                      <div class="track-content" id="sub-track-content"></div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+          </div>
+
+          <!-- RIGHT COLUMN: 4-TAB INSPECTOR DOCK (4 COLS) -->
+          <div class="lg:col-span-4 flex flex-col gap-4">
+            
+            <div class="glass card p-4 sm:p-5 flex flex-col shadow-xl h-full">
+              
+              <!-- Tab Pills -->
+              <div class="flex items-center gap-1.5 border-b pb-3 mb-4 overflow-x-auto no-scrollbar" style="border-color:var(--line)">
+                <button class="inspector-tab-btn tab-pill active" data-tab="style">
+                  <i class="fa-solid fa-font text-[var(--teal)]"></i> Kiểu chữ
+                </button>
+                <button class="inspector-tab-btn tab-pill" data-tab="blur">
+                  <i class="fa-solid fa-wand-magic text-[var(--accent)]"></i> Che sub
+                </button>
+                <button class="inspector-tab-btn tab-pill" data-tab="logo">
+                  <i class="fa-solid fa-stamp text-[var(--amber)]"></i> Logo
+                </button>
+                <button class="inspector-tab-btn tab-pill" data-tab="script">
+                  <i class="fa-solid fa-list-check text-cyan-400"></i> Kịch bản
+                </button>
+              </div>
+
+              <!-- TAB 1: KIỂU CHỮ (SUBTITLE STYLE) -->
+              <div id="tab-content-style" class="inspector-tab-content space-y-4">
+                <div>
+                  <label class="block text-[12px] font-bold mb-1.5" style="color:var(--text-dim)">Font chữ phụ đề</label>
+                  <select id="sub-font-select" class="input text-xs w-full font-medium">
+                    <option value="Inter">Inter (Chuẩn CapCut)</option>
+                    <option value="Plus Jakarta Sans">Plus Jakarta Sans</option>
+                    <option value="Roboto">Roboto</option>
+                    <option value="Arial">Arial Bold</option>
+                    <option value="DejaVu Sans">DejaVu Sans</option>
+                  </select>
+                </div>
+
+                <div class="grid grid-cols-2 gap-3">
+                  <div>
+                    <div class="flex items-center justify-between text-[11.5px] mb-1 font-medium" style="color:var(--text-dim)">
+                      <label>Cỡ chữ</label>
+                      <span id="sub-font-size-val" class="mono font-extrabold" style="color:var(--teal)">16px</span>
+                    </div>
+                    <input type="range" id="sub-font-size-slider" min="10" max="32" value="16" class="studio-slider">
+                  </div>
+                  <div>
+                    <label class="block text-[11.5px] font-bold mb-1" style="color:var(--text-dim)">Độ đậm chữ</label>
+                    <select id="sub-font-weight-select" class="input text-xs w-full">
+                      <option value="400">400 - Thường</option>
+                      <option value="600">600 - Vừa</option>
+                      <option value="700" selected>700 - Đậm Douyin</option>
+                      <option value="800">800 - Rất đậm</option>
+                    </select>
+                  </div>
+                </div>
+
+                <div>
+                  <label class="block text-[12px] font-bold mb-2" style="color:var(--text-dim)">Màu sắc chữ</label>
+                  <div class="flex items-center gap-2">
+                    <button class="color-swatch-btn active" style="background:#ffffff" data-color="#ffffff" title="Trắng tinh"></button>
+                    <button class="color-swatch-btn" style="background:#FFE600" data-color="#FFE600" title="Vàng Douyin"></button>
+                    <button class="color-swatch-btn" style="background:#00F5FF" data-color="#00F5FF" title="Cyan Neon"></button>
+                    <button class="color-swatch-btn" style="background:#FF75A0" data-color="#FF75A0" title="Hồng Pastel"></button>
+                    <button class="color-swatch-btn" style="background:#00FF9D" data-color="#00FF9D" title="Xanh Mint"></button>
+                    <input type="color" id="sub-color-picker" value="#ffffff" class="w-8 h-8 rounded-lg border bg-transparent cursor-pointer ml-auto" style="border-color:var(--line)" title="Mã màu tuỳ chọn">
+                  </div>
+                </div>
+
+                <div class="space-y-3.5 pt-3 border-t" style="border-color:var(--line)">
+                  <div>
+                    <div class="flex items-center justify-between text-[11.5px] mb-1 font-medium" style="color:var(--text-dim)">
+                      <label>Độ dày viền (Outline Stroke)</label>
+                      <span id="sub-outline-val" class="mono font-bold" style="color:var(--accent)">1.5px</span>
+                    </div>
+                    <input type="range" id="sub-outline-slider" min="0" max="5" step="0.5" value="1.5" class="studio-slider">
+                  </div>
+                  <div>
+                    <div class="flex items-center justify-between text-[11.5px] mb-1 font-medium" style="color:var(--text-dim)">
+                      <label>Đổ bóng (Drop Shadow)</label>
+                      <span id="sub-shadow-val" class="mono font-bold" style="color:var(--accent)">1.0px</span>
+                    </div>
+                    <input type="range" id="sub-shadow-slider" min="0" max="5" step="0.5" value="1.0" class="studio-slider">
+                  </div>
+                </div>
+
+                <div class="space-y-3 pt-3 border-t" style="border-color:var(--line)">
+                  <div class="flex items-center justify-between">
+                    <div>
+                      <div class="text-[12.5px] font-bold">Tự ngắt câu dài (autoSplitLong)</div>
+                      <div class="text-[11px]" style="color:var(--text-faint)">Tách câu dài thành các mốc ngắn tự nhiên</div>
+                    </div>
+                    <input type="checkbox" id="sub-auto-split-switch" checked class="w-4 h-4 rounded cursor-pointer accent-emerald-500">
+                  </div>
+                  <div>
+                    <div class="flex items-center justify-between text-[11.5px] mb-1 font-medium" style="color:var(--text-dim)">
+                      <label>Ký tự tối đa trên 1 dòng</label>
+                      <span id="sub-max-chars-val" class="mono font-bold" style="color:var(--teal)">28</span>
+                    </div>
+                    <input type="range" id="sub-max-chars-slider" min="15" max="45" value="28" class="studio-slider">
+                  </div>
+                </div>
+              </div>
+
+              <!-- TAB 2: CHE SUB GỐC (LIQUID GLASS FROSTED BLUR) -->
+              <div id="tab-content-blur" class="inspector-tab-content space-y-4" style="display:none;">
+                <div class="flex items-center justify-between p-3 rounded-xl border shadow-sm" style="background:rgba(124,111,240,.08); border-color:var(--line);">
+                  <div>
+                    <div class="text-[13px] font-bold" style="color:var(--accent)">Bật che phụ đề gốc</div>
+                    <div class="text-[11px]" style="color:var(--text-dim)">Áp dụng bộ lọc kính mờ quang học</div>
+                  </div>
+                  <input type="checkbox" id="blur-enable-switch" checked class="w-4 h-4 rounded cursor-pointer">
+                </div>
+
+                <div class="flex items-center justify-between pt-1">
+                  <div>
+                    <div class="text-[12.5px] font-bold">Hiệu ứng Liquid Glass</div>
+                    <div class="text-[11px]" style="color:var(--text-faint)">Chuyển tiếp êm dịu 2 mép trên/dưới</div>
+                  </div>
+                  <input type="checkbox" id="blur-liquid-glass-switch" checked class="w-4 h-4 rounded cursor-pointer">
+                </div>
+
+                <div class="space-y-3.5 pt-2 border-t" style="border-color:var(--line)">
+                  <div>
+                    <div class="flex items-center justify-between text-[11.5px] mb-1 font-medium" style="color:var(--text-dim)">
+                      <label>Độ mờ kính (Blur Strength)</label>
+                      <span id="blur-strength-val" class="mono font-bold" style="color:var(--accent)">3.5</span>
+                    </div>
+                    <input type="range" id="blur-strength-slider" min="1" max="10" step="0.5" value="3.5" class="studio-slider">
+                  </div>
+
+                  <div>
+                    <div class="flex items-center justify-between text-[11.5px] mb-1 font-medium" style="color:var(--text-dim)">
+                      <label>Bo tròn góc (Border Radius)</label>
+                      <span id="blur-radius-val" class="mono font-bold" style="color:var(--accent)">18px</span>
+                    </div>
+                    <input type="range" id="blur-radius-slider" min="0" max="30" value="18" class="studio-slider">
+                  </div>
+
+                  <div>
+                    <div class="flex items-center justify-between text-[11.5px] mb-1 font-medium" style="color:var(--text-dim)">
+                      <label>Tán xạ ánh sáng (Light Diffusion)</label>
+                      <span id="blur-diffusion-val" class="mono font-bold" style="color:var(--accent)">0.03</span>
+                    </div>
+                    <input type="range" id="blur-diffusion-slider" min="0" max="0.15" step="0.01" value="0.03" class="studio-slider">
+                  </div>
+                </div>
+
+                <div class="p-3 rounded-xl border text-[11.5px] leading-relaxed" style="background:var(--surface); border-color:var(--line); color:var(--text-dim)">
+                  <i class="fa-solid fa-circle-info mr-1" style="color:var(--accent)"></i>
+                  Bạn có thể kéo trực tiếp 8 điểm neo trên màn hình video để thay đổi kích thước và vị trí vùng làm mờ.
+                </div>
+              </div>
+
+              <!-- TAB 3: WATERMARK & LOGO -->
+              <div id="tab-content-logo" class="inspector-tab-content space-y-4" style="display:none;">
+                <div class="flex items-center justify-between">
+                  <div>
+                    <div class="text-[12.5px] font-bold">Bật Watermark / Logo</div>
+                    <div class="text-[11px]" style="color:var(--text-faint)">Đóng dấu bản quyền video</div>
+                  </div>
+                  <input type="checkbox" id="logo-enable-switch" class="w-4 h-4 rounded cursor-pointer">
+                </div>
+
+                <div id="logo-dropzone" class="studio-dropzone p-4 text-center cursor-pointer">
+                  <div id="logo-preview-wrap" style="display:none" class="mb-2">
+                    <img id="logo-preview-img" src="" alt="Logo Preview" class="max-h-20 mx-auto object-contain rounded-lg">
+                    <button id="btn-remove-logo" class="text-[11.5px] font-semibold text-[var(--rose)] mt-2 hover:underline">
+                      <i class="fa-solid fa-trash-can mr-1"></i> Xóa Logo
+                    </button>
+                  </div>
+                  <div id="logo-upload-prompt">
+                    <i class="fa-solid fa-cloud-arrow-up text-2xl mb-1.5" style="color:var(--amber)"></i>
+                    <div class="text-xs font-bold">Tải lên Logo (.png, .webp)</div>
+                    <div class="text-[11px]" style="color:var(--text-faint)">Kéo thả hoặc bấm để chọn tệp</div>
+                  </div>
+                  <input type="file" id="logo-file-input" accept="image/png,image/jpeg,image/webp" class="hidden">
+                </div>
+
+                <div>
+                  <label class="block text-[11.5px] font-bold mb-2" style="color:var(--text-dim)">Vị trí góc</label>
+                  <div class="grid grid-cols-2 gap-2 max-w-[150px]">
+                    <button class="corner-matrix-btn" data-pos="top-left" title="Góc trên trái"><i class="fa-solid fa-arrow-up-left"></i></button>
+                    <button class="corner-matrix-btn active" data-pos="top-right" title="Góc trên phải"><i class="fa-solid fa-arrow-up-right"></i></button>
+                    <button class="corner-matrix-btn" data-pos="bottom-left" title="Góc dưới trái"><i class="fa-solid fa-arrow-down-left"></i></button>
+                    <button class="corner-matrix-btn" data-pos="bottom-right" title="Góc dưới phải"><i class="fa-solid fa-arrow-down-right"></i></button>
+                  </div>
+                </div>
+
+                <div class="space-y-3 pt-2 border-t" style="border-color:var(--line)">
+                  <div>
+                    <div class="flex items-center justify-between text-[11.5px] mb-1 font-medium" style="color:var(--text-dim)">
+                      <label>Kích thước (% chiều rộng)</label>
+                      <span id="logo-size-val" class="mono font-bold" style="color:var(--amber)">8%</span>
+                    </div>
+                    <input type="range" id="logo-size-slider" min="4" max="25" value="8" class="studio-slider">
+                  </div>
+                  <div>
+                    <div class="flex items-center justify-between text-[11.5px] mb-1 font-medium" style="color:var(--text-dim)">
+                      <label>Độ trong suốt (Opacity)</label>
+                      <span id="logo-opacity-val" class="mono font-bold" style="color:var(--amber)">100%</span>
+                    </div>
+                    <input type="range" id="logo-opacity-slider" min="10" max="100" value="100" class="studio-slider">
+                  </div>
+                  <div>
+                    <div class="flex items-center justify-between text-[11.5px] mb-1 font-medium" style="color:var(--text-dim)">
+                      <label>Khoảng cách mép (Margin)</label>
+                      <span id="logo-margin-val" class="mono font-bold" style="color:var(--amber)">20px</span>
+                    </div>
+                    <input type="range" id="logo-margin-slider" min="0" max="60" value="20" class="studio-slider">
+                  </div>
+                </div>
+              </div>
+
+              <!-- TAB 4: KỊCH BẢN (SCRIPT EDITOR) -->
+              <div id="tab-content-script" class="inspector-tab-content space-y-3" style="display:none;">
+                <div class="flex items-center justify-between">
+                  <span id="script-segments-count" class="text-xs font-bold" style="color:var(--text)">0 câu thoại</span>
+                  <div class="flex items-center gap-1.5">
+                    <button id="btn-add-segment" class="btn btn-ghost btn-sm px-2.5 py-1 text-[11.5px] font-semibold" style="color:var(--teal)">
+                      <i class="fa-solid fa-plus mr-1"></i> Thêm câu
+                    </button>
+                    <button id="btn-export-srt" class="btn btn-ghost btn-sm px-2.5 py-1 text-[11.5px] font-semibold">
+                      <i class="fa-solid fa-download mr-1"></i> .SRT
+                    </button>
+                    <button id="btn-clear-segments" class="btn btn-ghost btn-sm px-2 py-1 text-[11.5px]" style="color:var(--rose)" title="Xóa tất cả">
+                      <i class="fa-solid fa-trash"></i>
+                    </button>
+                  </div>
+                </div>
+
+                <div id="script-segments-list" class="space-y-2.5 max-h-[420px] overflow-y-auto custom-scrollbar pr-1"></div>
+              </div>
+
+            </div>
+
+          </div>
+
+        </div>
+
+        <!-- EMBEDDED MODALS -->
+        <!-- Export Progress Modal -->
+        <div id="export-modal" class="studio-modal-backdrop">
+          <div class="studio-modal-box p-5 sm:p-6 space-y-5">
+            <div class="flex items-center justify-between border-b pb-3" style="border-color:var(--line)">
+              <div class="flex items-center gap-2.5">
+                <div class="w-9 h-9 rounded-xl flex items-center justify-center" style="background:rgba(52,214,180,.14); color:var(--teal)">
+                  <i class="fa-solid fa-wand-magic-sparkles text-[15px]"></i>
+                </div>
+                <div>
+                  <h3 class="display font-bold text-[16px]">Xuất Video Vietsub AI</h3>
+                  <p class="text-[12px]" style="color:var(--text-dim)">Render hiệu ứng kính mờ &amp; phụ đề chuẩn FFmpeg</p>
+                </div>
+              </div>
+              <button onclick="VietsubApp.closeAllModals()" class="w-8 h-8 rounded-lg flex items-center justify-center hover:bg-white/10 text-[--text-dim]">
+                <i class="fa-solid fa-xmark"></i>
+              </button>
+            </div>
+
+            <div class="space-y-2">
+              <div class="flex items-center justify-between text-xs font-semibold">
+                <span id="export-status-message" class="truncate max-w-[320px]" style="color:var(--text)">Đang khởi tạo tác vụ...</span>
+                <span id="export-percent-label" class="mono font-extrabold text-sm" style="color:var(--teal)">0%</span>
+              </div>
+              <div class="gradient-progress-bar">
+                <div id="export-progress-fill" class="gradient-progress-fill" style="width: 0%;"></div>
+              </div>
+            </div>
+
+            <div class="space-y-1 py-2 border-y text-xs" style="border-color:var(--line)">
+              <div class="export-step-item active" data-step="1"><div class="export-step-dot"></div><span>1. Tải tệp video &amp; cấu hình lên máy chủ</span></div>
+              <div class="export-step-item" data-step="2"><div class="export-step-dot"></div><span>2. Tiếp nhận Job ID &amp; xếp hàng render</span></div>
+              <div class="export-step-item" data-step="3"><div class="export-step-dot"></div><span>3. Tạo phụ đề ASS &amp; định dạng style</span></div>
+              <div class="export-step-item" data-step="4"><div class="export-step-dot"></div><span>4. Áp dụng bộ lọc Liquid Glass Blur</span></div>
+              <div class="export-step-item" data-step="5"><div class="export-step-dot"></div><span>5. Render video FFmpeg</span></div>
+              <div class="export-step-item" data-step="6"><div class="export-step-dot"></div><span>6. Hoàn tất &amp; sẵn sàng tải về</span></div>
+            </div>
+
+            <div id="export-result-wrap" style="display: none;" class="space-y-4 pt-1">
+              <div class="rounded-xl overflow-hidden bg-black border aspect-video max-h-52 flex items-center justify-center" style="border-color:var(--line)">
+                <video id="export-preview-video" controls class="w-full h-full object-contain"></video>
+              </div>
+              <a id="export-download-btn" href="#" download class="btn btn-primary w-full py-3 text-sm font-bold text-center shadow-lg">
+                <i class="fa-solid fa-download mr-1.5"></i> Tải Video MP4 Hoàn Chỉnh (.mp4)
+              </a>
+            </div>
+          </div>
+        </div>
+
+        <!-- API Settings Modal -->
+        <div id="settings-modal" class="studio-modal-backdrop">
+          <div class="studio-modal-box p-5 sm:p-6 space-y-4">
+            <div class="flex items-center justify-between border-b pb-3" style="border-color:var(--line)">
+              <h3 class="display font-bold text-[16px]">
+                <i class="fa-solid fa-sliders mr-1.5" style="color:var(--accent)"></i> Cấu hình API Backend
+              </h3>
+              <button onclick="VietsubApp.closeAllModals()" class="w-8 h-8 rounded-lg flex items-center justify-center hover:bg-white/10 text-[--text-dim]">
+                <i class="fa-solid fa-xmark"></i>
+              </button>
+            </div>
+
+            <div>
+              <label class="block text-xs font-semibold mb-1.5" style="color:var(--text-dim)">API Base URL</label>
+              <input type="text" id="settings-api-base-input" class="input text-xs mono w-full" placeholder="http://vietsub.elyriax.com/api/v1">
+              <div id="ping-status-display"></div>
+            </div>
+
+            <div class="flex items-center justify-between pt-2">
+              <button id="btn-test-ping" class="btn btn-ghost btn-sm text-xs font-semibold">
+                <i class="fa-solid fa-bolt mr-1"></i> Kiểm tra kết nối (Ping)
+              </button>
+              <div class="flex items-center gap-2">
+                <button id="btn-reset-settings" class="btn btn-ghost btn-sm text-xs" style="color:var(--text-faint)">
+                  Đặt lại
+                </button>
+                <button id="btn-save-settings" class="btn btn-primary btn-sm text-xs font-bold">
+                  Lưu thay đổi
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+      </section>
+
+      <section class="view" data-view="downloader" data-title="Downloader" data-icon="fa-download"></section>
+      <section class="view" data-view="apis" data-title="Developer APIs" data-icon="fa-plug"></section>
+      <section class="view" data-view="translation" data-title="Translation" data-icon="fa-language"></section>
+      <section class="view" data-view="ai" data-title="AI Tools" data-icon="fa-sparkles"></section>
+      <section class="view" data-view="image" data-title="Image Tools" data-icon="fa-image"></section>
+
+      <!-- SETTINGS VIEW -->
+      <section class="view" data-view="settings">
+        <h1 class="display text-[21px] font-extrabold mb-5">Settings</h1>
+
+        <div class="mb-3 text-[12px] font-semibold uppercase tracking-wide" style="color:var(--text-faint)">Profile</div>
+        <div class="glass card p-4 mb-6">
+          <div class="flex items-center gap-4">
+						<div class="w-16 h-16 rounded-2xl flex items-center justify-center font-bold text-xl border overflow-hidden" id="settings-avatar" style="background: rgba(255, 255, 255, 0.04); border-color: var(--line); color: var(--text-dim);">?</div>
+            <div class="flex-1 min-w-0">
+              <div class="font-semibold text-[15px]" id="settings-name">Not signed in</div>
+              <div class="text-[12.5px] truncate" style="color:var(--text-dim)" id="settings-email">Sign in to sync your account</div>
+            </div>
+          </div>
+          <div class="flex gap-2 mt-4" id="settings-auth-actions"></div>
+        </div>
+
+        <div class="mb-3 text-[12px] font-semibold uppercase tracking-wide" style="color:var(--text-faint)">Connected Providers</div>
+        <div class="glass card p-2 mb-6" id="providers-list"></div>
+
+        <div class="mb-3 text-[12px] font-semibold uppercase tracking-wide" style="color:var(--text-faint)">Settings</div>
+        <div class="glass card p-4 mb-6 space-y-4">
+          <!-- API KEY SECTION -->
+          <div>
+            <div class="text-[12px] mb-1.5" style="color:var(--text-dim)">API Key</div>
+            <div class="flex items-center gap-2">
+              <div class="input mono text-[11.5px] truncate flex-1 bg-white/5" id="api-key-display" style="color:var(--text-dim)">— sign in to generate —</div>
+              <button class="btn btn-ghost btn-sm" id="api-key-btn" onclick="handleApiKey()"><i class="fa-solid fa-key" id="api-key-icon"></i></button>
+            </div>
+          </div>
+
+          <div class="border-t" style="border-color:var(--line)"></div>
+
+          <!-- GROUP 1: NOTIFICATIONS -->
+          <div class="text-[12px] mb-1.5" style="color:var(--text-dim)">Notifications</div>
+
+          <div class="flex items-center justify-between pt-1">
+            <div>
+              <div class="text-[13.5px] font-medium">Email Alerts</div>
+              <div class="text-[11.5px]" style="color:var(--text-faint)">Receive updates via email address</div>
+            </div>
+            <div class="switch" id="email-switch" onclick="toggleSwitch(this,'notifications','email')"></div>
+          </div>
+
+          <div class="flex items-center justify-between pt-1">
+            <div>
+              <div class="text-[13.5px] font-medium">Push Notifications</div>
+              <div class="text-[11.5px]" style="color:var(--text-faint)">Receive instant device alerts</div>
+            </div>
+            <div class="switch" id="push-switch" onclick="toggleSwitch(this,'notifications','push')"></div>
+          </div>
+
+          <div class="flex items-center justify-between pt-1">
+            <div>
+              <div class="text-[13.5px] font-medium">Discord Integration</div>
+              <div class="text-[11.5px]" style="color:var(--text-faint)">Send notifications to your Discord server</div>
+            </div>
+            <div class="switch" id="discord-switch" onclick="toggleSwitch(this,'notifications','discord')"></div>
+          </div>
+
+          <div class="flex items-center justify-between pt-1">
+            <div>
+              <div class="text-[13.5px] font-medium">Security Alerts</div>
+              <div class="text-[11.5px]" style="color:var(--text-faint)">Notify on suspicious login or security changes</div>
+            </div>
+            <div class="switch" id="security-switch" onclick="toggleSwitch(this,'notifications','security_alert')"></div>
+          </div>
+
+          <div class="flex items-center justify-between pt-1">
+            <div>
+              <div class="text-[13.5px] font-medium">System Updates</div>
+              <div class="text-[11.5px]" style="color:var(--text-faint)">Notify when new features are deployed</div>
+            </div>
+            <div class="switch" id="system-update-switch" onclick="toggleSwitch(this,'notifications','system_update')"></div>
+          </div>
+
+          <div class="border-t" style="border-color:var(--line)"></div>
+
+          <!-- GROUP 2: PRIVACY & ANALYTICS -->
+          <div class="text-[12px] mb-1.5" style="color:var(--text-dim)">Privacy & Diagnostics</div>
+
+          <div class="flex items-center justify-between pt-1">
+            <div>
+              <div class="text-[13.5px] font-medium">Public Profile</div>
+              <div class="text-[11.5px]" style="color:var(--text-faint)">Allow anyone to view your profile page</div>
+            </div>
+            <div class="switch" id="public-profile-switch" onclick="toggleSwitch(this,'privacy','profile_public')"></div>
+          </div>
+
+          <div class="flex items-center justify-between pt-1">
+            <div>
+              <div class="text-[13.5px] font-medium">Show Email Address</div>
+              <div class="text-[11.5px]" style="color:var(--text-faint)">Display email on your public profile</div>
+            </div>
+            <div class="switch" id="show-email-switch" onclick="toggleSwitch(this,'privacy','show_email')"></div>
+          </div>
+
+          <div class="flex items-center justify-between pt-1">
+            <div>
+              <div class="text-[13.5px] font-medium">Usage Analytics</div>
+              <div class="text-[11.5px]" style="color:var(--text-faint)">Help us improve by sharing anonymous usage data</div>
+            </div>
+            <div class="switch" id="analytics-switch" onclick="toggleSwitch(this,'privacy','analytics')"></div>
+          </div>
+
+          <div class="flex items-center justify-between pt-1">
+            <div>
+              <div class="text-[13.5px] font-medium">Crash Reports</div>
+              <div class="text-[11.5px]" style="color:var(--text-faint)">Automatically send error logs to developers</div>
+            </div>
+            <div class="switch" id="crash-report-switch" onclick="toggleSwitch(this,'privacy','crash_report')"></div>
+          </div>
+
+          <div class="border-t" style="border-color:var(--line)"></div>
+
+          <!-- GROUP 3: DEVELOPER MODE -->
+          <div class="text-[12px] mb-1.5" style="color:var(--text-dim)">Developer Tools</div>
+
+          <div class="flex items-center justify-between pt-1">
+            <div>
+              <div class="text-[13.5px] font-medium">Developer Mode</div>
+              <div class="text-[11.5px]" style="color:var(--text-faint)">Enable advanced tools and features</div>
+            </div>
+            <div class="switch" id="dev-mode-switch" onclick="toggleSwitch(this,'developer_mode')"></div>
+          </div>
+
+          <div class="flex items-center justify-between pt-1">
+            <div>
+              <div class="text-[13.5px] font-medium">Show API Logs</div>
+              <div class="text-[11.5px]" style="color:var(--text-faint)">Log raw incoming/outgoing network responses</div>
+            </div>
+            <div class="switch" id="api-logs-switch" onclick="toggleSwitch(this,'show_api_logs')"></div>
+          </div>
+
+          <div class="flex items-center justify-between pt-1">
+            <div>
+              <div class="text-[13.5px] font-medium">Show Debug Logs</div>
+              <div class="text-[11.5px]" style="color:var(--text-faint)">Display detailed application debugging info</div>
+            </div>
+            <div class="switch" id="debug-logs-switch" onclick="toggleSwitch(this,'show_debug_info')"></div>
+          </div>
+        </div>
+
+        <div class="mb-3 text-[12px] font-semibold uppercase tracking-wide" style="color:var(--text-faint)">Theme</div>
+        <div class="glass card p-4 mb-6 space-y-5">
+          <div>
+            <div class="text-[13.5px] font-medium mb-3">Appearance</div>
+            <div class="grid grid-cols-2 sm:grid-cols-4 gap-3" id="theme-options">
+              
+              <!-- System Theme -->
+              <div class="cursor-pointer group theme-option" data-theme="system" onclick="setTheme('system')">
+                <div class="theme-card-box p-1 rounded-[10px] border-2 border-transparent group-hover:border-[var(--line-strong)] bg-white/5 transition-colors">
+                  <img
+                    src="/assets/appearance/system.svg"
+                    alt="System theme"
+                    class="w-full h-auto block rounded-md"
+                  >
+                </div>
+                <div class="theme-card-label text-center text-[11.5px] font-medium mt-2 text-[var(--text-dim)] group-hover:text-[var(--text)] transition-colors">System</div>
+              </div>
+
+              <!-- Dark Theme -->
+              <div class="cursor-pointer group theme-option" data-theme="dark" onclick="setTheme('dark')">
+                <div class="theme-card-box p-1 rounded-[10px] border-2 border-[var(--accent)] bg-white/5 transition-colors">
+                  <img
+                    src="/assets/appearance/dark.svg"
+                    alt="Dark theme"
+                    class="w-full h-auto block rounded-md"
+                  >
+                </div>
+                <div class="theme-card-label text-center text-[11.5px] font-medium mt-2 text-[var(--text)] transition-colors">Dark</div>
+              </div>
+
+              <!-- Light Theme -->
+              <div class="cursor-pointer group theme-option" data-theme="light" onclick="setTheme('light')">
+                <div class="theme-card-box p-1 rounded-[10px] border-2 border-transparent group-hover:border-[var(--line-strong)] bg-white/5 transition-colors">
+                  <img
+                    src="/assets/appearance/light.svg"
+                    alt="Light theme"
+                    class="w-full h-auto block rounded-md"
+                  >
+                </div>
+                <div class="theme-card-label text-center text-[11.5px] font-medium mt-2 text-[var(--text-dim)] group-hover:text-[var(--text)] transition-colors">Light</div>
+              </div>
+
+              <!-- Classic Dark Theme -->
+              <div class="cursor-pointer group theme-option" data-theme="classic_dark" onclick="setTheme('classic_dark')">
+                <div class="theme-card-box p-1 rounded-[10px] border-2 border-transparent group-hover:border-[var(--line-strong)] bg-white/5 transition-colors">
+                  <img
+                    src="/assets/appearance/classic-dark.svg"
+                    alt="Classic Dark theme"
+                    class="w-full h-auto block rounded-md"
+                  >
+                </div>
+                <div class="theme-card-label text-center text-[11.5px] font-medium mt-2 text-[var(--text-dim)] group-hover:text-[var(--text)] transition-colors">Classic Dark</div>
+              </div>
+
+            </div>
+          </div>
+          
+          <div class="border-t" style="border-color:var(--line)"></div>
+          
+          <div>
+            <div class="text-[13.5px] font-medium mb-2.5">Accent Color</div>
+            <div class="flex gap-2.5" id="accent-swatches"></div>
+          </div>
+        </div>
+
+        <div class="mb-3 text-[12px] font-semibold uppercase tracking-wide" style="color:var(--text-faint)">App Info</div>
+        <div class="glass card divide-y" style="--tw-divide-opacity:1; border-color:var(--line)">
+          <div class="flex items-center justify-between px-4 py-3 text-[13.5px]"><span style="color:var(--text-dim)">App Version</span><span class="mono">0.3.2 (52)</span></div>
+          <div class="flex items-center justify-between px-4 py-3 text-[13.5px]" style="border-color:var(--line)"><span style="color:var(--text-dim)">Device Info</span><span class="mono" id="deviceInfo"></span></div>
+          <div class="flex items-center justify-between px-4 py-3 text-[13.5px]" style="border-color:var(--line)"><span style="color:var(--text-dim)">API Version</span><span class="mono">v1</span></div>
+        </div>
+				
+				<div class="mb-3 text-[12px] font-semibold uppercase tracking-wide" style="color:var(--text-faint); padding-top: 10px">Developer &amp; Legal</div>
+        <div class="glass card divide-y" style="--tw-divide-opacity:1; border-color:var(--line)">
+          <a class="flex items-center justify-between px-4 py-3 text-[13.5px]" onclick="navigate('portfolio')">
+            <span style="color:var(--text)">Developer Portfolio (Shiori Saiky)</span>
+            <div class="flex items-center gap-2">
+              <span class="pill" style="background:rgba(52,214,180,.12); color:var(--teal)">Profile</span>
+              <i class="fa-solid fa-chevron-right text-[10px]" style="color:var(--text-faint)"></i>
+            </div>
+          </a>
+          <a class="flex items-center justify-between px-4 py-3 text-[13.5px] border-t" style="border-color:var(--line)" onclick="navigate('terms')">
+            <span style="color:var(--text-dim)">Terms of Service</span>
+            <i class="fa-solid fa-chevron-right text-[10px]" style="color:var(--text-faint)"></i>
+          </a>
+          <a class="flex items-center justify-between px-4 py-3 text-[13.5px] border-t" style="border-color:var(--line)" onclick="navigate('privacy')">
+            <span style="color:var(--text-dim)">Privacy Policy</span>
+            <i class="fa-solid fa-chevron-right text-[10px]" style="color:var(--text-faint)"></i>
+          </a>
+        </div>
+
+      </section>
+
+
+
+      <!-- TERMS VIEW -->
+      <section class="view" data-view="terms" data-src="/terms/index.html"></section>
+
+      <!-- PRIVACY VIEW -->
+      <section class="view" data-view="privacy" data-src="/privacy/index.html"></section>
+
+      <!-- PORTFOLIO VIEW -->
+      <section class="view" data-view="portfolio" data-src="/portfolio/index.html"></section>
+      <section class="view" data-view="profile" data-src="/portfolio/index.html"></section>
+
+    </main>
+  </div>
+</div>
+
+<!-- BOTTOM TABS (mobile) -->
+<nav id="bottom-tabs" class="glass-solid flex items-stretch border-t" style="border-color:var(--line)">
+  <button class="tab-btn active" data-route="dashboard" onclick="navigate('dashboard')"><i class="fa-solid fa-chart-line"></i>Dashboard</button>
+  <button class="tab-btn" data-route="games" onclick="navigate('games')"><i class="fa-solid fa-gamepad"></i>Games</button>
+  <button class="tab-btn" data-route="markets" onclick="navigate('markets')"><i class="fa-solid fa-basket-shopping"></i>Markets</button>
+  <button class="tab-btn" data-route="apis" onclick="navigate('apis')"><i class="fa-solid fa-code"></i>Developer</button>
+  <button class="tab-btn" data-route="settings" onclick="navigate('settings')"><i class="fa-solid fa-gear"></i>Settings</button>
+</nav>
+
+<!-- BOTTOM SHEET -->
+<div id="sheet">
+  <div class="sheet-handle"></div>
+  <div id="sheet-content"></div>
+</div>
+
+<script>
+async function init() {
+  const savedToken = localStorage.getItem('sayraa_token');
+  const savedUser = localStorage.getItem('sayraa_user');
+  if (savedToken && savedUser) {
+    Sayraa.user = JSON.parse(savedUser);
+  }
+
+  const initialRoute = window.location.hash.replace('#', '') || 'dashboard';
+  if (typeof ROUTE_META !== 'undefined' && ROUTE_META[initialRoute]) {
+    renderView(initialRoute);
+  } else {
+    window.location.hash = 'dashboard';
+  }
+
+  const deviceInfoEl = document.getElementById("deviceInfo");
+  if (deviceInfoEl && typeof getDeviceInfo === 'function') deviceInfoEl.textContent = getDeviceInfo();
+
+  if (typeof renderDashboard === 'function') renderDashboard();
+  if (typeof renderGamesDashboard === 'function') renderGamesDashboard();
+  if (typeof initMarkets === 'function') initMarkets();
+  if (typeof renderAuthUI === 'function') renderAuthUI();
+  if (typeof renderAccentSwatches === 'function') renderAccentSwatches();
+  if (typeof setTheme === 'function') setTheme(Sayraa.theme || 'system', false);
+
+  const networkTasks = [
+    typeof checkOAuthCallback === 'function' ? checkOAuthCallback() : Promise.resolve(),
+    typeof loadGenshinAccounts === 'function' ? loadGenshinAccounts() : Promise.resolve()
+  ];
+
+  if (typeof Splash !== 'undefined') {
+    await Splash.wait(networkTasks);
+  }
+	
+  if (typeof renderGenshinPanel === 'function') renderGenshinPanel('banners');
+}
+
+// Chờ các file defer nạp xong rồi mới chạy init
+window.addEventListener('DOMContentLoaded', init);
+</script>
+
+</body>
+</html>

@@ -1,0 +1,1021 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="system">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <title>Shiori Saiky — Full-Stack &amp; Backend Systems Developer</title>
+  
+  <meta name="description" content="Personal developer workspace and portfolio of Shiori Saiky. Building web applications, APIs, automation tools, and backend systems. Currently architecting Elyriax.">
+  <meta name="keywords" content="Shiori Saiky, Saiko, Developer, Full-stack, Backend, Node.js, Cloudflare Workers, Elyriax, Portfolio">
+  <meta name="robots" content="index, follow">
+  <link rel="canonical" href="https://elyriax.com/portfolio/">
+
+  <link rel="icon" type="image/x-icon" href="/assets/favicon.ico">
+  <link rel="icon" type="image/png" sizes="32x32" href="/assets/favicon-32x32.png">
+  <link rel="apple-touch-icon" sizes="180x180" href="/assets/apple-touch-icon.png">
+
+  <!-- Open Graph -->
+  <meta property="og:type" content="website">
+  <meta property="og:title" content="Shiori Saiky — Full-Stack &amp; Backend Systems Developer">
+  <meta property="og:description" content="I build web applications, APIs, automation tools and backend systems. Currently architecting Elyriax.">
+  <meta property="og:image" content="/assets/og-image.png">
+
+  <!-- Early Anti-FOUC Theme Initialization -->
+  <script>
+    (function() {
+      try {
+        var saved = localStorage.getItem('appearance') || localStorage.getItem('sayraa_theme');
+        var valid = ['system', 'dark', 'light', 'classic_dark'];
+        if (!valid.includes(saved)) saved = 'system';
+        var isDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
+        var effective = saved === 'system' ? (isDark ? 'dark' : 'light') : saved;
+        document.documentElement.setAttribute('data-theme', saved);
+        document.documentElement.setAttribute('data-theme-effective', effective);
+      } catch(e) {}
+    })();
+  </script>
+
+  <!-- Typography & Icons -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@500;600;700;800&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+
+  <link rel="stylesheet" href="/css/style.css">
+
+  <style>
+    /* Technical Workspace Styles */
+    .mono-label {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 11px;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+    }
+    .section-num {
+      font-family: 'JetBrains Mono', monospace;
+      color: var(--accent);
+      font-weight: 700;
+    }
+    .tech-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 4px 10px;
+      border-radius: 8px;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 11px;
+      background: rgba(255, 255, 255, 0.035);
+      border: 1px solid var(--line);
+      color: var(--text-dim);
+      transition: all 0.2s ease;
+    }
+    html[data-theme-effective="light"] .tech-pill {
+      background: #ffffff;
+      border-color: rgba(15, 23, 42, 0.09);
+      color: var(--text-dim);
+    }
+    .tech-pill:hover {
+      border-color: var(--accent);
+      color: var(--text);
+      transform: translateY(-1px);
+    }
+    .project-card {
+      position: relative;
+      transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+    .project-card:hover {
+      border-color: var(--line-strong);
+      transform: translateY(-2px);
+    }
+    .grid-lines {
+      background-size: 32px 32px;
+      background-image: 
+        linear-gradient(to right, rgba(255, 255, 255, 0.02) 1px, transparent 1px),
+        linear-gradient(to bottom, rgba(255, 255, 255, 0.02) 1px, transparent 1px);
+    }
+    html[data-theme-effective="light"] .grid-lines {
+      background-image: 
+        linear-gradient(to right, rgba(15, 23, 42, 0.025) 1px, transparent 1px),
+        linear-gradient(to bottom, rgba(15, 23, 42, 0.025) 1px, transparent 1px);
+    }
+    .glow-dot {
+      width: 7px;
+      height: 7px;
+      border-radius: 50%;
+      display: inline-block;
+    }
+    .arch-tab.active {
+      background: var(--accent-soft) !important;
+      color: var(--accent) !important;
+      border-color: var(--accent) !important;
+    }
+    .code-box {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 11.5px;
+      line-height: 1.6;
+    }
+  </style>
+</head>
+<body class="min-h-screen text-[var(--text)] antialiased grid-lines selection:bg-[var(--accent)] selection:text-white">
+
+  <!-- Toast Notification Wrapper -->
+  <div id="toast-wrap" class="fixed top-4 left-0 right-0 z-50 flex flex-col items-center gap-2 pointer-events-none" role="status" aria-live="polite"></div>
+
+  <!-- STICKY HEADER -->
+  <header class="sticky top-0 z-40 backdrop-blur-xl border-b border-[var(--line)]" style="background: rgba(var(--bg-rgb, 8,9,11), 0.82);">
+    <div class="max-w-5xl mx-auto px-4 sm:px-6 h-14 sm:h-16 flex items-center justify-between gap-4">
+      
+      <!-- Brand Monogram -->
+      <a href="#" class="flex items-center gap-2.5 group">
+        <div class="w-8 h-8 rounded-lg flex items-center justify-center font-extrabold text-[13px] text-white mono shadow-md transition-transform group-hover:scale-105" style="background: linear-gradient(135deg, #8b7ff5, var(--accent));">
+          SS
+        </div>
+        <div class="flex items-center gap-2">
+          <span class="display font-bold text-[15px] tracking-tight group-hover:text-[var(--accent)] transition-colors">Shiori Saiky</span>
+          <span class="hidden sm:inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full text-[10px] mono border border-emerald-500/25 bg-emerald-500/10 text-emerald-400">
+            <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span> Building Elyriax
+          </span>
+        </div>
+      </a>
+
+      <!-- Quick Nav Anchors -->
+      <nav class="hidden md:flex items-center gap-6 text-[13px] font-medium" style="color:var(--text-dim)">
+        <a href="#featured" class="hover:text-[var(--text)] transition-colors">01. Elyriax</a>
+        <a href="#projects" class="hover:text-[var(--text)] transition-colors">02. Projects</a>
+        <a href="#stack" class="hover:text-[var(--text)] transition-colors">03. Capabilities</a>
+        <a href="#now" class="hover:text-[var(--text)] transition-colors">04. Now</a>
+        <a href="#contact" class="hover:text-[var(--text)] transition-colors">05. Contact</a>
+      </nav>
+
+      <!-- Right Controls -->
+      <div class="flex items-center gap-2.5">
+        <!-- Theme Toggle -->
+        <button id="theme-btn" onclick="cycleTheme()" class="w-8 h-8 rounded-lg flex items-center justify-center glass border border-[var(--line)] text-[13px] hover:border-[var(--line-strong)] transition-all" title="Toggle theme (System / Dark / Light / Classic Dark)">
+          <i class="fa-solid fa-circle-half-stroke" id="theme-icon"></i>
+        </button>
+
+        <!-- Elyriax App Link -->
+        <a href="/" class="btn btn-ghost btn-sm text-[12px] flex items-center gap-1.5">
+          <i class="fa-solid fa-arrow-left text-[10px]"></i>
+          <span>Elyriax App</span>
+        </a>
+      </div>
+    </div>
+  </header>
+
+  <!-- MAIN WRAPPER -->
+  <main class="max-w-5xl mx-auto px-4 sm:px-6 py-8 sm:py-14 space-y-16 sm:space-y-24">
+
+    <!-- ================================================================= -->
+    <!-- 00. HERO SECTION (TERMINAL-GRADE IDENTITY) -->
+    <!-- ================================================================= -->
+    <section id="hero" class="relative pt-2 sm:pt-6 space-y-6">
+      
+      <!-- Terminal Prompt Ribbon -->
+      <div class="flex flex-wrap items-center justify-between gap-2 text-[11px] mono border-b border-[var(--line)] pb-3" style="color:var(--text-faint)">
+        <div class="flex items-center gap-2">
+          <span class="text-[var(--accent)] font-bold">shiori@elyriax:~$</span>
+          <span>sysinfo --active</span>
+        </div>
+        <div class="flex items-center gap-3">
+          <span id="live-clock" class="text-[var(--text-dim)]">UTC+7</span>
+          <span>·</span>
+          <span class="text-[var(--teal)] flex items-center gap-1">
+            <span class="w-1.5 h-1.5 rounded-full bg-[var(--teal)] animate-pulse"></span>
+            ALL SYSTEMS NOMINAL
+          </span>
+        </div>
+      </div>
+
+      <!-- Main Headline Content -->
+      <div class="space-y-5 max-w-3xl">
+        <div class="space-y-3">
+          <div class="inline-flex items-center gap-2.5 px-3 py-1 rounded-full border border-[var(--line)] bg-[var(--surface)] text-[11px] mono" style="color:var(--text-dim)">
+            <span class="glow-dot bg-[var(--teal)] shadow-[0_0_8px_rgba(52,214,180,0.6)]"></span>
+            <span>FULL-STACK &amp; BACKEND SYSTEMS ARCHITECT</span>
+          </div>
+
+          <h1 class="display text-3xl sm:text-5xl lg:text-6xl font-extrabold tracking-tight leading-[1.08]">
+            I build web applications, APIs, automation tools and backend systems.
+          </h1>
+
+          <p class="text-base sm:text-xl font-normal leading-relaxed" style="color:var(--text-dim)">
+            Writing clean data models, resilient background daemons, and low-latency APIs. Currently architecting and scaling <b class="text-[var(--text)] font-semibold underline decoration-[var(--accent)] underline-offset-4">Elyriax</b>.
+          </p>
+        </div>
+
+        <!-- Direct Actions -->
+        <div class="flex flex-wrap items-center gap-3 pt-2">
+          <a href="#featured" class="btn btn-primary">
+            <i class="fa-solid fa-layer-group text-[12px]"></i>
+            <span>Explore Elyriax Case Study</span>
+          </a>
+          <a href="#projects" class="btn btn-ghost">
+            <i class="fa-solid fa-terminal text-[12px]"></i>
+            <span>All Projects (5)</span>
+          </a>
+          <a href="https://github.com/Saiky988" target="_blank" rel="noopener noreferrer" class="btn btn-ghost">
+            <i class="fa-brands fa-github text-[14px]"></i>
+            <span>GitHub</span>
+            <i class="fa-solid fa-arrow-up-right-from-square text-[9px] opacity-60 ml-0.5"></i>
+          </a>
+        </div>
+
+        <!-- System Spec Matrix Strip -->
+        <div class="pt-5 border-t border-[var(--line)] grid grid-cols-2 sm:grid-cols-4 gap-3 text-[11.5px] mono" style="color:var(--text-faint)">
+          <div>
+            <span class="block text-[10px] uppercase opacity-70">Developer</span>
+            <span class="text-[var(--text)] font-semibold">Shiori Saiky</span>
+          </div>
+          <div>
+            <span class="block text-[10px] uppercase opacity-70">Core Engine</span>
+            <span class="text-[var(--text-dim)] font-medium">Node.js · Workers · MySQL</span>
+          </div>
+          <div>
+            <span class="block text-[10px] uppercase opacity-70">Active Project</span>
+            <span class="text-[var(--teal)] font-medium">Elyriax Platform</span>
+          </div>
+          <div>
+            <span class="block text-[10px] uppercase opacity-70">Location</span>
+            <span class="text-[var(--text-dim)] font-medium">Vietnam (UTC+7)</span>
+          </div>
+        </div>
+
+      </div>
+    </section>
+
+    <!-- ================================================================= -->
+    <!-- 01. FEATURED PROJECT (ELYRIAX CASE STUDY) -->
+    <!-- ================================================================= -->
+    <section id="featured" class="space-y-6 scroll-mt-20">
+      <div class="flex items-center justify-between border-b border-[var(--line)] pb-3">
+        <div class="flex items-center gap-2 mono-label text-[var(--text-faint)]">
+          <span class="section-num">01 //</span>
+          <span>FLAGSHIP CASE STUDY</span>
+        </div>
+        <span class="pill px-2.5 py-0.5 text-[10.5px] mono font-bold" style="background:rgba(124,111,240,0.15); color:var(--accent); border:1px solid rgba(124,111,240,0.3)">
+          ACTIVE ARCHITECTURE
+        </span>
+      </div>
+
+      <!-- Elyriax Featured Card -->
+      <div class="glass card p-6 sm:p-8 border border-[var(--line)] relative overflow-hidden space-y-6">
+        
+        <!-- Header & Quick Launch -->
+        <div class="flex flex-col sm:flex-row sm:items-start justify-between gap-4">
+          <div class="space-y-2">
+            <div class="flex items-center gap-3">
+              <div class="w-11 h-11 rounded-xl flex items-center justify-center glass border border-white/10 shrink-0 shadow-lg" style="background: linear-gradient(135deg, #8b7ff5, var(--accent));">
+                <img src="/assets/icon.png" alt="Elyriax" class="w-7 h-7 object-contain" onerror="this.outerHTML='<i class=\'fa-solid fa-cubes text-white text-[18px]\'></i>'">
+              </div>
+              <div>
+                <div class="flex items-center gap-2">
+                  <h2 class="display text-2xl sm:text-3xl font-extrabold tracking-tight">Elyriax</h2>
+                  <span class="pill px-2 py-0.2 text-[9.5px] mono font-bold text-[var(--teal)] border border-emerald-500/20 bg-emerald-500/10">v0.3.2 LIVE</span>
+                </div>
+                <div class="text-[12.5px] mono" style="color:var(--text-dim)">Digital Marketplace &amp; Developer Platform</div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Actions -->
+          <div class="flex items-center gap-2 shrink-0">
+            <a href="/" class="btn btn-primary btn-sm">
+              <i class="fa-solid fa-arrow-up-right-from-square text-[11px]"></i>
+              <span>Launch Platform</span>
+            </a>
+            <a href="https://github.com/Saiky988" target="_blank" rel="noopener noreferrer" class="btn btn-ghost btn-sm" title="GitHub Repository">
+              <i class="fa-brands fa-github"></i>
+            </a>
+          </div>
+        </div>
+
+        <!-- Description -->
+        <p class="text-[14px] sm:text-[15px] leading-relaxed" style="color:var(--text-dim)">
+          Elyriax is a high-throughput digital marketplace and utility platform built for instant product fulfillment, balance accounting, game data analytics, and developer services. Designed around native browser primitives and clean REST endpoints to deliver sub-second latency with zero framework overhead.
+        </p>
+
+        <!-- Live Architecture Blueprint (Interactive 4-System View) -->
+        <div class="space-y-3 pt-2">
+          <div class="flex flex-wrap items-center justify-between gap-2">
+            <span class="text-[11px] mono-label text-[var(--text-faint)]">System Architecture Highlights</span>
+            <span class="text-[10.5px] mono text-[var(--text-faint)]">Click a module to inspect</span>
+          </div>
+
+          <!-- 4 System Architecture Cards -->
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-3.5" id="arch-grid">
+            
+            <!-- 1. Wallet & Ledger -->
+            <div class="p-4 rounded-xl border border-[var(--line)] bg-[var(--surface-solid-2)] space-y-2 hover:border-[var(--teal)] transition-colors">
+              <div class="flex items-center justify-between">
+                <span class="flex items-center gap-2 text-[13px] font-bold text-[var(--teal)]">
+                  <i class="fa-solid fa-wallet text-[12px]"></i>
+                  <span>Wallet Ledger &amp; VietQR Auto-Deposit</span>
+                </span>
+                <span class="mono text-[10px] text-[var(--text-faint)]">24/7 AUTO</span>
+              </div>
+              <p class="text-[12px] leading-relaxed" style="color:var(--text-dim)">
+                Pre-calculated balance ledger with idempotent webhook handlers, immutable transaction audit trails, and automated 24/7 VietQR dynamic payment generation.
+              </p>
+              <div class="text-[10.5px] mono text-[var(--teal)] pt-1 border-t border-[var(--line)] flex items-center justify-between">
+                <span>Webhook Idempotency</span>
+                <span>Atomic Balance Math</span>
+              </div>
+            </div>
+
+            <!-- 2. Atomic Checkout -->
+            <div class="p-4 rounded-xl border border-[var(--line)] bg-[var(--surface-solid-2)] space-y-2 hover:border-[var(--accent)] transition-colors">
+              <div class="flex items-center justify-between">
+                <span class="flex items-center gap-2 text-[13px] font-bold text-[var(--accent)]">
+                  <i class="fa-solid fa-lock text-[12px]"></i>
+                  <span>Atomic Checkout &amp; Instant Inventory</span>
+                </span>
+                <span class="mono text-[10px] text-[var(--text-faint)]">LOCK-FREE</span>
+              </div>
+              <p class="text-[12px] leading-relaxed" style="color:var(--text-dim)">
+                Lock-free inventory reservation preventing double-spending, atomic balance deduction, and immediate automated delivery of digital credentials into the user library.
+              </p>
+              <div class="text-[10.5px] mono text-[var(--accent)] pt-1 border-t border-[var(--line)] flex items-center justify-between">
+                <span>Zero Double-Claim</span>
+                <span>Instant Secret Decrypt</span>
+              </div>
+            </div>
+
+            <!-- 3. Multi-Provider OAuth -->
+            <div class="p-4 rounded-xl border border-[var(--line)] bg-[var(--surface-solid-2)] space-y-2 hover:border-[var(--amber)] transition-colors">
+              <div class="flex items-center justify-between">
+                <span class="flex items-center gap-2 text-[13px] font-bold text-[var(--amber)]">
+                  <i class="fa-solid fa-shield-halved text-[12px]"></i>
+                  <span>Unified OAuth 2.0 &amp; Stateless JWT</span>
+                </span>
+                <span class="mono text-[10px] text-[var(--text-faint)]">MULTI-AUTH</span>
+              </div>
+              <p class="text-[12px] leading-relaxed" style="color:var(--text-dim)">
+                Federated authentication supporting Google, Discord, and GitHub. Stateless cryptographic JWT tokens with client-side localStorage hydration and zero-FOUC state restoration.
+              </p>
+              <div class="text-[10.5px] mono text-[var(--amber)] pt-1 border-t border-[var(--line)] flex items-center justify-between">
+                <span>Stateless Sessions</span>
+                <span>Safe Provider Unlink</span>
+              </div>
+            </div>
+
+            <!-- 4. HoyoLAB Sync & Game Tools -->
+            <div class="p-4 rounded-xl border border-[var(--line)] bg-[var(--surface-solid-2)] space-y-2 hover:border-[var(--rose)] transition-colors">
+              <div class="flex items-center justify-between">
+                <span class="flex items-center gap-2 text-[13px] font-bold text-[var(--rose)]">
+                  <i class="fa-solid fa-gamepad text-[12px]"></i>
+                  <span>Game Tooling &amp; HoyoLAB Sync</span>
+                </span>
+                <span class="mono text-[10px] text-[var(--text-faint)]">CRON DAEMONS</span>
+              </div>
+              <p class="text-[12px] leading-relaxed" style="color:var(--text-dim)">
+                Real-time Genshin Impact Daily Note monitoring, automatic check-in cron daemons, gacha event schedules, and local role statistics caching.
+              </p>
+              <div class="text-[10.5px] mono text-[var(--rose)] pt-1 border-t border-[var(--line)] flex items-center justify-between">
+                <span>Daily Auto Check-in</span>
+                <span>Role Data Cache</span>
+              </div>
+            </div>
+
+          </div>
+        </div>
+
+        <!-- Tech Stack Tags -->
+        <div class="pt-4 border-t border-[var(--line)] flex flex-wrap items-center gap-2">
+          <span class="text-[11px] mono text-[var(--text-faint)] mr-2">TECH //</span>
+          <span class="tech-pill"><i class="fa-brands fa-node-js text-emerald-400"></i> Node.js</span>
+          <span class="tech-pill"><i class="fa-solid fa-server text-blue-400"></i> Express</span>
+          <span class="tech-pill"><i class="fa-solid fa-database text-amber-400"></i> MySQL</span>
+          <span class="tech-pill"><i class="fa-solid fa-network-wired text-purple-400"></i> REST APIs</span>
+          <span class="tech-pill"><i class="fa-solid fa-cloud text-orange-400"></i> Cloudflare</span>
+          <span class="tech-pill"><i class="fa-brands fa-js text-yellow-400"></i> Vanilla ESNext</span>
+          <span class="tech-pill"><i class="fa-solid fa-palette text-cyan-400"></i> Tailwind CSS</span>
+        </div>
+
+      </div>
+    </section>
+
+    <!-- ================================================================= -->
+    <!-- 02. PROJECTS REPOSITORY -->
+    <!-- ================================================================= -->
+    <section id="projects" class="space-y-6 scroll-mt-20">
+      <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-[var(--line)] pb-3">
+        <div class="flex items-center gap-2 mono-label text-[var(--text-faint)]">
+          <span class="section-num">02 //</span>
+          <span>PROJECT REPOSITORY</span>
+        </div>
+
+        <!-- Filter Tabs -->
+        <div class="flex items-center gap-1.5 overflow-x-auto no-scrollbar">
+          <button class="filter-tab active px-2.5 py-1 rounded-lg text-[11.5px] mono font-medium transition-all" data-filter="all" onclick="filterProjects('all', this)">All (5)</button>
+          <button class="filter-tab px-2.5 py-1 rounded-lg text-[11.5px] mono font-medium transition-all" data-filter="fullstack" onclick="filterProjects('fullstack', this)">Full-Stack</button>
+          <button class="filter-tab px-2.5 py-1 rounded-lg text-[11.5px] mono font-medium transition-all" data-filter="infra" onclick="filterProjects('infra', this)">Edge &amp; Infra</button>
+          <button class="filter-tab px-2.5 py-1 rounded-lg text-[11.5px] mono font-medium transition-all" data-filter="automation" onclick="filterProjects('automation', this)">Automation</button>
+        </div>
+      </div>
+
+      <!-- Project Cards Grid -->
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-4" id="projects-grid">
+
+        <!-- 1. Elyriax -->
+        <div class="project-card glass card p-5 flex flex-col justify-between" data-cat="fullstack">
+          <div class="space-y-3">
+            <div class="flex items-start justify-between gap-2">
+              <div>
+                <div class="flex items-center gap-2">
+                  <h3 class="display font-bold text-[16px]">Elyriax Platform</h3>
+                  <span class="pill px-2 py-0.2 text-[9.5px] mono font-bold" style="background:rgba(52,214,180,0.15); color:var(--teal)">ACTIVE</span>
+                </div>
+                <span class="text-[11px] mono" style="color:var(--text-faint)">Digital marketplace &amp; developer platform</span>
+              </div>
+              <a href="/" class="text-[var(--text-dim)] hover:text-[var(--text)] transition-colors p-1" title="Open platform">
+                <i class="fa-solid fa-arrow-up-right-from-square text-[12px]"></i>
+              </a>
+            </div>
+            <p class="text-[12.5px] leading-relaxed" style="color:var(--text-dim)">
+              Full-stack marketplace with wallet transactions ledger, VietQR automated deposit, atomic inventory delivery, and OAuth 2.0.
+            </p>
+
+            <!-- Inspect Architecture Detail Toggle -->
+            <div class="pt-1">
+              <button onclick="toggleProjectDetail(this)" class="text-[11px] mono text-[var(--accent)] hover:underline flex items-center gap-1">
+                <span>[+ View System Specs]</span>
+              </button>
+              <div class="project-detail hidden mt-2.5 p-3 rounded-lg border border-[var(--line)] bg-[var(--surface-solid-2)] text-[11.5px] space-y-1.5" style="color:var(--text-dim)">
+                <div class="font-semibold text-[var(--text)]">Core Architecture:</div>
+                <div>• Pre-calculated balance ledger with idempotent webhooks</div>
+                <div>• Lock-free inventory claims &amp; atomic order settlement</div>
+                <div>• Multi-provider OAuth 2.0 (Google, Discord, GitHub) + JWT</div>
+              </div>
+            </div>
+          </div>
+
+          <div class="pt-4 border-t border-[var(--line)] flex flex-wrap items-center justify-between gap-2 mt-4 text-[11px] mono">
+            <div class="flex flex-wrap gap-1.5" style="color:var(--text-faint)">
+              <span>#Node.js</span>
+              <span>#Express</span>
+              <span>#MySQL</span>
+              <span>#REST</span>
+            </div>
+            <a href="/" class="text-[var(--accent)] font-semibold hover:underline">Launch ↗</a>
+          </div>
+        </div>
+
+        <!-- 2. Sayra Mail -->
+        <div class="project-card glass card p-5 flex flex-col justify-between" data-cat="infra">
+          <div class="space-y-3">
+            <div class="flex items-start justify-between gap-2">
+              <div>
+                <div class="flex items-center gap-2">
+                  <h3 class="display font-bold text-[16px]">Sayra Mail</h3>
+                  <span class="pill px-2 py-0.2 text-[9.5px] mono font-bold" style="background:rgba(52,214,180,0.15); color:var(--teal)">PRODUCTION</span>
+                </div>
+                <span class="text-[11px] mono" style="color:var(--text-faint)">Cloudflare edge temporary email engine</span>
+              </div>
+              <span class="text-[var(--text-faint)] p-1"><i class="fa-solid fa-cloud text-[12px]"></i></span>
+            </div>
+            <p class="text-[12.5px] leading-relaxed" style="color:var(--text-dim)">
+              Temporary disposable email routing platform utilizing Cloudflare Email Workers, D1 SQLite at edge, Durable Objects, and WebSocket push for zero-polling realtime inboxes.
+            </p>
+
+            <!-- Inspect Architecture Detail Toggle -->
+            <div class="pt-1">
+              <button onclick="toggleProjectDetail(this)" class="text-[11px] mono text-[var(--teal)] hover:underline flex items-center gap-1">
+                <span>[+ View System Specs]</span>
+              </button>
+              <div class="project-detail hidden mt-2.5 p-3 rounded-lg border border-[var(--line)] bg-[var(--surface-solid-2)] text-[11.5px] space-y-1.5" style="color:var(--text-dim)">
+                <div class="font-semibold text-[var(--text)]">Core Architecture:</div>
+                <div>• Cloudflare Email Worker incoming MIME parser</div>
+                <div>• Ephemeral D1 SQLite storage with automated TTL purging</div>
+                <div>• Durable Objects managing active WebSocket connections</div>
+              </div>
+            </div>
+          </div>
+
+          <div class="pt-4 border-t border-[var(--line)] flex flex-wrap items-center justify-between gap-2 mt-4 text-[11px] mono">
+            <div class="flex flex-wrap gap-1.5" style="color:var(--text-faint)">
+              <span>#Workers</span>
+              <span>#D1 SQL</span>
+              <span>#Durable Objects</span>
+              <span>#WebSockets</span>
+            </div>
+            <span class="text-[var(--text-faint)]">Edge Infra</span>
+          </div>
+        </div>
+
+        <!-- 3. Media Pipeline APIs -->
+        <div class="project-card glass card p-5 flex flex-col justify-between" data-cat="automation">
+          <div class="space-y-3">
+            <div class="flex items-start justify-between gap-2">
+              <div>
+                <div class="flex items-center gap-2">
+                  <h3 class="display font-bold text-[16px]">Media Pipeline &amp; Tooling APIs</h3>
+                  <span class="pill px-2 py-0.2 text-[9.5px] mono font-bold" style="background:rgba(245,166,35,0.15); color:var(--amber)">DEV</span>
+                </div>
+                <span class="text-[11px] mono" style="color:var(--text-faint)">High-throughput media extraction &amp; processing</span>
+              </div>
+              <span class="text-[var(--text-faint)] p-1"><i class="fa-solid fa-plug text-[12px]"></i></span>
+            </div>
+            <p class="text-[12.5px] leading-relaxed" style="color:var(--text-dim)">
+              Modular backend APIs for stream extraction, audio/video transcoding, image compression pipelines, and neural text translation across 40+ languages.
+            </p>
+
+            <!-- Inspect Architecture Detail Toggle -->
+            <div class="pt-1">
+              <button onclick="toggleProjectDetail(this)" class="text-[11px] mono text-[var(--amber)] hover:underline flex items-center gap-1">
+                <span>[+ View System Specs]</span>
+              </button>
+              <div class="project-detail hidden mt-2.5 p-3 rounded-lg border border-[var(--line)] bg-[var(--surface-solid-2)] text-[11.5px] space-y-1.5" style="color:var(--text-dim)">
+                <div class="font-semibold text-[var(--text)]">Core Architecture:</div>
+                <div>• Memory-efficient stream piping &amp; FFmpeg transcoding</div>
+                <div>• Token-bucket rate limiting with developer API key auth</div>
+                <div>• Neural translation cache with fuzzy match hashing</div>
+              </div>
+            </div>
+          </div>
+
+          <div class="pt-4 border-t border-[var(--line)] flex flex-wrap items-center justify-between gap-2 mt-4 text-[11px] mono">
+            <div class="flex flex-wrap gap-1.5" style="color:var(--text-faint)">
+              <span>#Node.js</span>
+              <span>#FFmpeg</span>
+              <span>#Streams</span>
+              <span>#REST API</span>
+            </div>
+            <span class="text-[var(--amber)]">In Development</span>
+          </div>
+        </div>
+
+        <!-- 4. Discord Bot & Automation -->
+        <div class="project-card glass card p-5 flex flex-col justify-between" data-cat="automation">
+          <div class="space-y-3">
+            <div class="flex items-start justify-between gap-2">
+              <div>
+                <div class="flex items-center gap-2">
+                  <h3 class="display font-bold text-[16px]">Discord Ecosystem &amp; Automation</h3>
+                  <span class="pill px-2 py-0.2 text-[9.5px] mono font-bold" style="background:rgba(124,111,240,0.15); color:var(--accent)">ACTIVE</span>
+                </div>
+                <span class="text-[11px] mono" style="color:var(--text-faint)">Event-driven bots &amp; webhook dispatchers</span>
+              </div>
+              <span class="text-[var(--text-faint)] p-1"><i class="fa-brands fa-discord text-[12px]"></i></span>
+            </div>
+            <p class="text-[12.5px] leading-relaxed" style="color:var(--text-dim)">
+              Event-driven Discord automation for instant transaction notifications, community role synchronization, verification gates, and background daemon health monitoring.
+            </p>
+
+            <!-- Inspect Architecture Detail Toggle -->
+            <div class="pt-1">
+              <button onclick="toggleProjectDetail(this)" class="text-[11px] mono text-[var(--accent)] hover:underline flex items-center gap-1">
+                <span>[+ View System Specs]</span>
+              </button>
+              <div class="project-detail hidden mt-2.5 p-3 rounded-lg border border-[var(--line)] bg-[var(--surface-solid-2)] text-[11.5px] space-y-1.5" style="color:var(--text-dim)">
+                <div class="font-semibold text-[var(--text)]">Core Architecture:</div>
+                <div>• Slash command dispatch architecture with Discord.js</div>
+                <div>• Transaction webhook listener with HMAC verification</div>
+                <div>• Resilient heartbeat monitor with auto-reconnect worker</div>
+              </div>
+            </div>
+          </div>
+
+          <div class="pt-4 border-t border-[var(--line)] flex flex-wrap items-center justify-between gap-2 mt-4 text-[11px] mono">
+            <div class="flex flex-wrap gap-1.5" style="color:var(--text-faint)">
+              <span>#Discord.js</span>
+              <span>#Webhooks</span>
+              <span>#Crons</span>
+            </div>
+            <span class="text-[var(--teal)]">99.9% Uptime</span>
+          </div>
+        </div>
+
+        <!-- 5. Developer Tooling & Micro-Engines -->
+        <div class="project-card glass card p-5 flex flex-col justify-between md:col-span-2" data-cat="infra">
+          <div class="space-y-3">
+            <div class="flex items-start justify-between gap-2">
+              <div>
+                <div class="flex items-center gap-2">
+                  <h3 class="display font-bold text-[16px]">Developer Tooling &amp; Web Micro-Engines</h3>
+                  <span class="pill px-2 py-0.2 text-[9.5px] mono font-bold" style="background:rgba(90,167,239,0.15); color:#5aa7ef">EXPERIMENTAL</span>
+                </div>
+                <span class="text-[11px] mono" style="color:var(--text-faint)">Client-side utilities &amp; design-token engines</span>
+              </div>
+              <span class="text-[var(--text-faint)] p-1"><i class="fa-solid fa-code text-[12px]"></i></span>
+            </div>
+            <p class="text-[12.5px] leading-relaxed" style="color:var(--text-dim)">
+              A collection of bespoke web tools: Multi-theme CSS token synchronizer with zero-FOUC early initialization, client-side JWT payload inspection, and cryptographic signature validation routines.
+            </p>
+
+            <!-- Inspect Architecture Detail Toggle -->
+            <div class="pt-1">
+              <button onclick="toggleProjectDetail(this)" class="text-[11px] mono text-[#5aa7ef] hover:underline flex items-center gap-1">
+                <span>[+ View System Specs]</span>
+              </button>
+              <div class="project-detail hidden mt-2.5 p-3 rounded-lg border border-[var(--line)] bg-[var(--surface-solid-2)] text-[11.5px] space-y-1.5" style="color:var(--text-dim)">
+                <div class="font-semibold text-[var(--text)]">Core Architecture:</div>
+                <div>• Zero-FOUC DOM head script theme evaluator</div>
+                <div>• Web Cryptography API SHA-256 / HMAC validation</div>
+                <div>• Dynamic CSS custom property injector without page reload</div>
+              </div>
+            </div>
+          </div>
+
+          <div class="pt-4 border-t border-[var(--line)] flex flex-wrap items-center justify-between gap-2 mt-4 text-[11px] mono">
+            <div class="flex flex-wrap gap-1.5" style="color:var(--text-faint)">
+              <span>#Vanilla Web</span>
+              <span>#CSS Custom Props</span>
+              <span>#Web Crypto API</span>
+            </div>
+            <span class="text-[var(--text-dim)]">Native Standards</span>
+          </div>
+        </div>
+
+      </div>
+    </section>
+
+    <!-- ================================================================= -->
+    <!-- 03. TECHNICAL CAPABILITIES (BENTO GRID) -->
+    <!-- ================================================================= -->
+    <section id="stack" class="space-y-6 scroll-mt-20">
+      <div class="flex items-center justify-between border-b border-[var(--line)] pb-3">
+        <div class="flex items-center gap-2 mono-label text-[var(--text-faint)]">
+          <span class="section-num">03 //</span>
+          <span>ENGINEERING MATRIX</span>
+        </div>
+        <span class="text-[11px] mono" style="color:var(--text-faint)">Hands-on Stack</span>
+      </div>
+
+      <!-- 4 Capability Domain Grids -->
+      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+        
+        <!-- 1. Backend Systems -->
+        <div class="glass card p-5 space-y-3 flex flex-col justify-between">
+          <div class="space-y-3">
+            <div class="flex items-center gap-2 text-[13px] font-bold text-[var(--accent)]">
+              <i class="fa-solid fa-server"></i>
+              <span>Backend Systems</span>
+            </div>
+            <ul class="space-y-2 text-[12px] leading-snug" style="color:var(--text-dim)">
+              <li class="flex items-center gap-2"><span class="w-1 h-1 rounded-full bg-[var(--accent)]"></span> Node.js &amp; Express</li>
+              <li class="flex items-center gap-2"><span class="w-1 h-1 rounded-full bg-[var(--accent)]"></span> RESTful API Architecture</li>
+              <li class="flex items-center gap-2"><span class="w-1 h-1 rounded-full bg-[var(--accent)]"></span> MySQL Data Modeling</li>
+              <li class="flex items-center gap-2"><span class="w-1 h-1 rounded-full bg-[var(--accent)]"></span> JWT &amp; OAuth 2.0 Auth</li>
+              <li class="flex items-center gap-2"><span class="w-1 h-1 rounded-full bg-[var(--accent)]"></span> Webhook Idempotency</li>
+              <li class="flex items-center gap-2"><span class="w-1 h-1 rounded-full bg-[var(--accent)]"></span> Rate Limiting &amp; Security</li>
+            </ul>
+          </div>
+          <div class="pt-3 border-t border-[var(--line)] text-[10.5px] mono text-[var(--text-faint)]">
+            High-throughput APIs
+          </div>
+        </div>
+
+        <!-- 2. Edge & Cloud Infra -->
+        <div class="glass card p-5 space-y-3 flex flex-col justify-between">
+          <div class="space-y-3">
+            <div class="flex items-center gap-2 text-[13px] font-bold text-[var(--teal)]">
+              <i class="fa-solid fa-cloud"></i>
+              <span>Edge &amp; Infra</span>
+            </div>
+            <ul class="space-y-2 text-[12px] leading-snug" style="color:var(--text-dim)">
+              <li class="flex items-center gap-2"><span class="w-1 h-1 rounded-full bg-[var(--teal)]"></span> Cloudflare Workers (V8)</li>
+              <li class="flex items-center gap-2"><span class="w-1 h-1 rounded-full bg-[var(--teal)]"></span> D1 Edge SQLite</li>
+              <li class="flex items-center gap-2"><span class="w-1 h-1 rounded-full bg-[var(--teal)]"></span> Durable Objects</li>
+              <li class="flex items-center gap-2"><span class="w-1 h-1 rounded-full bg-[var(--teal)]"></span> WebSockets &amp; Realtime</li>
+              <li class="flex items-center gap-2"><span class="w-1 h-1 rounded-full bg-[var(--teal)]"></span> Cloudflare DNS &amp; CDN</li>
+              <li class="flex items-center gap-2"><span class="w-1 h-1 rounded-full bg-[var(--teal)]"></span> Serverless Pipelines</li>
+            </ul>
+          </div>
+          <div class="pt-3 border-t border-[var(--line)] text-[10.5px] mono text-[var(--text-faint)]">
+            Distributed Systems
+          </div>
+        </div>
+
+        <!-- 3. Frontend & UI -->
+        <div class="glass card p-5 space-y-3 flex flex-col justify-between">
+          <div class="space-y-3">
+            <div class="flex items-center gap-2 text-[13px] font-bold text-[var(--amber)]">
+              <i class="fa-solid fa-code"></i>
+              <span>Frontend &amp; UI</span>
+            </div>
+            <ul class="space-y-2 text-[12px] leading-snug" style="color:var(--text-dim)">
+              <li class="flex items-center gap-2"><span class="w-1 h-1 rounded-full bg-[var(--amber)]"></span> Semantic HTML5 &amp; CSS3</li>
+              <li class="flex items-center gap-2"><span class="w-1 h-1 rounded-full bg-[var(--amber)]"></span> Vanilla JavaScript (ESNext)</li>
+              <li class="flex items-center gap-2"><span class="w-1 h-1 rounded-full bg-[var(--amber)]"></span> Design Tokens &amp; Themes</li>
+              <li class="flex items-center gap-2"><span class="w-1 h-1 rounded-full bg-[var(--amber)]"></span> Tailwind CSS System</li>
+              <li class="flex items-center gap-2"><span class="w-1 h-1 rounded-full bg-[var(--amber)]"></span> Mobile-First (Zero-Shift)</li>
+              <li class="flex items-center gap-2"><span class="w-1 h-1 rounded-full bg-[var(--amber)]"></span> Anti-FOUC Hydration</li>
+            </ul>
+          </div>
+          <div class="pt-3 border-t border-[var(--line)] text-[10.5px] mono text-[var(--text-faint)]">
+            Native Simplicity
+          </div>
+        </div>
+
+        <!-- 4. Automation -->
+        <div class="glass card p-5 space-y-3 flex flex-col justify-between">
+          <div class="space-y-3">
+            <div class="flex items-center gap-2 text-[13px] font-bold text-[var(--rose)]">
+              <i class="fa-solid fa-bolt"></i>
+              <span>Automation</span>
+            </div>
+            <ul class="space-y-2 text-[12px] leading-snug" style="color:var(--text-dim)">
+              <li class="flex items-center gap-2"><span class="w-1 h-1 rounded-full bg-[var(--rose)]"></span> Discord.js Bot Daemons</li>
+              <li class="flex items-center gap-2"><span class="w-1 h-1 rounded-full bg-[var(--rose)]"></span> VietQR Dynamic Invoicing</li>
+              <li class="flex items-center gap-2"><span class="w-1 h-1 rounded-full bg-[var(--rose)]"></span> Cron &amp; Background Tasks</li>
+              <li class="flex items-center gap-2"><span class="w-1 h-1 rounded-full bg-[var(--rose)]"></span> Third-Party API Sync</li>
+              <li class="flex items-center gap-2"><span class="w-1 h-1 rounded-full bg-[var(--rose)]"></span> Automated Game Daily Sync</li>
+              <li class="flex items-center gap-2"><span class="w-1 h-1 rounded-full bg-[var(--rose)]"></span> Event Stream Listeners</li>
+            </ul>
+          </div>
+          <div class="pt-3 border-t border-[var(--line)] text-[10.5px] mono text-[var(--text-faint)]">
+            Autonomous Workflows
+          </div>
+        </div>
+
+      </div>
+    </section>
+
+    <!-- ================================================================= -->
+    <!-- 04. ABOUT / NOW -->
+    <!-- ================================================================= -->
+    <section id="now" class="space-y-6 scroll-mt-20">
+      <div class="flex items-center justify-between border-b border-[var(--line)] pb-3">
+        <div class="flex items-center gap-2 mono-label text-[var(--text-faint)]">
+          <span class="section-num">04 //</span>
+          <span>OPERATING MANIFESTO &amp; NOW</span>
+        </div>
+        <span class="text-[11px] mono text-[var(--teal)]">Active Sprints</span>
+      </div>
+
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+        
+        <!-- About Column -->
+        <div class="glass card p-6 space-y-4">
+          <div class="text-[11.5px] mono-label text-[var(--accent)]">// CORE PHILOSOPHY</div>
+          <p class="text-[13.5px] leading-relaxed" style="color:var(--text-dim)">
+            I build things on the web, mostly around APIs, backend systems, automation, and small experimental projects. My focus is on writing clean, understandable code, designing reliable data flows, and keeping architectures fast without unnecessary framework bloat.
+          </p>
+          <div class="space-y-2.5 pt-2 text-[12.5px]" style="color:var(--text-dim)">
+            <div class="flex items-start gap-2">
+              <span class="text-[var(--accent)] mono font-bold">01.</span>
+              <span><b>Keep it close to the metal:</b> Native web standards and raw HTTP/SQL before adding heavy dependencies.</span>
+            </div>
+            <div class="flex items-start gap-2">
+              <span class="text-[var(--teal)] mono font-bold">02.</span>
+              <span><b>Reliability over complexity:</b> Explicit error handling and clean schemas over clever abstractions.</span>
+            </div>
+            <div class="flex items-start gap-2">
+              <span class="text-[var(--amber)] mono font-bold">03.</span>
+              <span><b>Speed &amp; precision:</b> Sub-second response times, zero layout shifts, and accessible typography.</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Now / Active Work Column -->
+        <div class="glass card p-6 space-y-4">
+          <div class="text-[11.5px] mono-label text-[var(--teal)]">// ACTIVE SPRINTS (NOW)</div>
+          <p class="text-[13.5px] leading-relaxed" style="color:var(--text-dim)">
+            What I am actively spending time on and engineering right now:
+          </p>
+          <div class="space-y-3 pt-1">
+            <div class="p-3 rounded-lg border border-[var(--line)] bg-[var(--surface-solid-2)]">
+              <div class="flex items-center gap-2 text-[12.5px] font-bold text-[var(--text)]">
+                <span class="text-[var(--accent)]">→</span>
+                <span>Elyriax Platform Architecture</span>
+              </div>
+              <p class="text-[11.5px] mt-1" style="color:var(--text-dim)">Refining wallet ledger transactions, atomic checkout, and developer API service suites.</p>
+            </div>
+
+            <div class="p-3 rounded-lg border border-[var(--line)] bg-[var(--surface-solid-2)]">
+              <div class="flex items-center gap-2 text-[12.5px] font-bold text-[var(--text)]">
+                <span class="text-[var(--teal)]">→</span>
+                <span>Edge Database &amp; Cloudflare Systems</span>
+              </div>
+              <p class="text-[11.5px] mt-1" style="color:var(--text-dim)">Exploring edge SQLite scaling patterns with Cloudflare D1 and Durable Objects for distributed apps.</p>
+            </div>
+
+            <div class="p-3 rounded-lg border border-[var(--line)] bg-[var(--surface-solid-2)]">
+              <div class="flex items-center gap-2 text-[12.5px] font-bold text-[var(--amber)]">
+                <span class="text-[var(--amber)]">→</span>
+                <span>Event Automation &amp; Bot Engines</span>
+              </div>
+              <p class="text-[11.5px] mt-1" style="color:var(--text-dim)">Building resilient background workers and event stream listeners for automated community tasks.</p>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </section>
+
+    <!-- ================================================================= -->
+    <!-- 05. CONTACT & REACH OUT -->
+    <!-- ================================================================= -->
+    <section id="contact" class="space-y-6 scroll-mt-20">
+      <div class="flex items-center justify-between border-b border-[var(--line)] pb-3">
+        <div class="flex items-center gap-2 mono-label text-[var(--text-faint)]">
+          <span class="section-num">05 //</span>
+          <span>CONNECT &amp; REACH OUT</span>
+        </div>
+        <span class="text-[11.5px] mono text-[var(--teal)]">Open to Inquiries</span>
+      </div>
+
+      <div class="glass card p-6 sm:p-8 space-y-6">
+        <div class="max-w-xl space-y-2">
+          <h2 class="display text-2xl font-bold">Let's build something solid together.</h2>
+          <p class="text-[13.5px] leading-relaxed" style="color:var(--text-dim)">
+            Whether you have a technical project in mind, need backend/API architecture, or want to collaborate on web systems:
+          </p>
+        </div>
+
+        <!-- 3 Contact Action Cards -->
+        <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
+          
+          <!-- GitHub -->
+          <a href="https://github.com/Saiky988" target="_blank" rel="noopener noreferrer" class="p-4 rounded-xl border border-[var(--line)] bg-[var(--surface-solid-2)] hover:border-[var(--accent)] group transition-all">
+            <div class="flex items-center justify-between mb-2">
+              <i class="fa-brands fa-github text-[20px] text-[var(--text)] group-hover:text-[var(--accent)] transition-colors"></i>
+              <i class="fa-solid fa-arrow-up-right-from-square text-[10px] text-[var(--text-faint)] group-hover:text-[var(--text)]"></i>
+            </div>
+            <div class="text-[13px] font-bold text-[var(--text)]">GitHub</div>
+            <div class="text-[11px] mono text-[var(--text-dim)] truncate mt-0.5">github.com/Saiky988</div>
+          </a>
+
+          <!-- Discord -->
+          <div onclick="copyText('Saiko', 'Discord username copied')" class="p-4 rounded-xl border border-[var(--line)] bg-[var(--surface-solid-2)] hover:border-[#5865f2] group cursor-pointer transition-all">
+            <div class="flex items-center justify-between mb-2">
+              <i class="fa-brands fa-discord text-[20px] text-[#5865f2]"></i>
+              <i class="fa-regular fa-copy text-[11px] text-[var(--text-faint)] group-hover:text-[var(--text)]"></i>
+            </div>
+            <div class="text-[13px] font-bold text-[var(--text)]">Discord</div>
+            <div class="text-[11px] mono text-[var(--text-dim)] truncate mt-0.5">@saiko (Click to copy)</div>
+          </div>
+
+          <!-- Email -->
+          <div onclick="copyText('saikomusic09@gmail.com', 'Email address copied')" class="p-4 rounded-xl border border-[var(--line)] bg-[var(--surface-solid-2)] hover:border-[var(--teal)] group cursor-pointer transition-all">
+            <div class="flex items-center justify-between mb-2">
+              <i class="fa-solid fa-envelope text-[20px] text-[var(--teal)]"></i>
+              <i class="fa-regular fa-copy text-[11px] text-[var(--text-faint)] group-hover:text-[var(--text)]"></i>
+            </div>
+            <div class="text-[13px] font-bold text-[var(--text)]">Email</div>
+            <div class="text-[11px] mono text-[var(--text-dim)] truncate mt-0.5">saikomusic09@gmail.com</div>
+          </div>
+
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- ================================================================= -->
+  <!-- FOOTER -->
+  <!-- ================================================================= -->
+  <footer class="border-t border-[var(--line)] mt-16 py-8 px-4 sm:px-6 text-[11.5px] mono" style="color:var(--text-faint)">
+    <div class="max-w-5xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-4">
+      <div class="flex items-center gap-2">
+        <span class="w-2 h-2 rounded-full bg-[var(--accent)]"></span>
+        <span>Built by Shiori Saiky with native web standards.</span>
+      </div>
+      <div class="flex items-center gap-4">
+        <span>© 2026 SHIORI SAIKY</span>
+        <span>·</span>
+        <a href="/" class="text-[var(--text-dim)] hover:text-[var(--text)] transition-colors">Elyriax Platform</a>
+        <span>·</span>
+        <a href="#" class="text-[var(--text-dim)] hover:text-[var(--text)] transition-colors">Top ↑</a>
+      </div>
+    </div>
+  </footer>
+
+  <!-- LIGHTWEIGHT INTERACTIVE PORTFOLIO SCRIPT -->
+  <script>
+    // Live Clock
+    function updateClock() {
+      const el = document.getElementById('live-clock');
+      if (!el) return;
+      const now = new Date();
+      const timeStr = now.toLocaleTimeString('en-US', { hour12: false, timeZone: 'Asia/Ho_Chi_Minh' });
+      el.textContent = `${timeStr} (UTC+7)`;
+    }
+    setInterval(updateClock, 1000);
+    updateClock();
+
+    // Toggle Project Details
+    function toggleProjectDetail(btn) {
+      const detail = btn.nextElementSibling;
+      if (!detail) return;
+      const isHidden = detail.classList.contains('hidden');
+      if (isHidden) {
+        detail.classList.remove('hidden');
+        btn.querySelector('span').textContent = '[- Hide System Specs]';
+      } else {
+        detail.classList.add('hidden');
+        btn.querySelector('span').textContent = '[+ View System Specs]';
+      }
+    }
+
+    // Copy helper
+    function copyText(text, successMsg) {
+      if (navigator.clipboard) {
+        navigator.clipboard.writeText(text).then(() => {
+          showPortfolioToast(successMsg || 'Copied to clipboard');
+        }).catch(() => fallbackCopy(text, successMsg));
+      } else {
+        fallbackCopy(text, successMsg);
+      }
+    }
+
+    function fallbackCopy(text, successMsg) {
+      const ta = document.createElement('textarea');
+      ta.value = text;
+      document.body.appendChild(ta);
+      ta.select();
+      document.execCommand('copy');
+      document.body.removeChild(ta);
+      showPortfolioToast(successMsg || 'Copied to clipboard');
+    }
+
+    function showPortfolioToast(msg) {
+      const wrap = document.getElementById('toast-wrap');
+      if (!wrap) return;
+      const t = document.createElement('div');
+      t.className = 'toast flex items-center gap-2 px-4 py-2.5 rounded-xl text-[12.5px] mono font-medium shadow-xl border border-[var(--line-strong)] bg-[var(--surface-solid-2)] text-[var(--text)]';
+      t.innerHTML = `<i class="fa-solid fa-circle-check text-[var(--teal)]"></i> <span>${msg}</span>`;
+      wrap.appendChild(t);
+      setTimeout(() => {
+        t.style.opacity = '0';
+        t.style.transform = 'translateY(-10px)';
+        t.style.transition = 'all 0.3s ease';
+        setTimeout(() => t.remove(), 300);
+      }, 2500);
+    }
+
+    // Filter projects
+    function filterProjects(cat, btn) {
+      document.querySelectorAll('.filter-tab').forEach(b => {
+        b.classList.remove('bg-[var(--accent-soft)]', 'text-[var(--accent)]', 'border', 'border-[var(--accent)]');
+        b.style.color = 'var(--text-faint)';
+      });
+      if (btn) {
+        btn.classList.add('bg-[var(--accent-soft)]', 'text-[var(--accent)]', 'border', 'border-[var(--accent)]');
+        btn.style.color = 'var(--accent)';
+      }
+
+      document.querySelectorAll('.project-card').forEach(card => {
+        if (cat === 'all' || card.dataset.cat === cat) {
+          card.style.display = 'flex';
+        } else {
+          card.style.display = 'none';
+        }
+      });
+    }
+
+    // Quick Theme Cycling (System -> Dark -> Light -> Classic Dark)
+    const THEMES = ['system', 'dark', 'light', 'classic_dark'];
+    function cycleTheme() {
+      const current = localStorage.getItem('appearance') || 'system';
+      const currentIndex = THEMES.indexOf(current);
+      const nextIndex = (currentIndex + 1) % THEMES.length;
+      const nextTheme = THEMES[nextIndex];
+      
+      localStorage.setItem('appearance', nextTheme);
+      applyTheme(nextTheme);
+
+      const labels = { system: 'System', dark: 'Dark', light: 'Light', classic_dark: 'Classic Dark' };
+      showPortfolioToast(`Theme: ${labels[nextTheme]}`);
+    }
+
+    function applyTheme(theme) {
+      const isDark = theme === 'dark' || (theme === 'system' && window.matchMedia('(prefers-color-scheme: dark)').matches) || theme === 'classic_dark';
+      const effective = theme === 'system' ? (isDark ? 'dark' : 'light') : theme;
+      
+      document.documentElement.setAttribute('data-theme', theme);
+      document.documentElement.setAttribute('data-theme-effective', effective);
+
+      const icon = document.getElementById('theme-icon');
+      if (icon) {
+        if (theme === 'light') icon.className = 'fa-solid fa-sun text-amber-500';
+        else if (theme === 'dark') icon.className = 'fa-solid fa-moon text-indigo-400';
+        else if (theme === 'classic_dark') icon.className = 'fa-solid fa-terminal text-emerald-400';
+        else icon.className = 'fa-solid fa-circle-half-stroke text-[var(--accent)]';
+      }
+    }
+
+    // Init Theme & Filters
+    (function() {
+      const current = localStorage.getItem('appearance') || 'system';
+      applyTheme(current);
+      
+      if (window.matchMedia) {
+        window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', () => {
+          if ((localStorage.getItem('appearance') || 'system') === 'system') {
+            applyTheme('system');
+          }
+        });
+      }
+
+      const firstTab = document.querySelector('.filter-tab');
+      if (firstTab) {
+        firstTab.classList.add('bg-[var(--accent-soft)]', 'text-[var(--accent)]', 'border', 'border-[var(--accent)]');
+      }
+    })();
+  </script>
+
+</body>
+</html>
