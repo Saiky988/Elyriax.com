@@ -372,7 +372,7 @@ function renderDashboard() {
   // 1. Render Hero Banner
   const heroEl = document.getElementById('dash-hero');
   if (heroEl) {
-    const avatarHTML = u ? getAvatarHTML(u.avatar, u.name) : '<i class="fa-solid fa-user-astronaut text-[20px]"></i>';
+    const avatarHTML = u ? getAvatarHTML(u.avatar, u.name) : '<i class="fa-solid fa-user text-[20px]"></i>';
     
     heroEl.innerHTML = `
       <div class="glass card p-5 sm:p-6 relative overflow-hidden bg-gradient-to-br from-white/[0.04] via-white/[0.02] to-transparent border border-white/10">

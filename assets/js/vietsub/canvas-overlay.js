@@ -1,6 +1,6 @@
 /**
  * Elyriax Video & Vietsub Studio - Canvas & Interactive Overlay Engine
- * Quản lý Bounding Box kéo thả/co giãn 8 điểm neo che sub gốc và Live Subtitle Overlay
+ * Hỗ trợ chuẩn xác Touch/Pointer Events trên iOS Safari và Android
  */
 
 const CanvasOverlay = (function () {
@@ -16,17 +16,15 @@ const CanvasOverlay = (function () {
   let activeResizeHandle = null;
   let isDraggingSub = false;
 
+  let activePointerId = null;
   let startPointer = { x: 0, y: 0 };
-  let startBlurRect = { x: 0, y: 0, width: 0, height: 0 }; // tính bằng pixel
+  let startBlurRect = { x: 0, y: 0, width: 0, height: 0 };
   let startSubPos = { x: 0, y: 0 };
 
   // Callbacks
   let onBlurConfigChange = null;
   let onSubPositionChange = null;
 
-  /**
-   * Khởi tạo các phần tử overlay
-   */
   function init(options = {}) {
     videoWrapper = document.getElementById('video-wrapper');
     videoEl = document.getElementById('main-video');
@@ -44,19 +42,33 @@ const CanvasOverlay = (function () {
     setupResizeObserver();
   }
 
+  function getClientPos(e) {
+    if (e.touches && e.touches.length > 0) {
+      return { x: e.touches[0].clientX, y: e.touches[0].clientY };
+    }
+    return { x: e.clientX, y: e.clientY };
+  }
+
   /**
-   * Thiết lập tương tác kéo thả & co giãn 8 điểm cho Blur Box
+   * Tương tác Kéo thả & Co giãn Blur Box
    */
   function setupBlurInteractions() {
-    // 1. Kéo di chuyển toàn bộ Blur Box
+    // 1. Kéo di chuyển Blur Box
     blurBox.addEventListener('pointerdown', (e) => {
-      if (e.target.classList.contains('resize-handle')) return; // để handle xử lý riêng
+      if (e.target.closest('.resize-handle')) return;
       e.preventDefault();
       e.stopPropagation();
 
+      activePointerId = e.pointerId;
+      try {
+        blurBox.setPointerCapture(e.pointerId);
+      } catch (err) {}
+
       isDraggingBlur = true;
       blurBox.classList.add('active');
-      startPointer = { x: e.clientX, y: e.clientY };
+
+      const pos = getClientPos(e);
+      startPointer = { x: pos.x, y: pos.y };
 
       const wrapperRect = videoWrapper.getBoundingClientRect();
       const boxRect = blurBox.getBoundingClientRect();
@@ -68,8 +80,9 @@ const CanvasOverlay = (function () {
         height: boxRect.height
       };
 
-      window.addEventListener('pointermove', onBlurPointerMove);
+      window.addEventListener('pointermove', onBlurPointerMove, { passive: false });
       window.addEventListener('pointerup', onBlurPointerUp);
+      window.addEventListener('pointercancel', onBlurPointerUp);
     });
 
     // 2. Co giãn từ 8 điểm neo
@@ -79,10 +92,17 @@ const CanvasOverlay = (function () {
         e.preventDefault();
         e.stopPropagation();
 
+        activePointerId = e.pointerId;
+        try {
+          handle.setPointerCapture(e.pointerId);
+        } catch (err) {}
+
         isResizingBlur = true;
         activeResizeHandle = handle.dataset.handle;
         blurBox.classList.add('active');
-        startPointer = { x: e.clientX, y: e.clientY };
+
+        const pos = getClientPos(e);
+        startPointer = { x: pos.x, y: pos.y };
 
         const wrapperRect = videoWrapper.getBoundingClientRect();
         const boxRect = blurBox.getBoundingClientRect();
@@ -94,29 +114,33 @@ const CanvasOverlay = (function () {
           height: boxRect.height
         };
 
-        window.addEventListener('pointermove', onBlurPointerMove);
+        window.addEventListener('pointermove', onBlurPointerMove, { passive: false });
         window.addEventListener('pointerup', onBlurPointerUp);
+        window.addEventListener('pointercancel', onBlurPointerUp);
       });
     });
   }
 
   function onBlurPointerMove(e) {
+    if (!isDraggingBlur && !isResizingBlur) return;
     if (!videoWrapper) return;
+
+    if (e.cancelable) e.preventDefault();
+
     const wrapperRect = videoWrapper.getBoundingClientRect();
     if (wrapperRect.width <= 0 || wrapperRect.height <= 0) return;
 
-    const dx = e.clientX - startPointer.x;
-    const dy = e.clientY - startPointer.y;
+    const pos = getClientPos(e);
+    const dx = pos.x - startPointer.x;
+    const dy = pos.y - startPointer.y;
 
     if (isDraggingBlur) {
       let newX = startBlurRect.x + dx;
       let newY = startBlurRect.y + dy;
 
-      // Giới hạn trong khung video
       newX = Math.max(0, Math.min(newX, wrapperRect.width - startBlurRect.width));
       newY = Math.max(0, Math.min(newY, wrapperRect.height - startBlurRect.height));
 
-      // Quy đổi sang phần trăm %
       const percentX = (newX / wrapperRect.width) * 100;
       const percentY = (newY / wrapperRect.height) * 100;
 
@@ -130,8 +154,8 @@ const CanvasOverlay = (function () {
       }
     } else if (isResizingBlur && activeResizeHandle) {
       let { x, y, width, height } = startBlurRect;
-      const minW = 20;
-      const minH = 15;
+      const minW = 24;
+      const minH = 16;
 
       switch (activeResizeHandle) {
         case 'se':
@@ -144,7 +168,7 @@ const CanvasOverlay = (function () {
         case 'e':
           width = Math.max(minW, Math.min(startBlurRect.width + dx, wrapperRect.width - x));
           break;
-        case 'nw':
+        case 'nw': {
           const proposedX = Math.max(0, Math.min(startBlurRect.x + dx, startBlurRect.x + startBlurRect.width - minW));
           const proposedY = Math.max(0, Math.min(startBlurRect.y + dy, startBlurRect.y + startBlurRect.height - minH));
           width = startBlurRect.width + (startBlurRect.x - proposedX);
@@ -152,31 +176,35 @@ const CanvasOverlay = (function () {
           x = proposedX;
           y = proposedY;
           break;
-        case 'n':
+        }
+        case 'n': {
           const pY = Math.max(0, Math.min(startBlurRect.y + dy, startBlurRect.y + startBlurRect.height - minH));
           height = startBlurRect.height + (startBlurRect.y - pY);
           y = pY;
           break;
-        case 'w':
+        }
+        case 'w': {
           const pX = Math.max(0, Math.min(startBlurRect.x + dx, startBlurRect.x + startBlurRect.width - minW));
           width = startBlurRect.width + (startBlurRect.x - pX);
           x = pX;
           break;
-        case 'ne':
-          const pY_ne = Math.max(0, Math.min(startBlurRect.y + dy, startBlurRect.y + startBlurRect.height - minH));
-          height = startBlurRect.height + (startBlurRect.y - pY_ne);
-          y = pY_ne;
+        }
+        case 'ne': {
+          const pY = Math.max(0, Math.min(startBlurRect.y + dy, startBlurRect.y + startBlurRect.height - minH));
+          height = startBlurRect.height + (startBlurRect.y - pY);
+          y = pY;
           width = Math.max(minW, Math.min(startBlurRect.width + dx, wrapperRect.width - x));
           break;
-        case 'sw':
-          const pX_sw = Math.max(0, Math.min(startBlurRect.x + dx, startBlurRect.x + startBlurRect.width - minW));
-          width = startBlurRect.width + (startBlurRect.x - pX_sw);
-          x = pX_sw;
+        }
+        case 'sw': {
+          const pX = Math.max(0, Math.min(startBlurRect.x + dx, startBlurRect.x + startBlurRect.width - minW));
+          width = startBlurRect.width + (startBlurRect.x - pX);
+          x = pX;
           height = Math.max(minH, Math.min(startBlurRect.height + dy, wrapperRect.height - y));
           break;
+        }
       }
 
-      // Đổi sang %
       const percentX = (x / wrapperRect.width) * 100;
       const percentY = (y / wrapperRect.height) * 100;
       const percentW = (width / wrapperRect.width) * 100;
@@ -195,17 +223,27 @@ const CanvasOverlay = (function () {
     }
   }
 
-  function onBlurPointerUp() {
+  function onBlurPointerUp(e) {
     isDraggingBlur = false;
     isResizingBlur = false;
     activeResizeHandle = null;
+
     if (blurBox) blurBox.classList.remove('active');
+
+    if (activePointerId !== null && e && e.target) {
+      try {
+        e.target.releasePointerCapture(activePointerId);
+      } catch (err) {}
+      activePointerId = null;
+    }
+
     window.removeEventListener('pointermove', onBlurPointerMove);
     window.removeEventListener('pointerup', onBlurPointerUp);
+    window.removeEventListener('pointercancel', onBlurPointerUp);
   }
 
   /**
-   * Thiết lập kéo thả Live Subtitle
+   * Tương tác Kéo thả Live Subtitle
    */
   function setupSubtitleInteractions() {
     if (!subOverlay) return;
@@ -214,38 +252,46 @@ const CanvasOverlay = (function () {
       e.preventDefault();
       e.stopPropagation();
 
+      try {
+        subOverlay.setPointerCapture(e.pointerId);
+      } catch (err) {}
+
       isDraggingSub = true;
       subOverlay.classList.add('dragging');
-      startPointer = { x: e.clientX, y: e.clientY };
+
+      const pos = getClientPos(e);
+      startPointer = { x: pos.x, y: pos.y };
 
       const wrapperRect = videoWrapper.getBoundingClientRect();
       const subRect = subOverlay.getBoundingClientRect();
 
-      // Điểm tâm phụ đề
       const subCenterX = subRect.left + subRect.width / 2 - wrapperRect.left;
       const subCenterY = subRect.top + subRect.height / 2 - wrapperRect.top;
 
       startSubPos = { x: subCenterX, y: subCenterY };
 
-      window.addEventListener('pointermove', onSubPointerMove);
+      window.addEventListener('pointermove', onSubPointerMove, { passive: false });
       window.addEventListener('pointerup', onSubPointerUp);
+      window.addEventListener('pointercancel', onSubPointerUp);
     });
   }
 
   function onSubPointerMove(e) {
     if (!isDraggingSub || !videoWrapper || !subOverlay) return;
+    if (e.cancelable) e.preventDefault();
+
     const wrapperRect = videoWrapper.getBoundingClientRect();
     if (wrapperRect.width <= 0 || wrapperRect.height <= 0) return;
 
-    const dx = e.clientX - startPointer.x;
-    const dy = e.clientY - startPointer.y;
+    const pos = getClientPos(e);
+    const dx = pos.x - startPointer.x;
+    const dy = pos.y - startPointer.y;
 
     let newCenterX = startSubPos.x + dx;
     let newCenterY = startSubPos.y + dy;
 
-    // Giới hạn trong video
-    newCenterX = Math.max(20, Math.min(newCenterX, wrapperRect.width - 20));
-    newCenterY = Math.max(20, Math.min(newCenterY, wrapperRect.height - 20));
+    newCenterX = Math.max(10, Math.min(newCenterX, wrapperRect.width - 10));
+    newCenterY = Math.max(10, Math.min(newCenterY, wrapperRect.height - 10));
 
     const percentX = (newCenterX / wrapperRect.width) * 100;
     const percentY = (newCenterY / wrapperRect.height) * 100;
@@ -260,24 +306,24 @@ const CanvasOverlay = (function () {
     }
   }
 
-  function onSubPointerUp() {
+  function onSubPointerUp(e) {
     isDraggingSub = false;
-    if (subOverlay) subOverlay.classList.remove('dragging');
+    if (subOverlay) {
+      subOverlay.classList.remove('dragging');
+      try {
+        if (e && e.pointerId) subOverlay.releasePointerCapture(e.pointerId);
+      } catch (err) {}
+    }
     window.removeEventListener('pointermove', onSubPointerMove);
     window.removeEventListener('pointerup', onSubPointerUp);
+    window.removeEventListener('pointercancel', onSubPointerUp);
   }
 
   function setupResizeObserver() {
     if (!videoWrapper || typeof ResizeObserver === 'undefined') return;
-    const ro = new ResizeObserver(() => {
-      // Khi kích thước player thay đổi, giữ nguyên vị trí %
-    });
+    const ro = new ResizeObserver(() => {});
     ro.observe(videoWrapper);
   }
-
-  /* ========================================================================
-     CÁC HÀM ĐỒNG BỘ GIAO DIỆN TỪ STATE CONFIG
-     ======================================================================== */
 
   function updateBlurBoxDOM(x, y, w, h) {
     if (!blurBox) return;
@@ -293,9 +339,6 @@ const CanvasOverlay = (function () {
     blurBox.style.top = `${y}%`;
   }
 
-  /**
-   * Áp dụng toàn bộ blurConfig lên Blur Bounding Box
-   */
   function renderBlur(config) {
     if (!blurBox || !config) return;
     const { enabled, x, y, width, height, strength, borderRadius, liquidGlass, lightDiffusion } = config;
@@ -308,22 +351,17 @@ const CanvasOverlay = (function () {
     blurBox.classList.remove('disabled');
     updateBlurBoxDOM(x, y, width, height);
 
-    // Bo góc
     blurBox.style.borderRadius = `${borderRadius || 0}px`;
-
-    // Độ mờ kính
     const blurPx = Math.max(2, (strength || 3.5) * 3.2);
     blurBox.style.backdropFilter = `blur(${blurPx}px)`;
     blurBox.style.webkitBackdropFilter = `blur(${blurPx}px)`;
 
-    // Liquid glass effect
     if (liquidGlass) {
       blurBox.classList.add('liquid-glass-fx');
     } else {
       blurBox.classList.remove('liquid-glass-fx');
     }
 
-    // Light diffusion simulation (tăng độ sáng nhẹ)
     const diffAlpha = Math.min(0.25, (lightDiffusion || 0.03) * 3);
     blurBox.style.backgroundColor = `rgba(255, 255, 255, ${diffAlpha})`;
   }
@@ -334,17 +372,19 @@ const CanvasOverlay = (function () {
     subOverlay.style.top = `${y}%`;
   }
 
-  /**
-   * Áp dụng subConfig và text câu phụ đề hiện tại lên Subtitle Overlay
-   */
   function renderSubtitle(subConfig, activeSegmentText) {
     if (!subOverlay) return;
+    
+    // Sửa lỗi nuốt cảm ứng: Khi không có chữ, tắt pointer-events
     if (!activeSegmentText || activeSegmentText.trim() === '') {
       subOverlay.style.opacity = '0';
+      subOverlay.style.pointerEvents = 'none';
       return;
     }
 
     subOverlay.style.opacity = '1';
+    subOverlay.style.pointerEvents = 'auto';
+
     const textEl = subOverlay.querySelector('.sub-text');
     if (textEl) {
       textEl.textContent = activeSegmentText;
@@ -357,7 +397,6 @@ const CanvasOverlay = (function () {
       updateSubPositionDOM(position.x, position.y);
     }
 
-    // Tính kích cỡ font tương đối theo viewport player
     const scaleFactor = videoWrapper ? (videoWrapper.clientHeight / 640) : 1;
     const computedFontSize = Math.max(12, Math.round((fontSize || 16) * scaleFactor));
 
@@ -366,7 +405,6 @@ const CanvasOverlay = (function () {
     subOverlay.style.fontWeight = weight || 700;
     subOverlay.style.color = color || '#ffffff';
 
-    // Outline & Shadow
     const outlinePx = outline || 1.5;
     const shadowPx = shadow || 1.0;
     
@@ -384,7 +422,6 @@ const CanvasOverlay = (function () {
     }
     subOverlay.style.textShadow = textShadowStyle;
 
-    // Transition mờ dần
     if (fadeInOut) {
       subOverlay.style.transition = 'opacity 0.15s ease-out, transform 0.15s ease-out';
     } else {
@@ -392,9 +429,6 @@ const CanvasOverlay = (function () {
     }
   }
 
-  /**
-   * Áp dụng logoConfig & ảnh logo lên Watermark Overlay
-   */
   function renderWatermark(logoConfig, logoUrl) {
     if (!watermarkOverlay) return;
     if (!logoConfig?.enabled || !logoUrl) {
@@ -412,7 +446,6 @@ const CanvasOverlay = (function () {
     watermarkOverlay.style.width = `${size || 8}%`;
     watermarkOverlay.style.opacity = (opacity || 100) / 100;
 
-    // Reset vị trí
     watermarkOverlay.style.top = 'auto';
     watermarkOverlay.style.bottom = 'auto';
     watermarkOverlay.style.left = 'auto';
@@ -453,4 +486,3 @@ const CanvasOverlay = (function () {
 if (typeof window !== 'undefined') {
   window.CanvasOverlay = CanvasOverlay;
 }
-
