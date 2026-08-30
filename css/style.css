@@ -100,7 +100,6 @@
   html[data-theme-effective="light"] .glass-solid { background: #ffffff; border-color: rgba(15,23,42,0.08); box-shadow: 0 1px 3px 0 rgba(0,0,0,0.04); }
   html[data-theme-effective="light"] .input, html[data-theme-effective="light"] .btn-ghost { background: rgba(0,0,0,0.035); border-color: rgba(15,23,42,0.08); }
   html[data-theme-effective="light"] .btn-ghost:hover { background: rgba(0,0,0,0.06); }
-  html[data-theme-effective="light"] .switch { background: rgba(0,0,0,0.12); border-color: rgba(15,23,42,0.12); }
   html[data-theme-effective="light"] .skel { background: linear-gradient(90deg, rgba(0,0,0,.04), rgba(0,0,0,.08), rgba(0,0,0,.04)); background-size:200% 100%; }
   html[data-theme-effective="light"] .provider-google, html[data-theme-effective="light"] .provider-github { color: #1e293b; }
 
@@ -258,7 +257,9 @@
 
   /* ---- toast ---- */
   #toast-wrap{ position:fixed; top:calc(14px + env(safe-area-inset-top, 0px)); left:0; right:0; z-index:90; display:flex; flex-direction:column; align-items:center; gap:8px; pointer-events:none; }
-  .toast{ pointer-events:auto; display:flex; align-items:center; gap:10px; padding:11px 16px; border-radius:13px; font-size:13px; font-weight:500; background:var(--surface-solid-2); border:1px solid var(--line-strong); box-shadow:0 12px 30px -8px rgba(0,0,0,.5); animation:toastIn .35s cubic-bezier(.16,1,.3,1); max-width:88vw; }
+  .toast{ pointer-events:auto; display:flex; align-items:center; gap:10px; padding:11px 16px; border-radius:13px; font-size:13px; font-weight:500; background:var(--surface-solid-2); color:var(--text); border:1px solid var(--line-strong); box-shadow:0 12px 30px -8px rgba(0,0,0,.35); backdrop-filter:blur(16px); -webkit-backdrop-filter:blur(16px); animation:toastIn .35s cubic-bezier(.16,1,.3,1); max-width:88vw; }
+  html[data-theme-effective="light"] .toast,
+  html[data-theme="light"] .toast { box-shadow:0 10px 25px -5px rgba(0,0,0,.08), 0 8px 10px -6px rgba(0,0,0,.04); }
   @keyframes toastIn{ from{opacity:0; transform:translateY(-10px) scale(.97);} to{opacity:1; transform:translateY(0) scale(1);} }
 
   .skel{ background:linear-gradient(90deg, rgba(255,255,255,.04), rgba(255,255,255,.09), rgba(255,255,255,.04)); background-size:200% 100%; animation:shimmer 1.4s infinite; border-radius:10px; }
@@ -271,10 +272,22 @@
   .provider-discord{ color:var(--discord); }
   .provider-github{ color:#e8e9ec; }
 
-  .switch{ width:42px; height:24px; border-radius:99px; background:rgba(255,255,255,.08); border:1px solid var(--line); position:relative; transition:background .2s ease; flex-shrink:0; cursor:pointer; }
+  /* ---- switch / toggle ---- */
+  .switch{ width:44px; height:24px; border-radius:99px; background:rgba(255,255,255,.14); border:1px solid var(--line-strong); position:relative; transition:background .25s ease, border-color .25s ease, box-shadow .25s ease; flex-shrink:0; cursor:pointer; }
+  .switch:hover{ background:rgba(255,255,255,.2); }
   .switch.on{ background:var(--accent); border-color:var(--accent); }
-  .switch::after{ content:''; position:absolute; top:2px; left:2px; width:18px; height:18px; border-radius:50%; background:#fff; transition:transform .2s ease; }
-  .switch.on::after{ transform:translateX(18px); }
+  .switch::after{ content:''; position:absolute; top:2px; left:2px; width:18px; height:18px; border-radius:50%; background:#ffffff; box-shadow:0 2px 4px rgba(0,0,0,.25), 0 1px 2px rgba(0,0,0,.15); transition:transform .25s cubic-bezier(.16,1,.3,1), background .25s ease; }
+  .switch.on::after{ transform:translateX(20px); background:#ffffff; }
+
+  /* Switch styling in Light Mode */
+  html[data-theme-effective="light"] .switch,
+  html[data-theme="light"] .switch { background:#cbd5e1; border-color:#94a3b8; }
+  html[data-theme-effective="light"] .switch:hover,
+  html[data-theme="light"] .switch:hover { background:#94a3b8; }
+  html[data-theme-effective="light"] .switch.on,
+  html[data-theme="light"] .switch.on { background:var(--accent); border-color:var(--accent); }
+  html[data-theme-effective="light"] .switch::after,
+  html[data-theme="light"] .switch::after { background:#ffffff; box-shadow:0 2px 5px rgba(0,0,0,.2), 0 1px 2px rgba(0,0,0,.12); }
 
   .accent-swatch{ width:26px; height:26px; border-radius:50%; border:2px solid transparent; transition:border-color .2s ease; cursor:pointer; }
   .accent-swatch.active{ border-color:var(--accent); }

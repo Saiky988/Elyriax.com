@@ -1202,33 +1202,30 @@ const VietsubApp = (function () {
   };
 })();
 
-// Hàm hiển thị Toast tương thích hệ thống Elyriax
-function showToast(type, msg) {
-  let wrap = document.getElementById('toast-wrap');
-  if (!wrap) {
-    wrap = document.createElement('div');
-    wrap.id = 'toast-wrap';
-    wrap.style.cssText = 'position:fixed; bottom:20px; right:20px; z-index:9999; display:flex; flex-direction:column; gap:8px; pointer-events:none;';
-    document.body.appendChild(wrap);
-  }
+// Đảm bảo showToast luôn tương thích với Theme của Elyriax
+if (typeof window.showToast !== 'function') {
+  window.showToast = function (type, msg) {
+    let wrap = document.getElementById('toast-wrap');
+    if (!wrap) {
+      wrap = document.createElement('div');
+      wrap.id = 'toast-wrap';
+      document.body.appendChild(wrap);
+    }
 
-  const icons = { success: 'fa-circle-check', error: 'fa-circle-exclamation', info: 'fa-circle-info' };
-  const colors = { success: '#10b981', error: '#f43f5e', info: '#6366f1' };
-  const el = document.createElement('div');
-  el.style.cssText = `
-    display:flex; align-items:center; gap:10px; padding:10px 16px;
-    background:rgba(15,23,42,0.92); backdrop-filter:blur(12px); -webkit-backdrop-filter:blur(12px);
-    border:1px solid rgba(255,255,255,0.12); border-radius:10px; color:#f8fafc; font-size:12.5px;
-    box-shadow:0 10px 25px rgba(0,0,0,0.5); pointer-events:auto; transition:all 0.3s cubic-bezier(0.4,0,0.2,1);
-  `;
-  el.innerHTML = `<i class="fa-solid ${icons[type] || icons.info}" style="color:${colors[type] || colors.info}"></i><span>${msg}</span>`;
-  wrap.appendChild(el);
+    const icons = { success: 'fa-circle-check', error: 'fa-circle-exclamation', info: 'fa-circle-info' };
+    const colors = { success: 'var(--teal, #34d6b4)', error: 'var(--rose, #f4586b)', info: 'var(--accent, #7c6ff0)' };
+    const el = document.createElement('div');
+    el.className = 'toast';
+    el.innerHTML = `<i class="fa-solid ${icons[type] || icons.info}" style="color:${colors[type] || colors.info}"></i><span>${msg}</span>`;
+    wrap.appendChild(el);
 
-  setTimeout(() => {
-    el.style.opacity = '0';
-    el.style.transform = 'translateY(-10px)';
-    setTimeout(() => el.remove(), 300);
-  }, 3200);
+    setTimeout(() => {
+      el.style.transition = 'opacity .3s ease, transform .3s ease';
+      el.style.opacity = '0';
+      el.style.transform = 'translateY(-8px)';
+      setTimeout(() => el.remove(), 300);
+    }, 2600);
+  };
 }
 
 // Khởi chạy khi tài liệu đã sẵn sàng
