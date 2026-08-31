@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+   <!-- Trang chủ & Profile/Portfolio -->
    <url>
       <loc>https://www.elyriax.com/</loc>
-<<<<<<< HEAD
       <lastmod>2026-08-27</lastmod>
       <changefreq>daily</changefreq>
       <priority>1.0</priority>
@@ -19,59 +19,50 @@
       <changefreq>weekly</changefreq>
       <priority>0.9</priority>
    </url>
-</urlset>
-=======
-      <lastmod>2026-08-26</lastmod>
-      <changefreq>daily</changefreq>
-      <priority>1.0</priority>
-   </url>
-	 
+
+   <!-- Các trang chức năng & Nội dung -->
    <url>
       <loc>https://www.elyriax.com/dashboard</loc>
-      <lastmod>2026-08-26</lastmod>
+      <lastmod>2026-08-27</lastmod>
       <changefreq>daily</changefreq>
       <priority>1.0</priority>
    </url>
-
    <url>
       <loc>https://www.elyriax.com/markets</loc>
-      <lastmod>2026-08-26</lastmod>
+      <lastmod>2026-08-27</lastmod>
       <changefreq>daily</changefreq>
       <priority>0.9</priority>
    </url>
-
    <url>
       <loc>https://www.elyriax.com/genshin</loc>
-      <lastmod>2026-08-26</lastmod>
+      <lastmod>2026-08-27</lastmod>
       <changefreq>daily</changefreq>
       <priority>0.9</priority>
    </url>
-
    <url>
       <loc>https://www.elyriax.com/games</loc>
-      <lastmod>2026-08-26</lastmod>
+      <lastmod>2026-08-27</lastmod>
       <changefreq>weekly</changefreq>
       <priority>0.8</priority>
    </url>
-
    <url>
       <loc>https://www.elyriax.com/wallet</loc>
-      <lastmod>2026-08-26</lastmod>
+      <lastmod>2026-08-27</lastmod>
       <changefreq>weekly</changefreq>
       <priority>0.7</priority>
    </url>
 
+   <!-- Chính sách & Điều khoản -->
    <url>
       <loc>https://www.elyriax.com/terms</loc>
-      <lastmod>2026-08-26</lastmod>
+      <lastmod>2026-08-27</lastmod>
       <changefreq>monthly</changefreq>
       <priority>0.3</priority>
    </url>
    <url>
       <loc>https://www.elyriax.com/privacy</loc>
-      <lastmod>2026-08-26</lastmod>
+      <lastmod>2026-08-27</lastmod>
       <changefreq>monthly</changefreq>
       <priority>0.3</priority>
    </url>
 </urlset>
->>>>>>> cbe3a9a619e15bd9fe7fb12f41612635986a012a
