@@ -220,8 +220,11 @@ function navigate(route, updateHistory = true){
   renderView(route);
 }
 
-async function loadAsyncView(section) {
-  if (section.dataset.loaded) return;
+async function loadAsyncView(section, callback) {
+  if (section.dataset.loaded) {
+    if (typeof callback === 'function') callback();
+    return;
+  }
   const src = section.dataset.src;
   if (!src) return;
   
@@ -238,10 +241,12 @@ async function loadAsyncView(section) {
       section.innerHTML = text;
     }
     section.dataset.loaded = 'true';
+    if (typeof callback === 'function') callback();
   } catch (e) {
     section.innerHTML = `<div class="p-6 text-center text-[var(--rose)]">Không thể tải nội dung. Vui lòng thử lại sau.</div>`;
   }
 }
+
 
 function renderView(route) {
   if (route === 'order') route = 'orders';
@@ -269,11 +274,7 @@ function renderView(route) {
     }
   }
 
-  if (route === 'vietsub' || route === 'studio') {
-    if (typeof VietsubApp !== 'undefined' && typeof VietsubApp.init === 'function') {
-      VietsubApp.init();
-    }
-  } else if (route === 'dashboard') {
+  if (route === 'dashboard') {
     renderDashboard();
   } else if (route === 'games') {
     renderGamesDashboard();
@@ -292,8 +293,15 @@ function renderView(route) {
   const soonSection = document.querySelector(`section[data-view="${route}"][data-icon]`);
   if(soonSection && !soonSection.dataset.rendered) renderComingSoon(soonSection);
 
+  // Load Async View và bind App Init nếu là Vietsub
   const asyncSection = document.querySelector(`section[data-view="${route}"][data-src]`);
-  if(asyncSection) loadAsyncView(asyncSection);
+  if(asyncSection) {
+    loadAsyncView(asyncSection, () => {
+      if ((route === 'vietsub' || route === 'studio') && typeof VietsubApp !== 'undefined' && typeof VietsubApp.init === 'function') {
+        VietsubApp.init();
+      }
+    });
+  }
 }
 
 window.addEventListener('popstate', (e) => {
